@@ -1,0 +1,113 @@
+---
+title: "Revisiting Barr & Seyfeddinipur (2011)"
+author: "Reinhold Kliegl"
+date: "05 March, 2015"
+output:
+  html_document: default
+  pdf_document:
+    highlight: tango
+    keep_tex: yes
+  word_document: default
+geometry: margin=1in
+fontsize: 12pt
+---
+<!-- 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Revisiting Barr & Seyfeddinipur (2011)}
+-->
+
+```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
+library(lme4)
+library(RePsychLing)
+library(knitr)
+options(width=92)
+```
+
+## Data from Barr & Seyfeddinipur (2011)
+
+The data are available as `bs10` in the `RePsychLing` package.  
+
+```{r bs10str}
+str(bs10)
+summary(bs10)
+```
+
+### Maximal linear mixed model (_maxLMM_)
+
+The model to be fit is
+```{r m0}
+print(summary(m0 <- lmer(dif ~ 1+S+F+SF + (1+S+F+SF|subj) + (1+S+F+SF|item),
+               bs10, REML=FALSE)), corr=FALSE)
+```
+
+The model fails to converge. Nine of 12 correlation parameters are estimated at the +/-1 boundary. 
+
+### PCA analysis of the _maxLMM_
+
+A summary of a principal components analysis (PCA) of the random-effects variance-covariance
+matrices shows
+```{r sv_m0_s}
+summary(rePCA(m0))
+```
+
+For both the by-subject and the by-item random effects the estimated variance-covariance matrices are singular.  There are at least 2 dimensions in which the subject-related random-effects are constant and 3 directions in which the item-related random-effects are constant.
+
+### Zero-correlation-parameter linear mixed model (_zcpLMM_)
+
+```{r m1}
+print(summary(m1 <- lmer(dif ~ 1+S+F+SF + (1+S+F+SF||subj) + (1+S+F+SF||item),
+               data=bs10,  REML=FALSE)), corr=FALSE)
+anova(m1, m0)
+```
+
+The _zcpLMM_ fits significantly worse than the _maxLMM_. However, the results strongly suggest that quite a few of the variance components are not supported by the data. 
+
+### PCA for the _zcpLMM_
+
+
+```{r pca1}
+summary(rePCA(m1))
+```
+
+The svd suggests 3 dimensions. There is no evidence for item-related vc's in `bs10m2`. Therefore, it does not make sense to carry out svd.
+
+### Iterative reduction of model complexity
+
+Remove all variance components estimated with a value of zero. 
+
+```{r m2}
+print(summary(m2 <- lmer(dif ~ 1+S+F+SF +  (1+S+SF||subj),
+               data=bs10,  REML=FALSE)), corr=FALSE)
+
+anova(m2, m1, m0)
+```
+
+There obviously is no evidence for reliable differences between items. Let's check the vc3 for `SubID`.
+
+```{r m3}
+print(summary(m3 <- lmer(dif ~ 1+S+F+SF +  (1+S||subj),
+               data=bs10,  REML=FALSE)), corr=FALSE)
+anova(m3, m2, m1, m0)
+```
+
+Not quite significant, but could be considered. Fit is still worse than for the _maxLMM_ `m0`. Check correlation parameters for m3.
+
+### Extending the reduced LMM with correlation parameters
+
+```{r m4}
+print(summary(m4 <- lmer(dif ~ 1+S+F+SF +  (1+S|subj),
+               data=bs10,  REML=FALSE)), corr=FALSE)
+
+anova(m3, m4, m0)
+```
+
+Looks like we have evidence for a significant correlation parameter. Moreover, LMM `m4` fits as well as _maxLMM_. 
+
+### Summary
+
+LMM `m4` is the optimal model. It might be worth while to check the theoretical contribution of the correlation parameter.  
+
+## Versions of packages used
+```{r versions}
+sessionInfo()
+```
