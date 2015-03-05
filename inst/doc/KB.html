@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Data from Kronmüller &amp; Barr (2007)</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<!-- 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Revisiting Kronmueller & Barr (2007)}
+-->
+
+<p>We apply the iterative reduction of LMM complexity to truncated response times of a 2x2x2 factorial psycholinguistic experiment (Kronmüller &amp; Barr, 2007, Exp. 2; reanalyzed with an LMM in Barr et al., 2012). The data are from 56 subjects who responded to 32 items. Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved (1) auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (2) with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker, and (3) whether the task had to be performed without or with a cognitive load consisting of six random digits. All factors were varied within subjects and within items. There were main effects of Load, Speaker, and Precedent; none of the interactions were significant. Although standard errors of fixed-effect coefficents varied slightly across models, our reanalyses afforded the same statistical inference about the experimental manipulations as the original article, irrespective of LMM specification. The purpose of the analysis is to illustrate an assessment of model complexity as far as variance components and correlation parameters are concerned, neither of which were in the focus of the original publication. </p>
+
+<h2>Data from Kronmüller &amp; Barr (2007)</h2>
+
+<p>The data are available as <code>kb07</code> in the <code>RePsychLing</code> package.  </p>
+
+<pre><code class="r">str(kb07)
+</code></pre>
+
+<pre><code>## &#39;data.frame&#39;:    1790 obs. of  10 variables:
+##  $ subj   : Factor w/ 56 levels &quot;30&quot;,&quot;31&quot;,&quot;34&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ item   : Factor w/ 32 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ RTtrunc: num  2267 3856 1567 1732 2660 ...
+##  $ S      : num  1 -1 -1 1 1 -1 -1 1 1 -1 ...
+##  $ P      : num  -1 1 -1 1 -1 1 -1 1 -1 1 ...
+##  $ C      : num  1 -1 -1 -1 -1 1 1 1 1 -1 ...
+##  $ SP     : num  -1 -1 1 1 -1 -1 1 1 -1 -1 ...
+##  $ SC     : num  1 1 1 -1 -1 -1 -1 1 1 1 ...
+##  $ PC     : num  -1 -1 1 -1 1 1 -1 1 -1 -1 ...
+##  $ SPC    : num  -1 1 -1 -1 1 -1 1 1 -1 1 ...
+</code></pre>
+
+<h3>Maximal linear mixed model (<em>maxLMM</em>)</h3>
+
+<p>Barr et al. (2012, supplement) analyzed Kronmüller and Barr (2007, Exp. 2) with the <em>maxLMM</em> comprising 16 variance components (eight each for the random factors <code>subj</code> and <code>item</code>, respectively) (Footnote below output). This model takes a long time to fit using <code>lmer</code> because there are so many parameters and the likelihood surface is very flat.  The <code>lmm</code> function from the <a href="https://github.com/dmbates/MixedModels.jl">MixedModels</a> package for <a href="http://julialang.org">Julia</a> is much faster fitting this particular model, providing the results</p>
+
+<pre><code>Linear mixed model fit by maximum likelihood
+Formula: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 + S + P + C + SP + SC + PC + SPC) | subj) + ((1 + S + P + C + SP + SC + PC + SPC) | item)
+
+ logLik: -14293.158810, deviance: 28586.317621
+
+ Variance components:
+                Variance    Std.Dev.  Corr.
+ subj         90767.624499  301.276658
+              5182.066776   71.986574  -0.43
+              5543.682920   74.455913  -0.47 -0.47
+              7586.760521   87.102012   0.21  0.21  0.21
+              8829.390369   93.964836   0.20  0.20  0.20  0.20
+              1821.475112   42.678743   0.47  0.47  0.47  0.47  0.47
+              7422.143831   86.151865  -0.10 -0.10 -0.10 -0.10 -0.10 -0.10
+              3802.221282   61.662154  -0.48 -0.48 -0.48 -0.48 -0.48 -0.48 -0.48
+ item         129826.159849  360.313974
+              1855.215345   43.072211  -0.34
+              62394.709532  249.789330  -0.68 -0.68
+              2947.499298   54.290877   0.20  0.20  0.20
+              1042.837137   32.292989   0.57  0.57  0.57  0.57
+              1620.926380   40.260730   0.28  0.28  0.28  0.28  0.28
+              4700.349645   68.559096   0.08  0.08  0.08  0.08  0.08  0.08
+              4820.059886   69.426651   0.04  0.04  0.04  0.04  0.04  0.04  0.04
+ Residual     399613.415344  632.149836
+ Number of obs: 1790; levels of grouping factors: 56, 32
+
+  Fixed-effects parameters:
+             Estimate Std.Error  z value
+(Intercept)   2180.63   76.8193  28.3865
+S            -66.9899   19.3337 -3.46493
+P            -333.881   47.6666  -7.0045
+C              78.987   21.2336   3.7199
+SP            22.1518   20.3356  1.08931
+SC           -18.9244    17.506 -1.08102
+PC            5.26193   22.4211 0.234687
+SPC           -23.951   21.0191 -1.13949
+</code></pre>
+
+<p>This fit converges and produces what look like reasonable parameter estimates (i.e., no variance components with estimates close to zero; no correlation parameters with values close to +/-1).</p>
+
+<pre><code class="r">m0 &lt;- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC+(1+S+P+C+SP+SC+PC+SPC|subj)+(1+S+P+C+SP+SC+PC+SPC|item),kb07,start=kb07maxLMMtheta,control=lmerControl(optimizer=&quot;none&quot;))
+</code></pre>
+
+<pre><code class="r">summary(m0)
+</code></pre>
+
+<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+## Formula: RTtrunc ~ S * P * C + (1 + S * P * C | SubjID) + (1 + S * P *      C | ItemID)
+##    Data: kb07
+## Control: lmerControl(optCtrl = list(maxfun = 100000L))
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##  28748.3  29193.0 -14293.2  28586.3     1709 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -3.0332 -0.5773 -0.1438  0.3964  4.7091 
+## 
+## Random effects:
+##  Groups   Name        Variance  Std.Dev. Corr                              
+##  SubjID   (Intercept)  90767.54 301.277                                    
+##           S             4204.31  64.841  0.00                              
+##           P             4183.90  64.683  0.00 0.00                         
+##           C             7476.65  86.468  0.22 0.00 0.57                    
+##           S:P            351.38  18.745  0.98 0.00 0.00 0.36               
+##           S:C            418.30  20.452  0.99 0.00 0.16 0.30 0.97          
+##           P:C             64.03   8.002  0.00 1.00 0.00 0.00 0.00 0.00     
+##           S:P:C         1250.95  35.369  0.00 0.39 0.00 0.73 0.17 0.00 0.39
+##  ItemID   (Intercept) 129826.04 360.314                                    
+##           S             1636.52  40.454  0.00                              
+##           P              730.78  27.033  0.00 0.00                         
+##           C             2878.70  53.654  0.20 0.04 0.00                    
+##           S:P            521.42  22.835  0.80 0.00 0.00 0.16               
+##           S:C            346.07  18.603  0.61 0.16 0.00 0.89 0.49          
+##           P:C           4106.78  64.084  0.08 0.00 1.00 0.02 0.07 0.05     
+##           S:P:C         1196.12  34.585  0.09 0.00 0.00 0.02 0.66 0.05 0.01
+##  Residual             399613.06 632.150                                    
+## Number of obs: 1790, groups:  SubjID, 56; ItemID, 32
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept) 2180.627     76.819  28.387
+## S            -66.990     19.334  -3.465
+## P           -333.881     47.666  -7.005
+## C             78.987     21.234   3.720
+## S:P           22.152     20.336   1.089
+## S:C          -18.924     17.505  -1.081
+## P:C            5.262     22.421   0.235
+## S:P:C        -23.951     21.019  -1.139
+## 
+## Correlation of Fixed Effects:
+##       (Intr) S      P      C      S:P    S:C    P:C   
+## S     -0.225                                          
+## P     -0.571 -0.158                                   
+## C      0.137 -0.061 -0.030                            
+## S:P    0.196 -0.317 -0.064 -0.065                     
+## S:C    0.175 -0.091 -0.109  0.003  0.033              
+## P:C    0.008 -0.016  0.098 -0.275 -0.059  0.120       
+## S:P:C -0.076 -0.030  0.141 -0.201  0.150 -0.262 -0.110
+</code></pre>
+
+<p>The model took 39,004 iterations for the nonlinear optimizer to converge, but produces what look like reasonable parameter estimates. The slow convergence is due to a total of 2 x 36 = 72 parameters in the optimization.  These parameters are all in the relative covariance factors. The more easily estimated nine fixed-effects parameters have been &ldquo;profiled out&rdquo; of the optimization.</p>
+
+<p>Footnote: The model formula reported in the supplement of Barr et al. (2012) specified only five variance components for the random factor item. However, <code>lmer()</code> automatically includes all lower-order terms of interactions specified for random-factor terms, resulting in the <em>maxLMM</em> for this experimental design.</p>
+
+<h3>Evaluation of singular value decomposition (svd) for <em>maxLMM</em></h3>
+
+<p>Considering that there are only 56 subjects and 32 items it is quite optimistic to expect to estimate 36 highly nonlinear covariance parameters for <code>subj</code> and another 36 for <code>item</code>.</p>
+
+<pre><code class="r">summary(rePCA(m0))
+</code></pre>
+
+<pre><code>## $SubjID
+## Importance of components:
+##                          [,1]    [,2]    [,3]    [,4] [,5] [,6] [,7] [,8]
+## Standard deviation     0.4795 0.15491 0.10620 0.08256    0    0    0    0
+## Proportion of Variance 0.8453 0.08821 0.04145 0.02505    0    0    0    0
+## Cumulative Proportion  0.8453 0.93349 0.97495 1.00000    1    1    1    1
+## 
+## $ItemID
+## Importance of components:
+##                          [,1]    [,2]    [,3]    [,4]    [,5]      [,6] [,7] [,8]
+## Standard deviation     0.5714 0.10969 0.08632 0.06390 0.05856 5.645e-05    0    0
+## Proportion of Variance 0.9236 0.03404 0.02108 0.01155 0.00970 0.000e+00    0    0
+## Cumulative Proportion  0.9236 0.95767 0.97875 0.99030 1.00000 1.000e+00    1    1
+</code></pre>
+
+<p>The directions are the principal components for this covariance matrix. We see that there are seven singular values of zero, that is there is zero variability in seven directions. Overall, the svd analysis of this model returns only eight principal components with variances larger than one percent. Thus, the <em>maxLMM</em> is clearly too complex.</p>
+
+<h3>Zero-correlation-parameter linear mixed model (<em>zcpLMM</em>)</h3>
+
+<p>As a first step of model reduction, we propose to start with a model including all 16 variance components, but no correlation parameters. Note that here we go through the motion to be consistent with the recommended strategy. The large number of components with zero or close to zero variance in <em>maxLMM</em> already strongly suggests the need for a reduction of the number of variance components&ndash;as done in the next step. For this <em>zcpLMM</em>, we extract the vector-valued variables from the model matrix without the intercept column which is provided by the R formula. Then, we use the new double-bar syntax for <code>lmer()</code> to force correlation parameters to zero.</p>
+
+<pre><code class="r">m1 &lt;- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+S+P+C+SP+SC+PC+SPC||subj) +
+             (1+S+P+C+SP+SC+PC+SPC||item), kb07, REML=FALSE)
+print(summary(m1),corr=FALSE)
+</code></pre>
+
+<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+## Formula: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 | subj) +  
+##     (0 + S | subj) + (0 + P | subj) + (0 + C | subj) + (0 + SP |  
+##     subj) + (0 + SC | subj) + (0 + PC | subj) + (0 + SPC | subj)) +  
+##     ((1 | item) + (0 + S | item) + (0 + P | item) + (0 + C |  
+##         item) + (0 + SP | item) + (0 + SC | item) + (0 + PC |  
+##         item) + (0 + SPC | item))
+##    Data: kb07
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##  28720.9  28858.2 -14335.5  28670.9     1765 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.7153 -0.5874 -0.1496  0.3696  4.3417 
+## 
+## Random effects:
+##  Groups   Name        Variance  Std.Dev. 
+##  subj     (Intercept) 9.174e+04 3.029e+02
+##  subj.1   S           9.820e+02 3.134e+01
+##  subj.2   P           2.115e+03 4.599e+01
+##  subj.3   C           3.886e+03 6.233e+01
+##  subj.4   SP          5.566e+03 7.461e+01
+##  subj.5   SC          0.000e+00 0.000e+00
+##  subj.6   PC          4.209e+03 6.488e+01
+##  subj.7   SPC         0.000e+00 0.000e+00
+##  item     (Intercept) 1.323e+05 3.637e+02
+##  item.1   S           1.072e-10 1.036e-05
+##  item.2   P           6.238e+04 2.498e+02
+##  item.3   C           2.802e+03 5.293e+01
+##  item.4   SP          1.001e-10 1.001e-05
+##  item.5   SC          7.364e+02 2.714e+01
+##  item.6   PC          3.500e+03 5.916e+01
+##  item.7   SPC         2.459e+03 4.959e+01
+##  Residual             4.315e+05 6.569e+02
+## Number of obs: 1790, groups:  subj, 56; item, 32
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept) 2180.613     77.549  28.119
+## S            -67.041     16.082  -4.169
+## P           -333.830     47.204  -7.072
+## C             79.002     19.951   3.960
+## SP            22.166     18.452   1.201
+## SC           -18.873     16.251  -1.161
+## PC             5.211     20.631   0.253
+## SPC          -23.966     17.830  -1.344
+</code></pre>
+
+<pre><code class="r">anova(m1, m0)  
+</code></pre>
+
+<pre><code>## Data: kb07
+## Models:
+## m1: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 | subj) + 
+## m1:     (0 + S | subj) + (0 + P | subj) + (0 + C | subj) + (0 + SP | 
+## m1:     subj) + (0 + SC | subj) + (0 + PC | subj) + (0 + SPC | subj)) + 
+## m1:     ((1 | item) + (0 + S | item) + (0 + P | item) + (0 + C | 
+## m1:         item) + (0 + SP | item) + (0 + SC | item) + (0 + PC | 
+## m1:         item) + (0 + SPC | item))
+## m0: RTtrunc ~ S * P * C + (1 + S * P * C | SubjID) + (1 + S * P * 
+## m0:     C | ItemID)
+##    Df   AIC   BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m1 25 28721 28858 -14336    28671                         
+## m0 81 28748 29193 -14293    28586 84.596     56   0.008094
+</code></pre>
+
+<p>Nominally, the <em>zcpLMM</em> fits significantly worse than the <em>maxLMM</em>, but note that the \chi<sup>2</sup> for the LRT (85) is smaller than twice the degrees of freedom for the LRT (56). Also the degrees of freedom are somewhat of an underestimate. According to our judgement, <em>zcpLMM</em> could be preferred to <em>maxLMM</em>.</p>
+
+<h3>Principal components analysis for <em>zcpLMM</em></h3>
+
+<pre><code class="r">summary(rePCA(m1))
+</code></pre>
+
+<pre><code>## $subj
+## Importance of components:
+##                          [,1]   [,2]    [,3]    [,4]    [,5]    [,6] [,7] [,8]
+## Standard deviation     0.4611 0.1136 0.09877 0.09489 0.07001 0.04771    0    0
+## Proportion of Variance 0.8455 0.0513 0.03880 0.03581 0.01949 0.00905    0    0
+## Cumulative Proportion  0.8455 0.8969 0.93565 0.97146 0.99095 1.00000    1    1
+## 
+## $item
+## Importance of components:
+##                          [,1]   [,2]    [,3]    [,4]    [,5]    [,6]      [,7]      [,8]
+## Standard deviation     0.5537 0.3802 0.09006 0.08058 0.07549 0.04131 1.576e-08 1.523e-08
+## Proportion of Variance 0.6480 0.3055 0.01714 0.01372 0.01204 0.00361 0.000e+00 0.000e+00
+## Cumulative Proportion  0.6480 0.9535 0.97063 0.98435 0.99639 1.00000 1.000e+00 1.000e+00
+</code></pre>
+
+<p>The PCM analysis of <em>zcpLMM</em> returns 12 of 16 components with variances different from zero. Thus, using this result as guide, the <em>zcpLMM</em> is still too complex. Inspection of <em>zcpLMM</em> variance components (see <em>zcpLMM</em> <code>m1</code>) suggests a further reduction of model complexity with drop1-LRT tests, starting with the smallest variance components.</p>
+
+<h3>Dropping non-significant variance components</h3>
+
+<p>A second step of model reduction is to remove variance components that are not significant according to a likelihood ratio test (LRT). Starting with the smallest variance component (or a set of them) this step can be repeated until significant change in goodness of fit is indicated. For the present case, variance components for <code>SC</code> and <code>SPC</code> for <code>subj</code> and <code>S</code> and <code>SP</code> for <code>item</code> are estimated with zero values. We refit the LMM without these variance components.</p>
+
+<pre><code class="r">m2 &lt;- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+S+P+C+SP+PC||subj) +
+             (1+P+C+SC+PC+SPC||item), kb07, REML=FALSE)
+anova(m2, m1)  # not significant: prefer m2 over m1
+</code></pre>
+
+<pre><code>## Data: kb07
+## Models:
+## m2: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 | subj) + 
+## m2:     (0 + S | subj) + (0 + P | subj) + (0 + C | subj) + (0 + SP | 
+## m2:     subj) + (0 + PC | subj)) + ((1 | item) + (0 + P | item) + 
+## m2:     (0 + C | item) + (0 + SC | item) + (0 + PC | item) + (0 + 
+## m2:     SPC | item))
+## m1: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 | subj) + 
+## m1:     (0 + S | subj) + (0 + P | subj) + (0 + C | subj) + (0 + SP | 
+## m1:     subj) + (0 + SC | subj) + (0 + PC | subj) + (0 + SPC | subj)) + 
+## m1:     ((1 | item) + (0 + S | item) + (0 + P | item) + (0 + C | 
+## m1:         item) + (0 + SP | item) + (0 + SC | item) + (0 + PC | 
+## m1:         item) + (0 + SPC | item))
+##    Df   AIC   BIC logLik deviance Chisq Chi Df Pr(&gt;Chisq)
+## m2 21 28713 28828 -14336    28671                        
+## m1 25 28721 28858 -14336    28671     0      4          1
+</code></pre>
+
+<p>Obviously, these four variance components are not supported by information in the data. So we drop the next four smallest variance components, vc1 and vc2 for <code>subj</code> and vc5 and vc7 for <code>item</code>.</p>
+
+<pre><code class="r">m3 &lt;- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+C+SP+PC||subj) +  (1+P+C+PC||item),kb07,REML=FALSE)
+anova(m3,  m2)  # not significant: prefer m3 over m2
+</code></pre>
+
+<pre><code>## Data: kb07
+## Models:
+## m3: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 | subj) + 
+## m3:     (0 + C | subj) + (0 + SP | subj) + (0 + PC | subj)) + ((1 | 
+## m3:     item) + (0 + P | item) + (0 + C | item) + (0 + PC | item))
+## m2: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 | subj) + 
+## m2:     (0 + S | subj) + (0 + P | subj) + (0 + C | subj) + (0 + SP | 
+## m2:     subj) + (0 + PC | subj)) + ((1 | item) + (0 + P | item) + 
+## m2:     (0 + C | item) + (0 + SC | item) + (0 + PC | item) + (0 + 
+## m2:     SPC | item))
+##    Df   AIC   BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m3 17 28707 28800 -14336    28673                         
+## m2 21 28713 28828 -14336    28671 2.0111      4     0.7337
+</code></pre>
+
+<p>There is no significant drop in goodness of fit. Therefore, we continue with dropping vc3, vc4, and vc6 for <code>SubjectID</code> and vc3 and vc6 for <code>item</code>.</p>
+
+<pre><code class="r">m4 &lt;- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1|subj) + (1|item) + (0+P|item),kb07,REML=FALSE)
+anova(m4, m3)  # not significant: prefer m4 over m3
+</code></pre>
+
+<pre><code>## Data: kb07
+## Models:
+## m4: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + (1 | subj) + (1 | 
+## m4:     item) + (0 + P | item)
+## m3: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 | subj) + 
+## m3:     (0 + C | subj) + (0 + SP | subj) + (0 + PC | subj)) + ((1 | 
+## m3:     item) + (0 + P | item) + (0 + C | item) + (0 + PC | item))
+##    Df   AIC   BIC logLik deviance Chisq Chi Df Pr(&gt;Chisq)
+## m4 12 28706 28772 -14341    28682                        
+## m3 17 28707 28800 -14336    28673 9.143      5     0.1035
+</code></pre>
+
+<pre><code class="r">anova(m4, m1)  # not significant: prefer m4 over m1 (no accumulation)
+</code></pre>
+
+<pre><code>## Data: kb07
+## Models:
+## m4: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + (1 | subj) + (1 | 
+## m4:     item) + (0 + P | item)
+## m1: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 | subj) + 
+## m1:     (0 + S | subj) + (0 + P | subj) + (0 + C | subj) + (0 + SP | 
+## m1:     subj) + (0 + SC | subj) + (0 + PC | subj) + (0 + SPC | subj)) + 
+## m1:     ((1 | item) + (0 + S | item) + (0 + P | item) + (0 + C | 
+## m1:         item) + (0 + SP | item) + (0 + SC | item) + (0 + PC | 
+## m1:         item) + (0 + SPC | item))
+##    Df   AIC   BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m4 12 28706 28772 -14341    28682                         
+## m1 25 28721 28858 -14336    28671 11.154     13     0.5979
+</code></pre>
+
+<p>As a final test, we refit the LMM without vc2 for <code>item</code>.</p>
+
+<pre><code class="r">m5 &lt;- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1|subj) + (1|item), data=kb07, REML=FALSE)
+anova(m5, m4)  # significant: prefer m4 over m5
+</code></pre>
+
+<pre><code>## Data: kb07
+## Models:
+## m5: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + (1 | subj) + (1 | 
+## m5:     item)
+## m4: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + (1 | subj) + (1 | 
+## m4:     item) + (0 + P | item)
+##    Df   AIC   BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m5 11 28848 28909 -14413    28826                         
+## m4 12 28706 28772 -14341    28682 144.37      1  &lt; 2.2e-16
+</code></pre>
+
+<p>This time the LRT is significant. Therefore, we stay with LMM <code>m4</code> and test correlation parameters for this model.</p>
+
+<h3>Extending the reduced LMM with a correlation parameter</h3>
+
+<pre><code class="r">m6 &lt;- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1|subj) + (1+P|item), kb07, REML=FALSE)
+print(summary(m6), corr=FALSE)
+</code></pre>
+
+<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+## Formula: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + (1 | subj) + (1 +      P | item)
+##    Data: kb07
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##  28691.7  28763.1 -14332.9  28665.7     1777 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.6564 -0.5887 -0.1573  0.4161  4.3966 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev. Corr 
+##  subj     (Intercept)  89104   298.5         
+##  item     (Intercept) 132399   363.9         
+##           P            63832   252.7    -0.69
+##  Residual             458506   677.1         
+## Number of obs: 1790, groups:  subj, 56; item, 32
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept) 2180.567     77.361  28.187
+## S            -67.107     16.005  -4.193
+## P           -333.764     47.444  -7.035
+## C             79.047     16.005   4.939
+## SP            22.212     16.005   1.388
+## SC           -18.807     16.005  -1.175
+## PC             5.145     16.005   0.321
+## SPC          -24.011     16.005  -1.500
+</code></pre>
+
+<pre><code class="r">anova(m4, m6)  # significant: prefer m6 over m4
+</code></pre>
+
+<pre><code>## Data: kb07
+## Models:
+## m4: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + (1 | subj) + (1 | 
+## m4:     item) + (0 + P | item)
+## m6: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + (1 | subj) + (1 + 
+## m6:     P | item)
+##    Df   AIC   BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m4 12 28706 28772 -14341    28682                         
+## m6 13 28692 28763 -14333    28666 16.335      1  5.307e-05
+</code></pre>
+
+<pre><code class="r">anova(m6, m0)  # not significant: prefer m6 over m0 (no accumulation)
+</code></pre>
+
+<pre><code>## Data: kb07
+## Models:
+## m6: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + (1 | subj) + (1 + 
+## m6:     P | item)
+## m0: RTtrunc ~ S * P * C + (1 + S * P * C | SubjID) + (1 + S * P * 
+## m0:     C | ItemID)
+##    Df   AIC   BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m6 13 28692 28763 -14333    28666                         
+## m0 81 28748 29193 -14293    28586 79.415     68     0.1622
+</code></pre>
+
+<p>There is evidence for a reliable item-related negative correlation parameter between mean and precedence effect, that is there are reliable differences between items in the precedence effect. Finally, there is no significant difference between LMM <code>m6</code> and the <em>maxLMM</em> <code>m0</code>. The final number of reliable dimensions is actually smaller than suggested by the PCA analysis of the <em>maxLMM</em> <code>m0</code>. </p>
+
+<h3>Profiling the parameters</h3>
+
+<p>Confidence intervals for all parameters can be obtained</p>
+
+<h3>Summary</h3>
+
+<p>In our opinion, <code>m6</code> is the <em>optimal</em> LMM for the data of this experiment. The general strategy of (1) starting with <em>maxLMM</em>, (2) followed by <em>zcpLMM</em>, (3) followed by iteratively dropping variance components until there is a significant decrease in goodness of model fit, (4) followed by inclusion of correlation parameters for the remaining variance components, and (5) using svd all along the way to check the principal dimensionality of the data for the respective intermediate models worked quite well again. Indeed, we also reanalyzed two additional experiments reported in the supplement of Barr et al. (2012). As documented in the <code>RePsychLing</code> package accompanying the present article, in each case, the <em>maxLMM</em> was too complex for the information provided by the experimental data. In each case, the data supported only a very sparse random-effects structure beyond varying intercepts for subjects and items. Fortunately and interestingly, none of the analyses changed the statistical inference about fixed effects in these experiments. Obviously, this cannot be ruled out in general. If authors adhere to a strict criterion for significance, such as p &lt; .05 suitably adjusted for multiple comparisons, there is always a chance that a t-value will fall above or below the criterion across different versions of an LMM.</p>
+
+<p>Given the degree of deconstruction (i.e., model simplification) reported for these models, one may wonder whether it might be more efficient to iteratively <em>increase</em> rather the  <em>decrease</em> LMM complexity, that is to start with a minimal linear mixed model (<em>minLMM</em>), varying only intercepts of subject and item factors and adding variance components and correlation parameters to such a model. We will turn to this strategy in the next section. </p>
+
+<h2>Versions of packages used</h2>
+
+<pre><code class="r">sessionInfo()
+</code></pre>
+
+<pre><code>## R version 3.1.2 (2014-10-31)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8       
+##  [4] LC_COLLATE=C               LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C              
+## [10] LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] knitr_1.9           RePsychLing_0.0.3-0 lme4_1.1-8          Rcpp_0.11.4        
+## [5] Matrix_1.1-5       
+## 
+## loaded via a namespace (and not attached):
+##  [1] MASS_7.3-39     evaluate_0.5.5  formatR_1.0     grid_3.1.2      lattice_0.20-30
+##  [6] markdown_0.7.4  minqa_1.2.4     nlme_3.1-120    nloptr_1.0.4    splines_3.1.2  
+## [11] stringr_0.6.2   tools_3.1.2
+</code></pre>
+
+</body>
+
+</html>

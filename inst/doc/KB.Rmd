@@ -1,0 +1,187 @@
+---
+title: "Revisiting Kronmüller & Barr (2007)"
+author: "Reinhold Kliegl"
+date: "March 5, 2015"
+output:
+  html_document: default
+  pdf_document:
+    highlight: tango
+    keep_tex: yes
+  word_document: default
+geometry: margin=1in
+fontsize: 12pt
+---
+<!-- 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Revisiting Kronmueller & Barr (2007)}
+-->
+
+
+```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
+library(lme4)
+library(RePsychLing)
+library(knitr)
+#opts_chunk$set(cache=TRUE)
+options(width=92,show.signif.stars = FALSE)
+```
+
+We apply the iterative reduction of LMM complexity to truncated response times of a 2x2x2 factorial psycholinguistic experiment (Kronmüller \& Barr, 2007, Exp. 2; reanalyzed with an LMM in Barr et al., 2012). The data are from 56 subjects who responded to 32 items. Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved (1) auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (2) with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker, and (3) whether the task had to be performed without or with a cognitive load consisting of six random digits. All factors were varied within subjects and within items. There were main effects of Load, Speaker, and Precedent; none of the interactions were significant. Although standard errors of fixed-effect coefficents varied slightly across models, our reanalyses afforded the same statistical inference about the experimental manipulations as the original article, irrespective of LMM specification. The purpose of the analysis is to illustrate an assessment of model complexity as far as variance components and correlation parameters are concerned, neither of which were in the focus of the original publication. 
+
+## Data from Kronmüller & Barr (2007)
+
+The data are available as `kb07` in the `RePsychLing` package.  
+
+```{r kb07str}
+str(kb07)
+```
+
+### Maximal linear mixed model (_maxLMM_)
+
+Barr et al. (2012, supplement) analyzed Kronmüller and Barr (2007, Exp. 2) with the _maxLMM_ comprising 16 variance components (eight each for the random factors `subj` and `item`, respectively) (Footnote below output). This model takes a long time to fit using `lmer` because there are so many parameters and the likelihood surface is very flat.  The `lmm` function from the [MixedModels](https://github.com/dmbates/MixedModels.jl) package for [Julia](http://julialang.org) is much faster fitting this particular model, providing the results
+```
+Linear mixed model fit by maximum likelihood
+Formula: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 + S + P + C + SP + SC + PC + SPC) | subj) + ((1 + S + P + C + SP + SC + PC + SPC) | item)
+
+ logLik: -14293.158810, deviance: 28586.317621
+
+ Variance components:
+                Variance    Std.Dev.  Corr.
+ subj         90767.624499  301.276658
+              5182.066776   71.986574  -0.43
+              5543.682920   74.455913  -0.47 -0.47
+              7586.760521   87.102012   0.21  0.21  0.21
+              8829.390369   93.964836   0.20  0.20  0.20  0.20
+              1821.475112   42.678743   0.47  0.47  0.47  0.47  0.47
+              7422.143831   86.151865  -0.10 -0.10 -0.10 -0.10 -0.10 -0.10
+              3802.221282   61.662154  -0.48 -0.48 -0.48 -0.48 -0.48 -0.48 -0.48
+ item         129826.159849  360.313974
+              1855.215345   43.072211  -0.34
+              62394.709532  249.789330  -0.68 -0.68
+              2947.499298   54.290877   0.20  0.20  0.20
+              1042.837137   32.292989   0.57  0.57  0.57  0.57
+              1620.926380   40.260730   0.28  0.28  0.28  0.28  0.28
+              4700.349645   68.559096   0.08  0.08  0.08  0.08  0.08  0.08
+              4820.059886   69.426651   0.04  0.04  0.04  0.04  0.04  0.04  0.04
+ Residual     399613.415344  632.149836
+ Number of obs: 1790; levels of grouping factors: 56, 32
+
+  Fixed-effects parameters:
+             Estimate Std.Error  z value
+(Intercept)   2180.63   76.8193  28.3865
+S            -66.9899   19.3337 -3.46493
+P            -333.881   47.6666  -7.0045
+C              78.987   21.2336   3.7199
+SP            22.1518   20.3356  1.08931
+SC           -18.9244    17.506 -1.08102
+PC            5.26193   22.4211 0.234687
+SPC           -23.951   21.0191 -1.13949
+```
+This fit converges and produces what look like reasonable parameter estimates (i.e., no variance components with estimates close to zero; no correlation parameters with values close to +/-1).
+
+```{r m0, eval=FALSE}
+m0 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC+(1+S+P+C+SP+SC+PC+SPC|subj)+(1+S+P+C+SP+SC+PC+SPC|item),kb07,start=kb07maxLMMtheta,control=lmerControl(optimizer="none"))
+```
+
+```{r load_m0,include=FALSE}
+load("kb07_m0.rda")  # must be in working directory (or provide path)
+m0@theta <- Re(kb07maxLMMtheta)
+```
+```{r showm0}
+summary(m0)
+```
+
+The model took 39,004 iterations for the nonlinear optimizer to converge, but produces what look like reasonable parameter estimates. The slow convergence is due to a total of 2 x 36 = 72 parameters in the optimization.  These parameters are all in the relative covariance factors. The more easily estimated nine fixed-effects parameters have been "profiled out" of the optimization.
+
+Footnote: The model formula reported in the supplement of Barr et al. (2012) specified only five variance components for the random factor item. However, `lmer()` automatically includes all lower-order terms of interactions specified for random-factor terms, resulting in the _maxLMM_ for this experimental design.
+
+### Evaluation of singular value decomposition (svd) for _maxLMM_
+
+Considering that there are only 56 subjects and 32 items it is quite optimistic to expect to estimate 36 highly nonlinear covariance parameters for `subj` and another 36 for `item`.
+```{r chf0}
+summary(rePCA(m0))
+```
+The directions are the principal components for this covariance matrix. We see that there are seven singular values of zero, that is there is zero variability in seven directions. Overall, the svd analysis of this model returns only eight principal components with variances larger than one percent. Thus, the _maxLMM_ is clearly too complex.
+
+### Zero-correlation-parameter linear mixed model (_zcpLMM_)
+
+As a first step of model reduction, we propose to start with a model including all 16 variance components, but no correlation parameters. Note that here we go through the motion to be consistent with the recommended strategy. The large number of components with zero or close to zero variance in _maxLMM_ already strongly suggests the need for a reduction of the number of variance components--as done in the next step. For this _zcpLMM_, we extract the vector-valued variables from the model matrix without the intercept column which is provided by the R formula. Then, we use the new double-bar syntax for `lmer()` to force correlation parameters to zero.
+
+```{r m1}
+m1 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+S+P+C+SP+SC+PC+SPC||subj) +
+             (1+S+P+C+SP+SC+PC+SPC||item), kb07, REML=FALSE)
+print(summary(m1),corr=FALSE)
+
+anova(m1, m0)  
+```
+
+Nominally, the _zcpLMM_ fits significantly worse than the _maxLMM_, but note that the \chi^2 for the LRT (85) is smaller than twice the degrees of freedom for the LRT (56). Also the degrees of freedom are somewhat of an underestimate. According to our judgement, _zcpLMM_ could be preferred to _maxLMM_.
+
+### Principal components analysis for _zcpLMM_
+
+```{r rePCAm1}
+summary(rePCA(m1))
+```
+
+The PCM analysis of _zcpLMM_ returns 12 of 16 components with variances different from zero. Thus, using this result as guide, the _zcpLMM_ is still too complex. Inspection of _zcpLMM_ variance components (see _zcpLMM_ `m1`) suggests a further reduction of model complexity with drop1-LRT tests, starting with the smallest variance components.
+
+### Dropping non-significant variance components
+
+A second step of model reduction is to remove variance components that are not significant according to a likelihood ratio test (LRT). Starting with the smallest variance component (or a set of them) this step can be repeated until significant change in goodness of fit is indicated. For the present case, variance components for `SC` and `SPC` for `subj` and `S` and `SP` for `item` are estimated with zero values. We refit the LMM without these variance components.
+
+```{r m2}
+m2 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+S+P+C+SP+PC||subj) +
+             (1+P+C+SC+PC+SPC||item), kb07, REML=FALSE)
+anova(m2, m1)  # not significant: prefer m2 over m1
+```
+
+Obviously, these four variance components are not supported by information in the data. So we drop the next four smallest variance components, vc1 and vc2 for `subj` and vc5 and vc7 for `item`.
+
+```{r m3}
+m3 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+C+SP+PC||subj) +  (1+P+C+PC||item),kb07,REML=FALSE)
+anova(m3,  m2)  # not significant: prefer m3 over m2
+```
+
+There is no significant drop in goodness of fit. Therefore, we continue with dropping vc3, vc4, and vc6 for `SubjectID` and vc3 and vc6 for `item`.
+
+```{r m4}
+m4 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1|subj) + (1|item) + (0+P|item),kb07,REML=FALSE)
+anova(m4, m3)  # not significant: prefer m4 over m3
+anova(m4, m1)  # not significant: prefer m4 over m1 (no accumulation)
+```
+
+As a final test, we refit the LMM without vc2 for `item`.
+
+```{r m5}
+m5 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1|subj) + (1|item), data=kb07, REML=FALSE)
+anova(m5, m4)  # significant: prefer m4 over m5
+```
+
+This time the LRT is significant. Therefore, we stay with LMM `m4` and test correlation parameters for this model.
+
+### Extending the reduced LMM with a correlation parameter
+
+```{r m6}
+m6 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1|subj) + (1+P|item), kb07, REML=FALSE)
+print(summary(m6), corr=FALSE)
+
+anova(m4, m6)  # significant: prefer m6 over m4
+anova(m6, m0)  # not significant: prefer m6 over m0 (no accumulation)
+```
+
+There is evidence for a reliable item-related negative correlation parameter between mean and precedence effect, that is there are reliable differences between items in the precedence effect. Finally, there is no significant difference between LMM `m6` and the _maxLMM_ `m0`. The final number of reliable dimensions is actually smaller than suggested by the PCA analysis of the _maxLMM_ `m0`. 
+
+### Profiling the parameters
+
+Confidence intervals for all parameters can be obtained
+
+
+### Summary
+In our opinion, `m6` is the _optimal_ LMM for the data of this experiment. The general strategy of (1) starting with _maxLMM_, (2) followed by _zcpLMM_, (3) followed by iteratively dropping variance components until there is a significant decrease in goodness of model fit, (4) followed by inclusion of correlation parameters for the remaining variance components, and (5) using svd all along the way to check the principal dimensionality of the data for the respective intermediate models worked quite well again. Indeed, we also reanalyzed two additional experiments reported in the supplement of Barr et al. (2012). As documented in the `RePsychLing` package accompanying the present article, in each case, the _maxLMM_ was too complex for the information provided by the experimental data. In each case, the data supported only a very sparse random-effects structure beyond varying intercepts for subjects and items. Fortunately and interestingly, none of the analyses changed the statistical inference about fixed effects in these experiments. Obviously, this cannot be ruled out in general. If authors adhere to a strict criterion for significance, such as p < .05 suitably adjusted for multiple comparisons, there is always a chance that a t-value will fall above or below the criterion across different versions of an LMM.
+
+Given the degree of deconstruction (i.e., model simplification) reported for these models, one may wonder whether it might be more efficient to iteratively _increase_ rather the  _decrease_ LMM complexity, that is to start with a minimal linear mixed model (_minLMM_), varying only intercepts of subject and item factors and adding variance components and correlation parameters to such a model. We will turn to this strategy in the next section. 
+
+## Versions of packages used
+```{r versions}
+sessionInfo()
+```
+
