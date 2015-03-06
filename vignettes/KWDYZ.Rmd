@@ -1,0 +1,165 @@
+---
+title: "RePsychLing Kliegl et al. (2011)"
+author: "Reinhold Kliegl"
+date: "2015-03-06"
+output: html_document
+---
+
+```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
+library(lme4)
+library(knitr)
+library(RePsychLing)
+opts_chunk$set(comment=NA)
+options(width=92,show.signif.stars=FALSE)
+```
+<!-- 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{RePsychLing Kliegl et al. (2011)}
+-->
+
+This is a set of follow-up analyses of the following paper:
+
+Reinhold Kliegl, Ping Wei, Michael Dambacher, Ming Yan, & Xiaolin Zhou (2011). Experimental Effects and Individual Differences in Linear Mixed Models: Estimating the Relation between Spatial, Object, and Attraction Effects in Visual Attention. Frontiers in Psychology, 1, 1-12.
+
+We are using the final set of data used in paper, that is after filtering a few outlier responses, defining `sdif` contrasts for factor `tar` and corresponding vector-valued contrasts spt, c2, c3 from model matrix. The dataframe also includes transformations of the rt (lrt=log(rt), srt=sqrt(rt), rrt=1000/rt (note change in effect direction), prt=rt^0.4242424 (acc to boxcox); subj = factor(id)).
+ 
+```{r strKWDYZ}
+str(KWDYZ)
+```
+
+## Models
+
+### Maximal linear mixed model (_maxLMM_) 
+
+The maximal model (_maxLMM_) reported in this paper is actually an overparameterized/degenerate model. Here we show how to identify the overparameterization and how we tried to deal with it.
+
+
+```{r m0}
+summary(m0 <- lmer(rt ~ 1+c1+c2+c3 + (1+c1+c2+c3|subj), KWDYZ, REML=FALSE))
+summary(rePCA(m0))
+```
+
+The principal components analysis (PCA) of the estimated unconditional variance-covariance matrix indicates one dimension in the space of vector-valued random effects has no variability.
+
+That is, the model is degenerate.
+
+### Evaluation of singular value decomposition (svd) for _maxLMM_
+
+The parameters are in the Cholesky factors of two relative covariance matrices, each of size 4 by 4.  There are 10 parameters in each of these matices. To examine the structure of the relative covariance matrices for the random effects we generate a 4 by 4 lower triangular matrix from the first 10 elements.  This matrix is the (lower) Cholesky factor of the relative covariance matrix for the random effects by `subj`.
+
+The singular values of the relative covariance factor are
+
+```{r chf0}
+chf0 <- getME(m0,"Tlist")[[1]]
+zapsmall(chf0)
+```
+
+To examine the rank of the relative covariance matrix we evaluate the singular value decomposition of `chf0`
+
+```{r svd0}
+sv0 <- svd(chf0)
+sv0$d
+```
+
+We see that that the last value is (close to) zero.  These are the relative standard deviations in 4 orthogonal directions in the space of the random effects for `subj`. The directions are the principal components for this covariance matrix.  In one direction there is zero variability. Finally, we get the percentage of variance associated with each component:
+
+Here is a bit more linear algebra on how these values are computed:
+
+```{r}
+(xx<-tcrossprod(chf0))
+sum(diag(xx)) 
+diag(xx)
+str(sv0)
+sv0$v
+zapsmall(sv0$v)
+sv0$u   # last column is the singular combination of random effects
+```
+
+In principle, the significance of model parameters can be determined with profiling or bootstrapping the model paramters to obtain confidence intervals [e.g., `confint(m0, method="profile")`] does not  work  for _maxLMM_. Bootstrapping the parameters [e.g., `confint(m0, method="boot")`] takes very long and yields strange values. Most likely, these are also consequences of the singularity of _maxLMM_.
+
+### Zero-correlation parameter linear mixed model (zcppLMM)
+
+One option to reduce the complexity of the _maxLMM_ is to force correlation parameters to zero. This can be accomplished with the new double-bar syntax.
+
+
+```{r m1}
+m1 <- lmer(rt ~ 1+c1+c2+c3 + (1+c1+c2+c3||subj), KWDYZ, REML=FALSE)
+VarCorr(m1)
+summary(rePCA(m1))
+anova(m1, m0)  # significant: too much of a reduction
+```
+
+The PCA analysis reveals no exact singularity for the _zcpLMM_. This model, however, fits significantly worse than _maxLMM_. Thus, removing all correlation parameters was too much of a reduction in model complexity. Before checking invidual correlation parameters for inclusion, we check whether any of the variance components are not supported b the data. 
+
+The following command takes time, but the results look fine:
+
+```{r ci_p1, eval=FALSE}
+(m1.ci_profile <- confint(m1, method="profile"))
+```
+
+Result:
+```
+Computing profile confidence intervals ...
+                  2.5 %     97.5 %
+ .sig01       46.208468  66.139137
+ .sig02       19.646992  29.614386
+ .sig03        5.597126  15.166344
+ .sig04        3.982159  13.692235
+ .sigma       69.269014  70.415812
+ (Intercept) 375.731344 403.724376
+ c1           27.070830  40.478887
+ c2            9.484679  18.518766
+ c3           -1.485184   7.059293
+```
+
+
+The following command takes time, but the results look fine:
+
+```{r ci_b1, eval=FALSE}
+(m1.ci_boot <- confint(m1, method="boot"))
+```
+
+Result:
+```
+Computing bootstrap confidence intervals ...
+                           2.5 %     97.5 %
+ sd_(Intercept)|subj  46.1696994  65.177956
+ sd_c1|subj           18.9972281  29.324149
+ sd_c2|subj            4.4081808  14.810636
+ sd_c3|subj            0.8622058  12.899966
+ sigma                69.2213099  70.471296
+ (Intercept)         375.0806542 404.386494
+ c1                   27.1196532  40.298967
+ c2                    9.1330003  18.326448
+ c3                   -1.8171621   7.315928
+```
+
+
+### (2) Drop LRTs for vc's of maximal model
+
+```{r m2.2}
+m2d <- lmer(rt ~ 1+c1+c2+c3 + (1+c1+c2|subj), KWDYZ, REML=FALSE)
+VarCorr(m2d)
+summary(rePCA(m2d))
+```
+
+Conclusion: Having both `subj.c1` and `subj.c3` as well as correlation parameters in the model generates singular covariance matrix.
+
+### (4) Using lrt=log(rt) or prt= rt^power (acc Box-Cox)
+
+```{r m2.4}
+print(summary(m2i <- lmer(lrt ~ 1 + c1 + c2 + c3 + (1 + c1 + c2 + c3 | subj), 
+                          REML=FALSE, data=KWDYZ)), corr=FALSE)  
+summary(rePCA(m2i))
+print(summary(m2j <- lmer(prt ~ 1 + c1 + c2 + c3 + (1 + c1 + c2 + c3 | subj),
+                          REML=FALSE, data=KWDYZ)), corr=FALSE)  
+summary(rePCA(m2j))
+```
+
+Transformed dependent variables also yield degenerate models, indicated by the
+cumulative proportion of variance reaching 1. at the 3rd principal component.
+
+## Package Versions 
+```{r versions}
+sessionInfo()
+```

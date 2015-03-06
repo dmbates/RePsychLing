@@ -1,7 +1,7 @@
 ---
-title: "Revisiting Gann & Barr (in press)"
+title: "RePsychLing Gann & Barr (2012)"
 author: "Reinhold Kliegl"
-date: "06 May, 2015"
+date: "2015-03-06"
 output:
   html_document: default
   pdf_document:
@@ -13,7 +13,7 @@ fontsize: 12pt
 ---
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Revisiting Gann & Barr (2012)}
+%\VignetteIndexEntry{RePsychLing Gann & Barr (2012)}
 -->
 
 ```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
