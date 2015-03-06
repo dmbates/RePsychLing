@@ -76,7 +76,7 @@ tcrossprod((1/rowlengths)*chf)
 
 Some of the material in this section gets a bit technical.  Don't be too concerned if parts seem unintelligible.
 
-Because the last column of `chf` is the zero vector, `chf` is rank-deficient.  Although it is a 4x4 matrix, the linear subspace formed by all possible linear combinations of the columns is 3-dimension.  The random-effects vectors that can be generated from this fitted model must lie in this 3-dimensional subspace.  That is, there will be no variability in one direction of the space of random effects.
+Because the last column of `chf` is the zero vector, `chf` is rank-deficient.  Although it is a 4x4 matrix, the linear subspace formed by all possible linear combinations of the columns is 3-dimensional.  The random-effects vectors that can be generated from this fitted model must lie in this 3-dimensional subspace.  That is, there will be no variability in one direction of the space of random effects.
 
 The _singular value decomposition_ of `chf`
 ```{r chfsvd}
@@ -169,7 +169,7 @@ summary(rePCA(m3))
 
 ## Summary
 
-Principal components analysis (PCA) of the estimated covariance matrices for the random effects in a linear mixed model allows for simple assessment of the dimensionality of the random effects distribution.  As shown in other vignettes in this `RePsychLing` package, the _maximal_ model in many analyses of data from Psychology and Linguistics experiments, is almost always shown by this analysis to be degenrate.
+Principal components analysis (PCA) of the estimated covariance matrices for the random effects in a linear mixed model allows for simple assessment of the dimensionality of the random effects distribution.  As shown in other vignettes in this `RePsychLing` package, the _maximal_ model in many analyses of data from Psychology and Linguistics experiments, is almost always shown by this analysis to be degenerate.
 
 
 ## Package versions
