@@ -24,6 +24,7 @@ library(knitr)
 #opts_chunk$set(cache=TRUE)
 options(width=92,show.signif.stars = FALSE)
 ```
+# Revisiting Kronmüller & Barr (2007)
 
 We apply the iterative reduction of LMM complexity to truncated response times of a 2x2x2 factorial psycholinguistic experiment (Kronmüller \& Barr, 2007, Exp. 2; reanalyzed with an LMM in Barr et al., 2012). The data are from 56 subjects who responded to 32 items. Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved (1) auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (2) with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker, and (3) whether the task had to be performed without or with a cognitive load consisting of six random digits. All factors were varied within subjects and within items. There were main effects of Load, Speaker, and Precedent; none of the interactions were significant. Although standard errors of fixed-effect coefficents varied slightly across models, our reanalyses afforded the same statistical inference about the experimental manipulations as the original article, irrespective of LMM specification. The purpose of the analysis is to illustrate an assessment of model complexity as far as variance components and correlation parameters are concerned, neither of which were in the focus of the original publication. 
 
