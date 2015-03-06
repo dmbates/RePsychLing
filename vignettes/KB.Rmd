@@ -1,5 +1,5 @@
 ---
-title: "Revisiting Kronmüller & Barr (2007)"
+title: "RePsychLing Kronmüller & Barr (2007)"
 author: "Reinhold Kliegl"
 date: "March 5, 2015"
 output:
@@ -13,7 +13,7 @@ fontsize: 12pt
 ---
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Revisiting Kronmueller & Barr (2007)}
+%\VignetteIndexEntry{RePsychLing Kronmueller & Barr (2007)}
 -->
 
 

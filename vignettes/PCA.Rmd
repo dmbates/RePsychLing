@@ -1,5 +1,5 @@
 ---
-title: "Principal Components Analysis of fitted LMM models"
+title: "Principal Components Analysis of LMM models"
 author: "Douglas Bates"
 date: "2015-03-06"
 output:
@@ -13,7 +13,7 @@ fontsize: 12pt
 ---
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Principal Components Analysis of fitted LMM models}
+%\VignetteIndexEntry{Principal Components Analysis of LMM models}
 -->
 
 ```{r preliminaries,include=FALSE,cache=FALSE}
@@ -33,9 +33,9 @@ As described in Bates, Maechler, Bolker and Walker (2015), "Fitting
 linear mixed-effects models using lme4",  _J. Statis. Software_,
 the parameters used in fitting the model are the entries in the
 Cholesky factor, $\Lambda$, of the relative variance-covariance
-matrix.
+matrix of the unconditional distribution of the random effects.
 
-Consider a _maximal model_ fit to the `KWDYZ` data in this package
+Consider a _maximal model_ fit to the `KWDYZ` data, available in this package,
 ```{r m0}
 summary(m0 <- lmer(rt ~ 1+c1+c2+c3 + (1+c1+c2+c3|subj), KWDYZ, REML=FALSE))
 ```
@@ -61,7 +61,7 @@ To reproduce the covariance matrix `tcrossprod(chf)` must be scaled by $s^2$
 ```{r vcov}
 tcrossprod(getME(m0,"sigma")*chf)
 ```
-(Compare the diagonal entries of this result with the _variance components_ of the random effects.)
+(Compare the diagonal entries of this result with the _variance components_ of the random effects listed in the model summary.)
 
 The (unconditional) correlation matrix of the random effects is obtained by scaling each row of $\Lambda$ to have unit length, then applying `tcrossprod`.
 ```{r rowlengths}
@@ -70,10 +70,11 @@ The (unconditional) correlation matrix of the random effects is obtained by scal
 ```{r corr}
 tcrossprod((1/rowlengths)*chf)
 ```
+(Compare the off-diagonal elements of this matrix with the correlations in the model summary.)
 
 ## Singularity in the Cholesky factor
 
-Some of the material in this section gets a bit technical.  Don't be too concerned if some parts seem unintelligible.
+Some of the material in this section gets a bit technical.  Don't be too concerned if parts seem unintelligible.
 
 Because the last column of `chf` is the zero vector, `chf` is rank-deficient.  Although it is a 4x4 matrix, the linear subspace formed by all possible linear combinations of the columns is 3-dimension.  The random-effects vectors that can be generated from this fitted model must lie in this 3-dimensional subspace.  That is, there will be no variability in one direction of the space of random effects.
 
@@ -108,13 +109,71 @@ We see that 100% of the variance is accounted for by the first three principal c
 
 ## Using the `rePCA` function
 
-The `rePCA` (__r__andom-__e__ffects __P__rincipal __C__omponents __A__nalysis) function takes a object of class `lmerMod` (i.e. a model fit by `lmer`) and performs the steps decribed above to produce a list of `prcomp` objects.
+The `rePCA` (**r**andom-**e**ffects **P**rincipal **C**omponents **A**nalysis) function takes a object of class `lmerMod` (i.e. a model fit by `lmer`) and performs the steps decribed above to produce a list of `prcomp` objects.
 ```{r rePCAm0}
 prc <- rePCA(m0)
 class(prc)
 length(prc)
-prc[[1]]
-summary(prc[[1]])
+names(prc)
+class(prc$subj)
+prc$subj
+summary(prc$subj)
 ```
 
 The `prcomplist` class has its own `summary` method, which simply applies `summary` to each element of the list.
+
+## Multiple random-effects terms for the same grouping factor
+
+When several random-effects terms have the same grouping, the Cholesky factors from the terms are accumulated in a _block-diagonal_ matrix. For example, in the _zero correlation parameter_ model
+```{r m1}
+VarCorr(m1 <- lmer(rt ~ 1+c1+c2+c3 + (1+c1+c2+c3||subj), KWDYZ, REML=FALSE))
+```
+the `"Tlist"` consists of four 1x1 matrices
+```{r m1Tlist}
+getME(m1,"Tlist")
+```
+all named "subj".  The _block diagonal_ matrix, which in this case is simply a diagonal matrix, is created by
+```{r bdiag}
+bdiag(getME(m1,"Tlist"))
+```
+
+The singular value decomposition of a diagonal matrix is trivial; `d` is the diagonal of the matrix and `u` is the identity.
+```{r svdbdiag}
+svd(bdiag(getME(m1,"Tlist")),nv=0)
+```
+```{r m1rePCA}
+summary(rePCA(m1))
+```
+
+The _block diagonal_ nature of the Cholesky factor is better illustrated with the results of the model
+```{r m2}
+VarCorr(m2 <- lmer(rt ~ 1+c1+c2+c3 + (1+c1+c2|subj) + (0+c3|subj), KWDYZ, REML=FALSE))
+```
+```{r m2chf}
+(chf <- bdiag(getME(m2,"Tlist")))
+svd(chf,nu=0,nv=0)
+summary(rePCA(m2))
+```
+
+## Two or more grouping factors
+
+When a model incorporates random effects with repect to two or more grouping factors
+```{r m3}
+m3 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1|subj) + (1+P|item), kb07, REML=FALSE)
+print(summary(m3),corr=FALSE)
+```
+the `rePCA` function produces a list of `prcomp` objects, one for each grouping factor.
+```{r m3rePCA}
+summary(rePCA(m3))
+```
+
+## Summary
+
+Principal components analysis (PCA) of the estimated covariance matrices for the random effects in a linear mixed model allows for simple assessment of the dimensionality of the random effects distribution.  As shown in other vignettes in this `RePsychLing` package, the _maximal_ model in many analyses of data from Psychology and Linguistics experiments, is almost always shown by this analysis to be degenrate.
+
+
+## Package versions
+```{r versions}
+sessionInfo()
+
+```
