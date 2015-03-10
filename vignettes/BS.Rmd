@@ -1,5 +1,5 @@
 ---
-title: "Revisiting Barr & Seyfeddinipur (2011)"
+title: "RePsychLing Barr & Seyfeddinipur (2011)"
 author: "Reinhold Kliegl"
 date: "05 March, 2015"
 output:
@@ -10,10 +10,11 @@ output:
   word_document: default
 geometry: margin=1in
 fontsize: 12pt
+bibliography: RePsychLing.bib
 ---
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Revisiting Barr & Seyfeddinipur (2011)}
+%\VignetteIndexEntry{RePsychLing Barr & Seyfeddinipur (2011)}
 -->
 
 ```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
@@ -23,9 +24,9 @@ library(knitr)
 options(width=92)
 ```
 
-## Data from Barr & Seyfeddinipur (2011)
+## Data from @barrseyfedd2010
 
-Some of the data from Barr & Seufeddinipur (2011) are available as the data frame `bs10` in the `RePsychLing` package.  
+Some of the data from @barrseyfedd2010 are available as the data frame `bs10` in the `RePsychLing` package.  
 
 ```{r bs10str}
 str(bs10)
@@ -118,3 +119,6 @@ LMM `m4` is the optimal model. It might be worth while to check the theoretical 
 ```{r versions}
 sessionInfo()
 ```
+
+# References
+

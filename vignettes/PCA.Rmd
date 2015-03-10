@@ -10,6 +10,7 @@ output:
   word_document: default
 geometry: margin=1in
 fontsize: 12pt
+bibliography: RePsychLing.bib
 ---
 <!-- 
 %\VignetteEngine{knitr::knitr}
@@ -29,13 +30,12 @@ effects, say by-subject random effects for intercept and for slope,
 the _variance component_ parameters determine a variance-covariance
 matrix for these random effects.
 
-As described in Bates, Maechler, Bolker and Walker (2015), "Fitting
-linear mixed-effects models using lme4",  _J. Statis. Software_,
+As described in @Bates:Maechler:Bolker:Walker:2015
 the parameters used in fitting the model are the entries in the
 Cholesky factor, $\Lambda$, of the relative variance-covariance
 matrix of the unconditional distribution of the random effects.
 
-Consider a _maximal model_ fit to the `KWDYZ` data, available in this package,
+Consider a _maximal model_ fit to the `KWDYZ` data from @Kliegl:Wei:Dambacher:Yan:Zhou:2011, available in this package,
 ```{r m0}
 summary(m0 <- lmer(rt ~ 1+c1+c2+c3 + (1+c1+c2+c3|subj), KWDYZ, REML=FALSE))
 ```
@@ -157,7 +157,7 @@ summary(rePCA(m2))
 
 ## Two or more grouping factors
 
-When a model incorporates random effects with repect to two or more grouping factors
+When a model incorporates random effects with repect to two or more grouping factors, such as this model fit to the `kb07` data from @Kronmuller:Barr:2007 and also discussed in @Barr:Levy:Scheepers:Tily:13
 ```{r m3}
 m3 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1|subj) + (1+P|item), kb07, REML=FALSE)
 print(summary(m3),corr=FALSE)
@@ -177,3 +177,5 @@ Principal components analysis (PCA) of the estimated covariance matrices for the
 sessionInfo()
 
 ```
+
+## References
