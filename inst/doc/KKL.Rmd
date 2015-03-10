@@ -1,0 +1,203 @@
+---
+title: "RePsychLing Kliegl et al. (2014)"
+author: "Reinhold Kliegl"
+date: "July 24, 2014"
+output:
+  html_document: default
+  pdf_document:
+    keep_tex: yes
+  word_document: default
+geometry: margin=1in
+fontsize: 12pt
+---
+       
+```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
+library(lme4)
+library(knitr)
+library(RePsychLing)
+
+opts_chunk$set(cache=TRUE)
+options(show.signif.stars=FALSE,width=92)
+```
+
+As a first demonstration that linear mixced models with a maximum random-effect structure may be asking too much, we re-analyze data from a visual-attention experiment (Kliegl, Kuschela, & Laubrock, 2014). The experiment shows that validly cued targets presented are detected faster than invalidly cued ones (i.e., spatial cueing effect; Posner, 1980) and that target presented at the opposite end of a rectangle at which the cue had occurred are detected faster than targets presented at a different rectangle but with the same physical distance (object-based effect; Egly, Driver, & Rafal, 1994). Different from earlier research, the two rectangles were not only presented in cardinal orientation (i.e., in horizontal or vertical orientation), but also diagonally (45° left or 45° right). This manipulation afforded a follow up of a hypothesis that attention can be shifted faster diagonally across the screen than vertically or horizontally across the screen (Kliegl et al., 2011; Zhou et al., 2006). Finally, data are from two groups of subjects, one group had to detect small targets and the other large targets. The experiment is a follow-up to Kliegl et al. (2011) who used only small targets and only cardinal orientations for rectangles. For an interpretation of fixed effects we refer to Kliegl et al. (2014). The different model specifications reported in this section were of no consequence for the significance or interpretation of fixed effects. Here the focus is exploring the random-effect structure for these data. 
+
+### Data
+Eighty-six subjects participated in this experiment. There were 800 trials requiring detection of a small or large rectangle and 40 catch trials. The experiment is based on a size (2) x cue-target relation (4) x orientation (2) design. Targets were small or large; rectangles were displayed either in cardinal or diagonal orientation, and cue-target relation was valid (70% of all trials) or invalid in three different ways (10% of trials in each the invalid conditions), corresponding to targets presented (a) on the same rectangle as the cue, but at the other end, (b) at the same physical distance as in (a), but on the other rectangle, or (c) at the other end of the other rectangle. The three contrasts for cue-target relation test differences in means between neighboring levels: spatial effect, object effect, and gravitation effect (Kliegl et al., 2011). Orientation and size factors are also included as numeric contrasts in such a way that the fixed effects estimate the difference between factor levels. With this specification the LMM intercept estimates the grand mean of the 16 (= 2 x 4 x 2 ) experimental conditions. The data are available as `KKL` in the `RePsychLing` package. The dataframe already contains contrasts as numeric covariates. Dependent variables is the log of reaction time for corret trials completed within a 750-ms deadline. The total number of responses was 53765.
+
+### Maximal linear mixed model (_maxLMM_)
+We start with the maximal linear mixed model (_maxLMM_) including all possible variance components and correlation parameters associated with the four within-subject contrasts in the random-effects structure of the LMM. Note that there are no interactions between the three contrasts associated with the four levels of the cue-target relation factor. Also, as factor size was manipulated between subjects, this contrast does not appear in the random-effect structure. Thus, the random-effect structure comprises eight variance components (i.e., the intercept estimating the grand mean of log reaction time, the three contrasts for the four types of cue-target relation, the contrast for the orientation factor, and three interactions) and 28 correlation parameters (8*7/2)--truly a very complex model.  
+
+```{r m0}
+mm <- model.matrix(~ sze*(spt+obj+grv)*orn, data=KKL)
+KKL$sze_spt <- mm[,  7]
+KKL$sze_obj <- mm[,  8]
+KKL$sze_grv <- mm[,  9]
+KKL$sze_orn <- mm[, 10]
+KKL$spt_orn <- mm[, 11]
+KKL$obj_orn <- mm[, 12]
+KKL$grv_orn <- mm[, 13]
+KKL$sze_spt_orn <- mm[, 14]
+KKL$sze_obj_orn <- mm[, 15]
+KKL$sze_grv_orn <- mm[, 16]
+
+m0 <- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
+                             (spt + obj + grv + orn + spt_orn + obj_orn + grv_orn | subj),
+                         data=KKL, REML=FALSE)
+# Model converges with a warning (see below); results appear to be ok. 
+
+# print(summary(m0), corr=FALSE)   
+# but summary() generates a cat(list((...))) error I do not understand. Doug?
+```
+
+The _maxLMM_ converges with a warning (i.e., "maxfun < 10 * length(par)^2 is not recommended") that we may be asking too much of these data. Nevertheless, at a first glance, model parameters look agreeable. None of the variance components are very close to zero and none of the correlation parameters are at the boundary (i.e., assume values of +1 or -1). 
+
+### Evaluation of singular value decomposition (svd) for _maxLMM_
+We subject the model to a svd analysis and list the percentages of variance associated with the eight components.
+
+```{r sv0}
+chf0 <- getME(m0, "Tlist")[[1]]
+zapsmall(chf0, digits=4)           
+
+sv0 <- svd(chf0)
+
+round(sv0$d^2/sum(sv0$d^2)*100, 1)  
+```
+
+The svd analysis indicates that the _maxLMM_ is overparameterized. The Cholesky factor decomposition yields two columns with zero values. Thus, there is clear evidence for singularity. This can also be seen in the percentages accounted for by the eight principal components: Only six of them are larger than zero. 
+
+### Zero-correlation parameter linear mixed model (_zcpLMM_)
+
+Inspection of model results suggest that most correlation parameters are quite close to zero. Does the goodness of fit decrease significantly if we assume that the ensemble of correlation parameters is zero?
+
+```{r m1}
+print(summary(m1 <- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
+                             (spt + obj + grv + orn + spt_orn + obj_orn + grv_orn || subj),
+                         data=KKL, REML=FALSE)), corr=FALSE)
+
+sv1 <- svd(diag(getME(m1, "theta")) )
+sv1$d                                         
+
+round(sv1$d^2/sum(sv1$d^2)*100, 1) 
+
+anova(m1, m0)                 
+```
+
+The _zcpLMM_ fits significantly worse than the full model, judged by a likelihood-ratio test (LRT) for the two models, but the chi^2 is barely more than twice the number of degrees of freedom for this test. Nevertheless, at least some of the correlation parameters are likely to be significant. The Cholesky factor decomposition shows one of the eight components very close to zero. Thus, the _zcpLMM_ still is too complex for the information contained in the data of this experiment.
+
+### Drop LRTs of variance components
+The estimates of variance components suggest that there is no reliable variance associated with the interaction between object and orientation contrasts (i.e., 6.437e-18). The next smallest variance component is the contrast for the interaction between gravitation and orientation (i.e., 4.823e-05). We drop these two variance components from the model and refit. 
+
+```{r m2}
+print(summary(m2 <- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
+                             (spt + obj + grv + orn + spt_orn || subj),
+                         data=KKL, REML=FALSE)), corr=FALSE)
+
+sv2 <- svd(diag(getME(m2, "theta")) )
+sv2$d                                     
+
+round(sv2$d^2/sum(sv2$d^2)*100, 3) 
+
+anova(m2, m1)   # not significant: prefer m2 to m1
+anova(m2, m0)   # significant: m2 is "reduced" too much               
+```
+
+The LRT shows that there is no loss in goodness of fit associated with this reduced model. (Footnote: Taking out one variance component at a time leads to the same result.) Removal of the third smallest variance component (i.e., the object contrast) would lead to a significant loss in goodness of fit. Importantly, the svd analysis indicates no singularity anymore. Thus, removal of the two smallest variance components leads to an identifiable LMM. The data of this experiment support six variance components, in agreement with the initial svd analysis of the _maxLMM_.
+
+### Extending the reduced LMM with correlation parameters
+In the next step, we include the correlation parameters for the remaining six variance components. 
+
+```{r m3}
+print(summary(m3 <- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
+                             (spt + obj + grv + orn + spt_orn | subj),
+                         data=KKL, REML=FALSE)), corr=FALSE)
+
+chf3 <- getME(m3, "Tlist")[[1]]
+zapsmall(chf3, digits=4)           
+
+sv3 <- svd(chf3)
+
+round(sv3$d^2/sum(sv3$d^2)*100, 1)
+
+anova(m2, m3)  # significant: prefer m3 to  m2 
+anova(m3, m0)  # not significant: prefer m3 to m0
+```
+
+This model is also supported by the data: There is no evidence of singularity. Moreover, the model fits significantly better than the _zcpLMM_ and does not fit significantly worse than the overparameterized initial _maxLMM_. Thus, this is a model we would consider as acceptable. 
+
+
+### Pruning low correlation parameters
+
+The significant increase in goodness of fit when going from LMM `m2` to LMM `m3`, suggests that there is significant information associated with the ensemble of correlation parameters. Nevertheless, the object and orientation effects and the interaction between spatial and orientation effects are only weakly correlated with the mean as well as with spatial and gravitation effects (see LMM `m3`). So we remove these correlation parameters from the model. 
+
+```{r m4}
+print(summary(m4 <- lmer(lrt ~ sze*(spt+obj+grv)*orn +
+                             (spt + grv | subj) + (0 + obj | subj) + (0 + orn | subj) + (0 + spt_orn | subj), 
+                         data=KKL, REML=FALSE)), corr=FALSE)
+
+getME(m4, "Tlist")      # Variance components look ok
+chf4 <- diag(c(diag(getME(m4, "Tlist")[[1]]), getME(m4, "Tlist")[[2]], getME(m4, "Tlist")[[3]], getME(m4, "Tlist")[[4]]))
+chf4[1:3, 1:3] <- getME(m4, "Tlist")[[1]]             
+
+sv4 <- svd(chf4)
+sv4$d                               # singular value decomposition: ok              
+
+round(sv4$d^2/sum(sv4$d^2)*100, 1)  # percentages of variance accounted: ok
+
+anova(m4, m3)    # not significant: prefer m4 to m3
+anova(m4, m0)    # not significant: prefer m4 to m0    
+```
+
+Clearly, there is no loss of goodness of fit associated with dropping most of the correlation parameters. The svd analysis reveals no problems. Interestingly, the goodness of fit for LMM `m4` is not significantly different from _maxLMM_ `m0`, despite 27 fewer model parameters. The model looks very acceptable for these data. 
+
+### Profiling the model parameters
+
+The new version of `lme4` yields confidence intervals for all models parameters with the `profile` method. This method is unlikely to work for degenerate models. However, even if the model is correctly parameterized, profiling can take a long time, especially for complex models. Therefore, to ascertain the significance of variance components and correlation parameters, we profile only parameters of the final LMM.
+
+```{r prof4, eval=FALSE}
+# Profiled 9 parameters individually; saved all results in as list in "p_m4.rda"
+p_m4_1 = profile(m4_1, which=1)   # increment 1 to 9
+confint(p_m4_1)
+```
+
+Profiling of LMM parameters takes a long time. Fortunately, they can be profiled independently and in parallel. Table x lists the model parameters along with the profiling-based 95% confidence interval. All model parameters are significant, but the confidence intervals for the correlation parameters are quite wide despite the large number of 86 subjects, large at least when compared to usual pyschological experiments.  
+
+*Table x. Estimates and confidence intervals for variance components and correlation parameters*
+```
+Name             |   Estimate    |   2.5%   |    975%
+---------------- |-------------- | -------- | ---------
+mean-SD          |     .16       |   .14    |    .19
+spatial-SD       |     .07       |   .06    |    .08   
+gravitation-SD   |     .04       |   .03    |    .05
+object-SD        |     .02       |   .01    |    .03
+orientation-SD   |     .09       |   .08    |    .11
+spat:orient-SD   |     .03       |   .02    |    .05
+mean-spatial r   |     .49       |   .30    |    .64
+mean-gravit  r   |    -.51       |  -.73    |   -.25
+spat-gravit  r   |    -.58       |  -.88    |   -.30  
+```
+
+### Estimation of model parameters with Stan
+  Shravan's playground. 
+
+### Summary
+
+The data from this experiment are a follow-up to an experiment reported by Kliegl et al. (2011). The statistical inferences in that article, especially also with respect to correlation parameters, were based on the _maxLMM_. As far as the random-effect structure is concerned the important results were the following. 
+
+First, there were reliable individual differences in the gravitation effect, although the fixed effect for this contrast was only 2 ms and therefore far from significant. This result serves as an important demonstration that a null result for a fixed effect does not rule reliable individual differences in this effect (i.e., a subject x contrast interaction). This pattern of results, unexpected in the initial study, was replicated with the present experiment, but this time the gravitation effect interacted significantly with target size and orientation, two experimental manipulations added to the design. For a substantive interpretation we refer to Kliegl et al. (2014). 
+
+Second, there were reliable correlations between mean response time, spatial effect, and gravitation effect, both when computed on the basis of within-subject effects and when estimated as correlation parameters in the LMM. With one exception, the replication experiment exhibits the same profile of correlation and correlation parameters as the first one: The correlation parameter for spatial and gravitation effects was much stronger in the first than in the second experiment (i.e., -.93 vs. -.58). This value was also substantially larger than the -.50 correlation computed from within-subject effects.
+
+Kliegl et al. (2011) interpreted larger magnitudes of correlation parameters than corresponding within-subject effect correlations as a consequence of correction of unreliability of difference scores with LMM-based shrinkage (see also Kliegl, Masson, & Richter, 2010). This is correct in principle, but the primary reason for the large difference between the within-subject based effect correlation and the LMM correlation parameter was that the _maxLMM_ reported in Kliegl et al. (2011) was overparameterized, although correlation parameters were not estimated at the boundary. A reanalysis with an evaluation of svd as described above revealed a singularity in the random-effect structure not immediately apparent in the model results and not linked to only one of the variance components. The reanalysis of the Kliegl et al. (2011) data is part of the `RePsychLing` package accompanying the present article.
+
+In general, whenever the estimate of a correlation parameter approaches boundary values of +/-1, one should check whether the complexity of the model is supported by the data. Unfortunately, when a matrix of correlation parameters is larger than 2 x 2, computational constraints among the correlation parameters may lead to estimates away from the boundary, even if the model is degenerate. Figure X attempts to convey a geometric intuition about these constraints.  **Doug's Figure?**
+
+One of the most promising advantages of LMMs is there potential to assess experimental effects and individual differences in experimental effects within a coherent analyses system (Kliegl et al., 2011). Significant correlation parameters are signature results in this context. If model complexity is not adequately assessed, spurious results masking as substantive ones may go unnoticed. For an exploration of the boundary conditions under which correlation parameters lead to degenerate models, readers may profit from the shrinkage app at:
+`https://alexanderdietz.shinyapps.io/shiny_shrinkage/Shiny_Shrinkage.Rmd`
+(Makowski, Dietz, & Kliegl, 2014). Using this app it can be demonstrated easily that a critical parameter for model degeneration is the within-subject, within-condition standard deviation. The larger this standard deviation, the higher is the risk of model degeneration. Also increasing the number of observations per subject per condition is more likely to protect against overparameterization than increasing the number of subjects.
+
+## Versions of packages used
+```{r versions}
+sessionInfo()
+```
+
