@@ -1,7 +1,7 @@
 ---
-title: "RePsychLing Gann & Barr (2012)"
-author: "Reinhold Kliegl"
-date: "2015-03-06"
+title: "RePsychLing Gann and Barr (2014)"
+author: "Reinhold Kliegl and Douglas Bates"
+date: '2015-03-11'
 output:
   html_document: default
   pdf_document:
@@ -10,22 +10,24 @@ output:
   word_document: default
 geometry: margin=1in
 fontsize: 12pt
+bibliography: RePsychLing.bib
 ---
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{RePsychLing Gann & Barr (2012)}
+%\VignetteIndexEntry{RePsychLing Gann and Barr (2014)}
 -->
 
 ```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
 library(RePsychLing)
 library(lme4)
 library(knitr)
+opts_chunk$set(comment=NA)
 options(width=92,show.signif.stars = FALSE)
 ```
 
-## Data from Gann & Barr (2012)
+## Data from @Gann:Barr:2014
 
-These data are available as `gb12` in the `RePsychLing` package.
+These data, also used in the online supplement to @Barr:Levy:Scheepers:Tily:13, are available as `gb12` in the `RePsychLing` package.
 
 ```{r gbstr}
 str(gb12)
@@ -36,9 +38,13 @@ summary(gb12)
 
 We assume `P`, the partner, is a between-session factor and `F`, feedback, is a between-item factor (i.e., they are not included in RE terms). The model fit in the paper is:
 
-```{r m0}
-print(summary(m0 <- lmer(
-    sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF+(1+T+F+TF|session)+(1+T+P+TP|item), gb12,REML=FALSE)), corr=FALSE)
+```{r m0,warning=FALSE}
+m0 <- lmer(
+    sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF+(1+T+F+TF|session)+(1+T+P+TP|item),
+    gb12, REML=FALSE, start=thcvg$gb12$m0,
+    control=lmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=1L),
+                        check.conv.grad="ignore",check.conv.hess="ignore"))
+print(summary(m0),corr=FALSE)
 ```
 
 The model converges without problems, but two correlation parameters are estimated as 1.
@@ -85,13 +91,13 @@ VarCorr(m3)
 anova(m3, m2)
 ```
 
-Marginally significant drop. (Deleting also intercept leads to significant drop in goodness of fit.)
+Marginally significant drop. (Deleting the intercept too leads to a significant drop in goodness of fit.)
 
 ### Extending the reduced LMM with correlation parameters
 
-Let's check correlation parameters for `SubjID`
+Let's check correlation parameters for `item`
 
-```{r m4}
+```{r m4,warning=FALSE}
 m4 <- 
   lmer(sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF + (1+T+F|session) + (1|item), 
        gb12, REML=FALSE)
@@ -121,3 +127,4 @@ Now the model is clearly degenerate: The correlation is at the boundary (-1); `t
 sessionInfo()
 ```
 
+## References

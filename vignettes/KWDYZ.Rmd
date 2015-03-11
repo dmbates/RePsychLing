@@ -1,8 +1,9 @@
 ---
 title: "RePsychLing Kliegl et al. (2011)"
 author: "Reinhold Kliegl"
-date: "2015-03-06"
+date: "2015-03-11"
 output: html_document
+bibliography: RePsychLing.bib
 ---
 
 ```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
@@ -17,11 +18,9 @@ options(width=92,show.signif.stars=FALSE)
 %\VignetteIndexEntry{RePsychLing Kliegl et al. (2011)}
 -->
 
-This is a set of follow-up analyses of the following paper:
+This is a set of follow-up analyses of the data described in @Kliegl:Wei:Dambacher:Yan:Zhou:2011
 
-Reinhold Kliegl, Ping Wei, Michael Dambacher, Ming Yan, & Xiaolin Zhou (2011). Experimental Effects and Individual Differences in Linear Mixed Models: Estimating the Relation between Spatial, Object, and Attraction Effects in Visual Attention. Frontiers in Psychology, 1, 1-12.
-
-We are using the final set of data used in paper, that is after filtering a few outlier responses, defining `sdif` contrasts for factor `tar` and corresponding vector-valued contrasts spt, c2, c3 from model matrix. The dataframe also includes transformations of the rt (lrt=log(rt), srt=sqrt(rt), rrt=1000/rt (note change in effect direction), prt=rt^0.4242424 (acc to boxcox); subj = factor(id)).
+We are using the final set of data used in that paper, that is after filtering a few outlier responses, defining `sdif` contrasts for factor `tar` and corresponding vector-valued contrasts `spt`, `c2`, `c3` from the model matrix. The dataframe also includes transformations of the response time, `rt` (`lrt=log(rt)`, `srt=sqrt(rt)`, `rrt=1000/rt` (note change in effect direction), `prt=rt^0.4242424` (acc to boxcox); subj = factor(id)).
  
 ```{r strKWDYZ}
 str(KWDYZ)
@@ -65,7 +64,7 @@ We see that that the last value is (close to) zero.  These are the relative stan
 
 Here is a bit more linear algebra on how these values are computed:
 
-```{r}
+```{r linalg}
 (xx<-tcrossprod(chf0))
 sum(diag(xx)) 
 diag(xx)
@@ -135,7 +134,7 @@ Computing bootstrap confidence intervals ...
 ```
 
 
-### (2) Drop LRTs for vc's of maximal model
+### Drop LRTs for vc's of maximal model
 
 ```{r m2.2}
 m2d <- lmer(rt ~ 1+c1+c2+c3 + (1+c1+c2|subj), KWDYZ, REML=FALSE)
@@ -145,7 +144,7 @@ summary(rePCA(m2d))
 
 Conclusion: Having both `subj.c1` and `subj.c3` as well as correlation parameters in the model generates singular covariance matrix.
 
-### (4) Using lrt=log(rt) or prt= rt^power (acc Box-Cox)
+### Using lrt=log(rt) or prt= rt^power (acc Box-Cox)
 
 ```{r m2.4}
 print(summary(m2i <- lmer(lrt ~ 1 + c1 + c2 + c3 + (1 + c1 + c2 + c3 | subj), 
@@ -157,9 +156,11 @@ summary(rePCA(m2j))
 ```
 
 Transformed dependent variables also yield degenerate models, indicated by the
-cumulative proportion of variance reaching 1. at the 3rd principal component.
+cumulative proportion of variance reaching 1.0 at the 3rd principal component.
 
 ## Package Versions 
 ```{r versions}
 sessionInfo()
 ```
+
+## References
