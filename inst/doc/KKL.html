@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Data</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<!-- 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{RePsychLing Kliegl et al. (2014)}
+-->       
+
+<p>As a first demonstration that linear mixed models with a maximum random-effect structure may be asking too much, we re-analyze data from a visual-attention experiment [@Kliegl:Kuschela:Laubrock:2014]. The experiment shows that validly cued targets presented are detected faster than invalidly cued ones (i.e., spatial cueing effect; Posner, 1980) and that target presented at the opposite end of a rectangle at which the cue had occurred are detected faster than targets presented at a different rectangle but with the same physical distance (object-based effect; Egly, Driver, &amp; Rafal, 1994). Different from earlier research, the two rectangles were not only presented in cardinal orientation (i.e., in horizontal or vertical orientation), but also diagonally (45° left or 45° right). This manipulation afforded a follow up of a hypothesis that attention can be shifted faster diagonally across the screen than vertically or horizontally across the screen [@Kliegl:Wei:Dambacher:Yan:Zhou:2011; Zhou et al., 2006]. Finally, data are from two groups of subjects, one group had to detect small targets and the other large targets. The experiment is a follow-up to @Kliegl:Kuschela:Laubrock:2014 who used only small targets and only cardinal orientations for rectangles. For an interpretation of fixed effects we refer to @Kliegl:Wei:Dambacher:Yan:Zhou:2011. The different model specifications reported in this section were of no consequence for the significance or interpretation of fixed effects. Here the focus is exploring the random-effect structure for these data. </p>
+
+<h3>Data</h3>
+
+<p>Eighty-six subjects participated in this experiment. There were 800 trials requiring detection of a small or large rectangle and 40 catch trials. The experiment is based on a size (2) x cue-target relation (4) x orientation (2) design. Targets were small or large; rectangles were displayed either in cardinal or diagonal orientation, and cue-target relation was valid (70% of all trials) or invalid in three different ways (10% of trials in each the invalid conditions), corresponding to targets presented (a) on the same rectangle as the cue, but at the other end, (b) at the same physical distance as in (a), but on the other rectangle, or &copy; at the other end of the other rectangle. The three contrasts for cue-target relation test differences in means between neighboring levels: spatial effect, object effect, and gravitation effect (Kliegl et al., 2011). Orientation and size factors are also included as numeric contrasts in such a way that the fixed effects estimate the difference between factor levels. With this specification the LMM intercept estimates the grand mean of the 16 (= 2 x 4 x 2 ) experimental conditions. The data are available as <code>KKL</code> in the <code>RePsychLing</code> package. The dataframe already contains contrasts as numeric covariates. Dependent variables is the log of reaction time for corret trials completed within a 750-ms deadline. The total number of responses was 53765.</p>
+
+<h3>Maximal linear mixed model (<em>maxLMM</em>)</h3>
+
+<p>We start with the maximal linear mixed model (<em>maxLMM</em>) including all possible variance components and correlation parameters associated with the four within-subject contrasts in the random-effects structure of the LMM. Note that there are no interactions between the three contrasts associated with the four levels of the cue-target relation factor. Also, as factor size was manipulated between subjects, this contrast does not appear in the random-effect structure. Thus, the random-effect structure comprises eight variance components (i.e., the intercept estimating the grand mean of log reaction time, the three contrasts for the four types of cue-target relation, the contrast for the orientation factor, and three interactions) and 28 correlation parameters (8*7/2)&ndash;truly a very complex model.  </p>
+
+<pre><code class="r">mm &lt;- model.matrix(~ sze*(spt+obj+grv)*orn, data=KKL)
+KKL$sze_spt &lt;- mm[,  7]
+KKL$sze_obj &lt;- mm[,  8]
+KKL$sze_grv &lt;- mm[,  9]
+KKL$sze_orn &lt;- mm[, 10]
+KKL$spt_orn &lt;- mm[, 11]
+KKL$obj_orn &lt;- mm[, 12]
+KKL$grv_orn &lt;- mm[, 13]
+KKL$sze_spt_orn &lt;- mm[, 14]
+KKL$sze_obj_orn &lt;- mm[, 15]
+KKL$sze_grv_orn &lt;- mm[, 16]
+
+m0 &lt;- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
+                             (spt + obj + grv + orn + spt_orn + obj_orn + grv_orn | subj),
+                         data=KKL, REML=FALSE, control=lmerControl(optCtrl=list(maxfun=10000L)))
+</code></pre>
+
+<pre><code>## Warning in commonArgs(par, fn, control, environment()): maxfun &lt; 10 * length(par)^2 is not
+## recommended.
+</code></pre>
+
+<pre><code class="r">#print(summary(m0), corr=FALSE)   
+</code></pre>
+
+<p>The <em>maxLMM</em> converges with a warning (i.e., &ldquo;maxfun &lt; 10 * length(par)<sup>2</sup> is not recommended&rdquo;) that we may be asking too much of these data. Nevertheless, at a first glance, model parameters look agreeable. None of the variance components are very close to zero and none of the correlation parameters are at the boundary (i.e., assume values of +1 or -1). </p>
+
+<h3>Evaluation of singular value decomposition (svd) for <em>maxLMM</em></h3>
+
+<p>We subject the model to a svd analysis and list the percentages of variance associated with the eight components.</p>
+
+<pre><code class="r">chf0 &lt;- getME(m0, &quot;Tlist&quot;)[[1]]
+zapsmall(chf0, digits=4)           
+</code></pre>
+
+<pre><code>##         [,1]    [,2]    [,3]    [,4]   [,5]    [,6] [,7] [,8]
+## [1,]  0.8445  0.0000  0.0000  0.0000 0.0000  0.0000    0    0
+## [2,]  0.1610  0.3072  0.0000  0.0000 0.0000  0.0000    0    0
+## [3,]  0.0176 -0.0198  0.1111  0.0000 0.0000  0.0000    0    0
+## [4,] -0.0865 -0.0712 -0.0423  0.1267 0.0000  0.0000    0    0
+## [5,]  0.0345 -0.0374  0.0004 -0.0614 0.4918  0.0000    0    0
+## [6,]  0.0384 -0.0113  0.0194 -0.0058 0.0045  0.1538    0    0
+## [7,]  0.0049 -0.0153  0.0252 -0.0021 0.0017 -0.0044    0    0
+## [8,] -0.0333 -0.0299 -0.0065  0.0657 0.0087 -0.0538    0    0
+</code></pre>
+
+<pre><code class="r">sv0 &lt;- svd(chf0)
+
+round(sv0$d^2/sum(sv0$d^2)*100, 1)  
+</code></pre>
+
+<pre><code>## [1] 65.1 21.3  8.3  2.6  1.6  0.9  0.0  0.0
+</code></pre>
+
+<p>The svd analysis indicates that the <em>maxLMM</em> is overparameterized. The Cholesky factor decomposition yields two columns with zero values. Thus, there is clear evidence for singularity. This can also be seen in the percentages accounted for by the eight principal components: Only six of them are larger than zero. </p>
+
+<h3>Zero-correlation parameter linear mixed model (<em>zcpLMM</em>)</h3>
+
+<p>Inspection of model results suggest that most correlation parameters are quite close to zero. Does the goodness of fit decrease significantly if we assume that the ensemble of correlation parameters is zero?</p>
+
+<pre><code class="r">print(summary(m1 &lt;- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
+                             (spt + obj + grv + orn + spt_orn + obj_orn + grv_orn || subj),
+                         data=KKL, REML=FALSE)), corr=FALSE)
+</code></pre>
+
+<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+## Formula: lrt ~ sze * (spt + obj + grv) * orn + ((1 | subj) + (0 + spt |  
+##     subj) + (0 + obj | subj) + (0 + grv | subj) + (0 + orn |  
+##     subj) + (0 + spt_orn | subj) + (0 + obj_orn | subj) + (0 +      grv_orn | subj))
+##    Data: KKL
+## 
+##      AIC      BIC   logLik deviance df.resid 
+## -24538.6 -24316.3  12294.3 -24588.6    53740 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -4.7432 -0.6299 -0.0996  0.5166  6.3892 
+## 
+## Random effects:
+##  Groups   Name        Variance  Std.Dev. 
+##  subj     (Intercept) 2.554e-02 1.598e-01
+##  subj.1   spt         4.435e-03 6.660e-02
+##  subj.2   obj         5.782e-04 2.405e-02
+##  subj.3   grv         1.277e-03 3.574e-02
+##  subj.4   orn         8.905e-03 9.437e-02
+##  subj.5   spt_orn     1.181e-03 3.436e-02
+##  subj.6   obj_orn     6.437e-18 2.537e-09
+##  subj.7   grv_orn     4.823e-05 6.945e-03
+##  Residual             3.620e-02 1.903e-01
+## Number of obs: 53765, groups:  subj, 86
+## 
+## Fixed effects:
+##              Estimate Std. Error t value
+## (Intercept)  5.691026   0.017271   329.5
+## sze          0.184137   0.034542     5.3
+## spt          0.074406   0.007700     9.7
+## obj          0.040864   0.004495     9.1
+## grv         -0.001525   0.005332    -0.3
+## orn          0.040871   0.010434     3.9
+## sze:spt      0.048799   0.015399     3.2
+## sze:obj     -0.010689   0.008989    -1.2
+## sze:grv     -0.036159   0.010663    -3.4
+## sze:orn      0.016502   0.020869     0.8
+## spt:orn      0.020205   0.006677     3.0
+## obj:orn      0.009220   0.007343     1.3
+## grv:orn      0.011045   0.007405     1.5
+## sze:spt:orn -0.012671   0.013354    -0.9
+## sze:obj:orn -0.001948   0.014685    -0.1
+## sze:grv:orn -0.043526   0.014811    -2.9
+</code></pre>
+
+<pre><code class="r">sv1 &lt;- svd(diag(getME(m1, &quot;theta&quot;)) )
+sv1$d                                         
+</code></pre>
+
+<pre><code>## [1] 8.399532e-01 4.960018e-01 3.500380e-01 1.878421e-01 1.805967e-01 1.263840e-01
+## [7] 3.650334e-02 1.333587e-08
+</code></pre>
+
+<pre><code class="r">round(sv1$d^2/sum(sv1$d^2)*100, 1) 
+</code></pre>
+
+<pre><code>## [1] 60.9 21.2 10.6  3.0  2.8  1.4  0.1  0.0
+</code></pre>
+
+<pre><code class="r">anova(m1, m0)                 
+</code></pre>
+
+<pre><code>## Data: KKL
+## Models:
+## m1: lrt ~ sze * (spt + obj + grv) * orn + ((1 | subj) + (0 + spt | 
+## m1:     subj) + (0 + obj | subj) + (0 + grv | subj) + (0 + orn | 
+## m1:     subj) + (0 + spt_orn | subj) + (0 + obj_orn | subj) + (0 + 
+## m1:     grv_orn | subj))
+## m0: lrt ~ sze * (spt + obj + grv) * orn + (spt + obj + grv + orn + 
+## m0:     spt_orn + obj_orn + grv_orn | subj)
+##    Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m1 25 -24539 -24316  12294   -24589                         
+## m0 53 -24539 -24068  12322   -24645 56.223     28   0.001208
+</code></pre>
+
+<p>The <em>zcpLMM</em> fits significantly worse than the full model, judged by a likelihood-ratio test (LRT) for the two models, but the chi<sup>2</sup> is barely more than twice the number of degrees of freedom for this test. Nevertheless, at least some of the correlation parameters are likely to be significant. The Cholesky factor decomposition shows one of the eight components very close to zero. Thus, the <em>zcpLMM</em> still is too complex for the information contained in the data of this experiment.</p>
+
+<h3>Drop LRTs of variance components</h3>
+
+<p>The estimates of variance components suggest that there is no reliable variance associated with the interaction between object and orientation contrasts (i.e., 6.437e-18). The next smallest variance component is the contrast for the interaction between gravitation and orientation (i.e., 4.823e-05). We drop these two variance components from the model and refit. </p>
+
+<pre><code class="r">print(summary(m2 &lt;- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
+                             (spt + obj + grv + orn + spt_orn || subj),
+                         data=KKL, REML=FALSE)), corr=FALSE)
+</code></pre>
+
+<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+## Formula: lrt ~ sze * (spt + obj + grv) * orn + ((1 | subj) + (0 + spt |  
+##     subj) + (0 + obj | subj) + (0 + grv | subj) + (0 + orn |  
+##     subj) + (0 + spt_orn | subj))
+##    Data: KKL
+## 
+##      AIC      BIC   logLik deviance df.resid 
+## -24542.6 -24338.1  12294.3 -24588.6    53742 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -4.7440 -0.6298 -0.0997  0.5165  6.3892 
+## 
+## Random effects:
+##  Groups   Name        Variance  Std.Dev.
+##  subj     (Intercept) 0.0255373 0.15980 
+##  subj.1   spt         0.0044350 0.06660 
+##  subj.2   obj         0.0005782 0.02405 
+##  subj.3   grv         0.0012771 0.03574 
+##  subj.4   orn         0.0089052 0.09437 
+##  subj.5   spt_orn     0.0011905 0.03450 
+##  Residual             0.0361973 0.19026 
+## Number of obs: 53765, groups:  subj, 86
+## 
+## Fixed effects:
+##              Estimate Std. Error t value
+## (Intercept)  5.691026   0.017271   329.5
+## sze          0.184136   0.034541     5.3
+## spt          0.074405   0.007700     9.7
+## obj          0.040864   0.004495     9.1
+## grv         -0.001526   0.005331    -0.3
+## orn          0.040871   0.010434     3.9
+## sze:spt      0.048799   0.015399     3.2
+## sze:obj     -0.010688   0.008989    -1.2
+## sze:grv     -0.036155   0.010663    -3.4
+## sze:orn      0.016501   0.020869     0.8
+## spt:orn      0.020205   0.006686     3.0
+## obj:orn      0.009220   0.007343     1.3
+## grv:orn      0.011046   0.007367     1.5
+## sze:spt:orn -0.012673   0.013371    -0.9
+## sze:obj:orn -0.001948   0.014685    -0.1
+## sze:grv:orn -0.043528   0.014735    -3.0
+</code></pre>
+
+<pre><code class="r">sv2 &lt;- svd(diag(getME(m2, &quot;theta&quot;)) )
+sv2$d                                     
+</code></pre>
+
+<pre><code>## [1] 0.8399427 0.4960024 0.3500322 0.1878367 0.1813536 0.1263839
+</code></pre>
+
+<pre><code class="r">round(sv2$d^2/sum(sv2$d^2)*100, 3) 
+</code></pre>
+
+<pre><code>## [1] 60.914 21.242 10.579  3.046  2.840  1.379
+</code></pre>
+
+<pre><code class="r">anova(m2, m1)   # not significant: prefer m2 to m1
+</code></pre>
+
+<pre><code>## Data: KKL
+## Models:
+## m2: lrt ~ sze * (spt + obj + grv) * orn + ((1 | subj) + (0 + spt | 
+## m2:     subj) + (0 + obj | subj) + (0 + grv | subj) + (0 + orn | 
+## m2:     subj) + (0 + spt_orn | subj))
+## m1: lrt ~ sze * (spt + obj + grv) * orn + ((1 | subj) + (0 + spt | 
+## m1:     subj) + (0 + obj | subj) + (0 + grv | subj) + (0 + orn | 
+## m1:     subj) + (0 + spt_orn | subj) + (0 + obj_orn | subj) + (0 + 
+## m1:     grv_orn | subj))
+##    Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m2 23 -24543 -24338  12294   -24589                         
+## m1 25 -24539 -24316  12294   -24589 0.0101      2     0.9949
+</code></pre>
+
+<pre><code class="r">anova(m2, m0)   # significant: m2 is &quot;reduced&quot; too much               
+</code></pre>
+
+<pre><code>## Data: KKL
+## Models:
+## m2: lrt ~ sze * (spt + obj + grv) * orn + ((1 | subj) + (0 + spt | 
+## m2:     subj) + (0 + obj | subj) + (0 + grv | subj) + (0 + orn | 
+## m2:     subj) + (0 + spt_orn | subj))
+## m0: lrt ~ sze * (spt + obj + grv) * orn + (spt + obj + grv + orn + 
+## m0:     spt_orn + obj_orn + grv_orn | subj)
+##    Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m2 23 -24543 -24338  12294   -24589                         
+## m0 53 -24539 -24068  12322   -24645 56.233     30   0.002567
+</code></pre>
+
+<p>The LRT shows that there is no loss in goodness of fit associated with this reduced model. (Footnote: Taking out one variance component at a time leads to the same result.) Removal of the third smallest variance component (i.e., the object contrast) would lead to a significant loss in goodness of fit. Importantly, the svd analysis indicates no singularity anymore. Thus, removal of the two smallest variance components leads to an identifiable LMM. The data of this experiment support six variance components, in agreement with the initial svd analysis of the <em>maxLMM</em>.</p>
+
+<h3>Extending the reduced LMM with correlation parameters</h3>
+
+<p>In the next step, we include the correlation parameters for the remaining six variance components. </p>
+
+<pre><code class="r">print(summary(m3 &lt;- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
+                             (spt + obj + grv + orn + spt_orn | subj),
+                         data=KKL, REML=FALSE)), corr=FALSE)
+</code></pre>
+
+<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+## Formula: lrt ~ sze * (spt + obj + grv) * orn + (spt + obj + grv + orn +  
+##     spt_orn | subj)
+##    Data: KKL
+## 
+##      AIC      BIC   logLik deviance df.resid 
+## -24562.6 -24224.7  12319.3 -24638.6    53727 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -4.7579 -0.6303 -0.1002  0.5173  6.3820 
+## 
+## Random effects:
+##  Groups   Name        Variance  Std.Dev. Corr                         
+##  subj     (Intercept) 0.0258124 0.16066                               
+##           spt         0.0043510 0.06596   0.46                        
+##           obj         0.0004583 0.02141   0.16 -0.08                  
+##           grv         0.0010673 0.03267  -0.51 -0.60 -0.27            
+##           orn         0.0089834 0.09478   0.07 -0.03  0.03 -0.09      
+##           spt_orn     0.0012095 0.03478   0.29  0.08  0.27 -0.27  0.06
+##  Residual             0.0362029 0.19027                               
+## Number of obs: 53765, groups:  subj, 86
+## 
+## Fixed effects:
+##              Estimate Std. Error t value
+## (Intercept)  5.691045   0.017363   327.8
+## sze          0.184195   0.034726     5.3
+## spt          0.074407   0.007636     9.7
+## obj          0.040808   0.004337     9.4
+## grv         -0.001704   0.005097    -0.3
+## orn          0.040912   0.010478     3.9
+## sze:spt      0.048836   0.015272     3.2
+## sze:obj     -0.010606   0.008674    -1.2
+## sze:grv     -0.036153   0.010195    -3.5
+## sze:orn      0.016556   0.020956     0.8
+## spt:orn      0.020261   0.006702     3.0
+## obj:orn      0.009250   0.007343     1.3
+## grv:orn      0.011107   0.007367     1.5
+## sze:spt:orn -0.012720   0.013405    -0.9
+## sze:obj:orn -0.001991   0.014686    -0.1
+## sze:grv:orn -0.044065   0.014734    -3.0
+</code></pre>
+
+<pre><code class="r">chf3 &lt;- getME(m3, &quot;Tlist&quot;)[[1]]
+zapsmall(chf3, digits=4)           
+</code></pre>
+
+<pre><code>##         [,1]    [,2]    [,3]    [,4]   [,5]  [,6]
+## [1,]  0.8444  0.0000  0.0000  0.0000 0.0000 0.000
+## [2,]  0.1608  0.3071  0.0000  0.0000 0.0000 0.000
+## [3,]  0.0175 -0.0194  0.1094  0.0000 0.0000 0.000
+## [4,] -0.0868 -0.0709 -0.0468  0.1214 0.0000 0.000
+## [5,]  0.0345 -0.0375  0.0015 -0.0610 0.4918 0.000
+## [6,]  0.0528 -0.0119  0.0410 -0.0241 0.0029 0.168
+</code></pre>
+
+<pre><code class="r">sv3 &lt;- svd(chf3)
+
+round(sv3$d^2/sum(sv3$d^2)*100, 1)
+</code></pre>
+
+<pre><code>## [1] 65.3 21.4  8.2  2.9  1.4  0.7
+</code></pre>
+
+<pre><code class="r">anova(m2, m3)  # significant: prefer m3 to  m2 
+</code></pre>
+
+<pre><code>## Data: KKL
+## Models:
+## m2: lrt ~ sze * (spt + obj + grv) * orn + ((1 | subj) + (0 + spt | 
+## m2:     subj) + (0 + obj | subj) + (0 + grv | subj) + (0 + orn | 
+## m2:     subj) + (0 + spt_orn | subj))
+## m3: lrt ~ sze * (spt + obj + grv) * orn + (spt + obj + grv + orn + 
+## m3:     spt_orn | subj)
+##    Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m2 23 -24543 -24338  12294   -24589                         
+## m3 38 -24563 -24225  12319   -24639 50.043     15  1.185e-05
+</code></pre>
+
+<pre><code class="r">anova(m3, m0)  # not significant: prefer m3 to m0
+</code></pre>
+
+<pre><code>## Data: KKL
+## Models:
+## m3: lrt ~ sze * (spt + obj + grv) * orn + (spt + obj + grv + orn + 
+## m3:     spt_orn | subj)
+## m0: lrt ~ sze * (spt + obj + grv) * orn + (spt + obj + grv + orn + 
+## m0:     spt_orn + obj_orn + grv_orn | subj)
+##    Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m3 38 -24563 -24225  12319   -24639                         
+## m0 53 -24539 -24068  12322   -24645 6.1899     15     0.9764
+</code></pre>
+
+<p>This model is also supported by the data: There is no evidence of singularity. Moreover, the model fits significantly better than the <em>zcpLMM</em> and does not fit significantly worse than the overparameterized initial <em>maxLMM</em>. Thus, this is a model we would consider as acceptable. </p>
+
+<h3>Pruning low correlation parameters</h3>
+
+<p>The significant increase in goodness of fit when going from LMM <code>m2</code> to LMM <code>m3</code>, suggests that there is significant information associated with the ensemble of correlation parameters. Nevertheless, the object and orientation effects and the interaction between spatial and orientation effects are only weakly correlated with the mean as well as with spatial and gravitation effects (see LMM <code>m3</code>). So we remove these correlation parameters from the model. </p>
+
+<pre><code class="r">print(summary(m4 &lt;- lmer(lrt ~ sze*(spt+obj+grv)*orn +
+                             (spt + grv | subj) + (0 + obj | subj) + (0 + orn | subj) + (0 + spt_orn | subj), 
+                         data=KKL, REML=FALSE)), corr=FALSE)
+</code></pre>
+
+<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+## Formula: lrt ~ sze * (spt + obj + grv) * orn + (spt + grv | subj) + (0 +  
+##     obj | subj) + (0 + orn | subj) + (0 + spt_orn | subj)
+##    Data: KKL
+## 
+##      AIC      BIC   logLik deviance df.resid 
+## -24578.2 -24347.0  12315.1 -24630.2    53739 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -4.7611 -0.6310 -0.1004  0.5178  6.3862 
+## 
+## Random effects:
+##  Groups   Name        Variance  Std.Dev. Corr       
+##  subj     (Intercept) 0.0258257 0.16070             
+##           spt         0.0042698 0.06534   0.49      
+##           grv         0.0011978 0.03461  -0.51 -0.58
+##  subj.1   obj         0.0004758 0.02181             
+##  subj.2   orn         0.0089109 0.09440             
+##  subj.3   spt_orn     0.0011862 0.03444             
+##  Residual             0.0362028 0.19027             
+## Number of obs: 53765, groups:  subj, 86
+## 
+## Fixed effects:
+##              Estimate Std. Error t value
+## (Intercept)  5.691047   0.017368   327.7
+## sze          0.184157   0.034735     5.3
+## spt          0.074409   0.007574     9.8
+## obj          0.040815   0.004361     9.4
+## grv         -0.001693   0.005244    -0.3
+## orn          0.040871   0.010438     3.9
+## sze:spt      0.048791   0.015148     3.2
+## sze:obj     -0.010620   0.008721    -1.2
+## sze:grv     -0.036137   0.010488    -3.4
+## sze:orn      0.016528   0.020875     0.8
+## spt:orn      0.020214   0.006682     3.0
+## obj:orn      0.009275   0.007343     1.3
+## grv:orn      0.011193   0.007367     1.5
+## sze:spt:orn -0.012725   0.013364    -1.0
+## sze:obj:orn -0.002058   0.014686    -0.1
+## sze:grv:orn -0.044049   0.014735    -3.0
+</code></pre>
+
+<pre><code class="r">getME(m4, &quot;Tlist&quot;)      # Variance components look ok
+</code></pre>
+
+<pre><code>## $subj
+##             [,1]        [,2]      [,3]
+## [1,]  0.84460702  0.00000000 0.0000000
+## [2,]  0.16732439  0.29990527 0.0000000
+## [3,] -0.09313195 -0.06938998 0.1399906
+## 
+## $subj
+##           [,1]
+## [1,] 0.1146472
+## 
+## $subj
+##           [,1]
+## [1,] 0.4961225
+## 
+## $subj
+##           [,1]
+## [1,] 0.1810113
+</code></pre>
+
+<pre><code class="r">chf4 &lt;- diag(c(diag(getME(m4, &quot;Tlist&quot;)[[1]]), getME(m4, &quot;Tlist&quot;)[[2]], getME(m4, &quot;Tlist&quot;)[[3]], getME(m4, &quot;Tlist&quot;)[[4]]))
+chf4[1:3, 1:3] &lt;- getME(m4, &quot;Tlist&quot;)[[1]]             
+
+sv4 &lt;- svd(chf4)
+sv4$d                               # singular value decomposition: ok              
+</code></pre>
+
+<pre><code>## [1] 0.8689949 0.4961225 0.3015325 0.1810113 0.1353276 0.1146472
+</code></pre>
+
+<pre><code class="r">round(sv4$d^2/sum(sv4$d^2)*100, 1)  # percentages of variance accounted: ok
+</code></pre>
+
+<pre><code>## [1] 65.3 21.3  7.9  2.8  1.6  1.1
+</code></pre>
+
+<pre><code class="r">anova(m4, m3)    # not significant: prefer m4 to m3
+</code></pre>
+
+<pre><code>## Data: KKL
+## Models:
+## m4: lrt ~ sze * (spt + obj + grv) * orn + (spt + grv | subj) + (0 + 
+## m4:     obj | subj) + (0 + orn | subj) + (0 + spt_orn | subj)
+## m3: lrt ~ sze * (spt + obj + grv) * orn + (spt + obj + grv + orn + 
+## m3:     spt_orn | subj)
+##    Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m4 26 -24578 -24347  12315   -24630                         
+## m3 38 -24563 -24225  12319   -24639 8.3947     12     0.7536
+</code></pre>
+
+<pre><code class="r">anova(m4, m0)    # not significant: prefer m4 to m0    
+</code></pre>
+
+<pre><code>## Data: KKL
+## Models:
+## m4: lrt ~ sze * (spt + obj + grv) * orn + (spt + grv | subj) + (0 + 
+## m4:     obj | subj) + (0 + orn | subj) + (0 + spt_orn | subj)
+## m0: lrt ~ sze * (spt + obj + grv) * orn + (spt + obj + grv + orn + 
+## m0:     spt_orn + obj_orn + grv_orn | subj)
+##    Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m4 26 -24578 -24347  12315   -24630                         
+## m0 53 -24539 -24068  12322   -24645 14.585     27     0.9749
+</code></pre>
+
+<p>Clearly, there is no loss of goodness of fit associated with dropping most of the correlation parameters. The svd analysis reveals no problems. Interestingly, the goodness of fit for LMM <code>m4</code> is not significantly different from <em>maxLMM</em> <code>m0</code>, despite 27 fewer model parameters. The model looks very acceptable for these data. </p>
+
+<h3>Profiling the model parameters</h3>
+
+<p>The new version of <code>lme4</code> yields confidence intervals for all models parameters with the <code>profile</code> method. This method is unlikely to work for degenerate models. However, even if the model is correctly parameterized, profiling can take a long time, especially for complex models. Therefore, to ascertain the significance of variance components and correlation parameters, we profile only parameters of the final LMM.</p>
+
+<pre><code class="r"># Profiled 9 parameters individually; saved all results in as list in &quot;p_m4.rda&quot;
+p_m4_1 = profile(m4_1, which=1)   # increment 1 to 9
+confint(p_m4_1)
+</code></pre>
+
+<p>Profiling of LMM parameters takes a long time. Fortunately, they can be profiled independently and in parallel. Table x lists the model parameters along with the profiling-based 95% confidence interval. All model parameters are significant, but the confidence intervals for the correlation parameters are quite wide despite the large number of 86 subjects, large at least when compared to usual pyschological experiments.  </p>
+
+<p><em>Table x. Estimates and confidence intervals for variance components and correlation parameters</em></p>
+
+<pre><code>Name             |   Estimate    |   2.5%   |    975%
+---------------- |-------------- | -------- | ---------
+mean-SD          |     .16       |   .14    |    .19
+spatial-SD       |     .07       |   .06    |    .08   
+gravitation-SD   |     .04       |   .03    |    .05
+object-SD        |     .02       |   .01    |    .03
+orientation-SD   |     .09       |   .08    |    .11
+spat:orient-SD   |     .03       |   .02    |    .05
+mean-spatial r   |     .49       |   .30    |    .64
+mean-gravit  r   |    -.51       |  -.73    |   -.25
+spat-gravit  r   |    -.58       |  -.88    |   -.30  
+</code></pre>
+
+<h3>Estimation of model parameters with Stan</h3>
+
+<p>Shravan&#39;s playground. </p>
+
+<h3>Summary</h3>
+
+<p>The data from this experiment are a follow-up to an experiment reported by Kliegl et al. (2011). The statistical inferences in that article, especially also with respect to correlation parameters, were based on the <em>maxLMM</em>. As far as the random-effect structure is concerned the important results were the following. </p>
+
+<p>First, there were reliable individual differences in the gravitation effect, although the fixed effect for this contrast was only 2 ms and therefore far from significant. This result serves as an important demonstration that a null result for a fixed effect does not rule reliable individual differences in this effect (i.e., a subject x contrast interaction). This pattern of results, unexpected in the initial study, was replicated with the present experiment, but this time the gravitation effect interacted significantly with target size and orientation, two experimental manipulations added to the design. For a substantive interpretation we refer to Kliegl et al. (2014). </p>
+
+<p>Second, there were reliable correlations between mean response time, spatial effect, and gravitation effect, both when computed on the basis of within-subject effects and when estimated as correlation parameters in the LMM. With one exception, the replication experiment exhibits the same profile of correlation and correlation parameters as the first one: The correlation parameter for spatial and gravitation effects was much stronger in the first than in the second experiment (i.e., -.93 vs. -.58). This value was also substantially larger than the -.50 correlation computed from within-subject effects.</p>
+
+<p>Kliegl et al. (2011) interpreted larger magnitudes of correlation parameters than corresponding within-subject effect correlations as a consequence of correction of unreliability of difference scores with LMM-based shrinkage (see also Kliegl, Masson, &amp; Richter, 2010). This is correct in principle, but the primary reason for the large difference between the within-subject based effect correlation and the LMM correlation parameter was that the <em>maxLMM</em> reported in Kliegl et al. (2011) was overparameterized, although correlation parameters were not estimated at the boundary. A reanalysis with an evaluation of svd as described above revealed a singularity in the random-effect structure not immediately apparent in the model results and not linked to only one of the variance components. The reanalysis of the Kliegl et al. (2011) data is part of the <code>RePsychLing</code> package accompanying the present article.</p>
+
+<p>In general, whenever the estimate of a correlation parameter approaches boundary values of +/-1, one should check whether the complexity of the model is supported by the data. Unfortunately, when a matrix of correlation parameters is larger than 2 x 2, computational constraints among the correlation parameters may lead to estimates away from the boundary, even if the model is degenerate. Figure X attempts to convey a geometric intuition about these constraints.  <strong>Doug&#39;s Figure?</strong></p>
+
+<p>One of the most promising advantages of LMMs is there potential to assess experimental effects and individual differences in experimental effects within a coherent analyses system (Kliegl et al., 2011). Significant correlation parameters are signature results in this context. If model complexity is not adequately assessed, spurious results masking as substantive ones may go unnoticed. For an exploration of the boundary conditions under which correlation parameters lead to degenerate models, readers may profit from the shrinkage app at:
+<code>https://alexanderdietz.shinyapps.io/shiny_shrinkage/Shiny_Shrinkage.Rmd</code>
+(Makowski, Dietz, &amp; Kliegl, 2014). Using this app it can be demonstrated easily that a critical parameter for model degeneration is the within-subject, within-condition standard deviation. The larger this standard deviation, the higher is the risk of model degeneration. Also increasing the number of observations per subject per condition is more likely to protect against overparameterization than increasing the number of subjects.</p>
+
+<h2>Versions of packages used</h2>
+
+<pre><code class="r">sessionInfo()
+</code></pre>
+
+<pre><code>## R version 3.1.3 (2015-03-09)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 14.10
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8       
+##  [4] LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C              
+## [10] LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] knitr_1.9.5       RePsychLing_0.0.3 lme4_1.1-8        Rcpp_0.11.3      
+## [5] Matrix_1.1-4     
+## 
+## loaded via a namespace (and not attached):
+##  [1] devtools_1.7.0.9000 digest_0.6.8        evaluate_0.5.5      formatR_1.0        
+##  [5] grid_3.1.3          htmltools_0.2.6     lattice_0.20-30     markdown_0.7.4     
+##  [9] MASS_7.3-39         minqa_1.2.4         nlme_3.1-120        nloptr_1.0.4       
+## [13] rmarkdown_0.4.2     splines_3.1.3       stringr_0.6.2       tools_3.1.3        
+## [17] yaml_2.1.13
+</code></pre>
+
+</body>
+
+</html>
