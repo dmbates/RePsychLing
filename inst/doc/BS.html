@@ -203,7 +203,7 @@ hr {
 <body>
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{RePsychLing Barr & Seyfeddinipur (2011)}
+%\VignetteIndexEntry{RePsychLing Barr and Seyfeddinipur (2010)}
 -->
 
 <h2>Data from @barrseyfedd2010</h2>
@@ -213,59 +213,69 @@ hr {
 <pre><code class="r">str(bs10)
 </code></pre>
 
-<pre><code>## &#39;data.frame&#39;:    1104 obs. of  6 variables:
-##  $ subj: Factor w/ 92 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ item: Factor w/ 12 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 12 3 6 9 11 10 5 7 2 1 ...
-##  $ dif : num  0 0 0 0 0 0.55 1 0 -0.8 0 ...
-##  $ S   : int  -1 1 1 -1 -1 -1 -1 1 1 1 ...
-##  $ F   : num  -1 1 -1 -1 1 -1 1 -1 1 1 ...
-##  $ SF  : num  1 1 -1 1 -1 1 -1 -1 1 1 ...
+<pre><code>&#39;data.frame&#39;:   1104 obs. of  6 variables:
+ $ subj: Factor w/ 92 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ item: Factor w/ 12 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 12 3 6 9 11 10 5 7 2 1 ...
+ $ dif : num  0 0 0 0 0 0.55 1 0 -0.8 0 ...
+ $ S   : int  -1 1 1 -1 -1 -1 -1 1 1 1 ...
+ $ F   : num  -1 1 -1 -1 1 -1 1 -1 1 1 ...
+ $ SF  : num  1 1 -1 1 -1 1 -1 -1 1 1 ...
 </code></pre>
 
-<p>As with other data frames in this package, the subject and item factors are called <code>subj</code> and <code>item</code>.  The response being modelled, <code>dif</code>, variable is the difference in two response times.</p>
+<p>As with other data frames in this package, the subject and item factors are called <code>subj</code> and <code>item</code>.  The response being modelled, <code>dif</code>, is the difference in two response times.</p>
 
 <p>The two experimental factors <code>S</code> and <code>F</code>, both at two levels, are represented in the -1/+1 encoding, as is their interaction, <code>SF</code>.  The <code>S</code> factor is the speaker condition with levels -1 for the same speaker in both trials and +1 for different speakers.  The <code>F</code> factor is the filler condition with levels -1 for <code>NS</code> and +1 for <code>FP</code>.</p>
 
 <h3>Maximal linear mixed model (<em>maxLMM</em>)</h3>
 
-<p>The maximal model has a full factorial design <code>1+S+F+SF</code> for the fixed-effects and for potentially correlated vector-valued random effects for the subject and the item.</p>
+<p>The maximal model has a full factorial design <code>1+S+F+SF</code> for the fixed-effects and for potentially correlated vector-valued random effects for the subject and the item.  We use the parameter estimates from an <code>lmm</code> fit using the <a href="https://github.com/dmbates/MixedModels.jl">MixedModels package</a> package for <a href="http://julialang.org">Julia</a>, which can be much faster than fitting this model with <code>lmer</code>. (In addition to being faster, the fit from <code>lmm</code> produced a significantly lower deviance.)</p>
 
-<pre><code class="r">print(summary(m0 &lt;- lmer(dif ~ 1+S+F+SF + (1+S+F+SF|subj) + (1+S+F+SF|item), bs10, REML=FALSE)), corr=FALSE)
+<pre><code class="r">m0 &lt;- lmer(dif ~ 1+S+F+SF + (1+S+F+SF|subj) + (1+S+F+SF|item), bs10, REML=FALSE, start=thcvg$bs10$m0,
+           control=lmerControl(optimizer=&quot;Nelder_Mead&quot;,optCtrl=list(maxfun=1L),
+                               check.conv.grad=&quot;ignore&quot;,check.conv.hess=&quot;ignore&quot;))
+summary(m0)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F +      SF | item)
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1099.2   1224.3   -524.6   1049.2     1079 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -5.0282 -0.1408 -0.0351  0.0816  5.3237 
-## 
-## Random effects:
-##  Groups   Name        Variance  Std.Dev. Corr             
-##  subj     (Intercept) 1.030e-02 0.101492                  
-##           S           8.453e-03 0.091940 -1.00            
-##           F           2.876e-03 0.053630  1.00 -1.00      
-##           SF          3.614e-03 0.060112 -0.64  0.64 -0.62
-##  item     (Intercept) 2.729e-04 0.016520                  
-##           S           7.356e-05 0.008577 -1.00            
-##           F           1.060e-04 0.010294  1.00 -1.00      
-##           SF          7.535e-05 0.008680 -1.00  1.00 -1.00
-##  Residual             1.358e-01 0.368469                  
-## Number of obs: 1104, groups:  subj, 92; item, 12
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01605   2.443
-## S           -0.01741    0.01487  -1.171
-## F            0.01748    0.01277   1.369
-## SF          -0.03226    0.01298  -2.485
-## convergence code: 0
-## Model failed to converge with max|grad| = 0.09297 (tol = 0.002, component 1)
-## Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+<pre><code>Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+Formula: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F +      SF | item)
+   Data: bs10
+Control: lmerControl(optimizer = &quot;Nelder_Mead&quot;, optCtrl = list(maxfun = 1L),  
+    check.conv.grad = &quot;ignore&quot;, check.conv.hess = &quot;ignore&quot;)
+
+     AIC      BIC   logLik deviance df.resid 
+  1081.0   1206.1   -515.5   1031.0     1079 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-5.2398 -0.1656 -0.0414  0.1148  5.4421 
+
+Random effects:
+ Groups   Name        Variance  Std.Dev. Corr             
+ subj     (Intercept) 1.339e-02 0.115730                  
+          S           1.122e-02 0.105907 -0.56            
+          F           3.373e-03 0.058075  0.99 -0.66      
+          SF          5.192e-03 0.072053 -0.13  0.89 -0.26
+ item     (Intercept) 3.048e-04 0.017459                  
+          S           7.928e-05 0.008904 -1.00            
+          F           1.356e-04 0.011647  1.00 -1.00      
+          SF          8.326e-05 0.009125 -1.00  1.00 -1.00
+ Residual             1.278e-01 0.357462                  
+Number of obs: 1104, groups:  subj, 92; item, 12
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  0.03922    0.01693   2.316
+S           -0.01741    0.01563  -1.114
+F            0.01748    0.01279   1.366
+SF          -0.03226    0.01338  -2.411
+
+Correlation of Fixed Effects:
+   (Intr) S      F     
+S  -0.332              
+F   0.413 -0.265       
+SF -0.111  0.387 -0.120
+convergence code: 0
+failure to converge in 1 evaluations
 </code></pre>
 
 <p>The model converges with warnings. Nine of 12 correlation parameters are estimated at the +/-1 boundary. </p>
@@ -280,19 +290,19 @@ matrices shows</p>
 <pre><code class="r">summary(rePCA(m0))
 </code></pre>
 
-<pre><code>## $subj
-## Importance of components:
-##                          [,1]    [,2]      [,3] [,4]
-## Standard deviation     0.4140 0.12069 7.062e-07    0
-## Proportion of Variance 0.9217 0.07834 0.000e+00    0
-## Cumulative Proportion  0.9217 1.00000 1.000e+00    1
-## 
-## $item
-## Importance of components:
-##                           [,1]      [,2]      [,3] [,4]
-## Standard deviation     0.06235 6.156e-08 2.446e-08    0
-## Proportion of Variance 1.00000 0.000e+00 0.000e+00    0
-## Cumulative Proportion  1.00000 1.000e+00 1.000e+00    1
+<pre><code>$subj
+Importance of components:
+                         [,1]   [,2] [,3] [,4]
+Standard deviation     0.4328 0.2689    0    0
+Proportion of Variance 0.7215 0.2785    0    0
+Cumulative Proportion  0.7215 1.0000    1    1
+
+$item
+Importance of components:
+                         [,1] [,2] [,3] [,4]
+Standard deviation     0.0687    0    0    0
+Proportion of Variance 1.0000    0    0    0
+Cumulative Proportion  1.0000    1    1    1
 </code></pre>
 
 <p>For both the by-subject and the by-item random effects the estimated variance-covariance matrices are singular.  There are at least 2 dimensions with no variation in the subject-related random-effects and 3 directions with no variation for the item-related random-effects.</p>
@@ -307,55 +317,53 @@ It can be conveniently specified using the <code>||</code> operator in the rando
 <pre><code class="r">print(summary(m1 &lt;- lmer(dif ~ 1+S+F+SF + (1+S+F+SF||subj) + (1+S+F+SF||item), bs10, REML=FALSE)), corr=FALSE)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F |  
-##     subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) +  
-##     (0 + F | item) + (0 + SF | item))
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1106.1   1171.2   -540.0   1080.1     1091 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -4.8326 -0.2105 -0.0340  0.1138  5.1406 
-## 
-## Random effects:
-##  Groups   Name        Variance  Std.Dev. 
-##  subj     (Intercept) 1.180e-02 1.086e-01
-##  subj.1   S           1.008e-02 1.004e-01
-##  subj.2   F           3.258e-18 1.805e-09
-##  subj.3   SF          3.577e-03 5.981e-02
-##  item     (Intercept) 0.000e+00 0.000e+00
-##  item.1   S           0.000e+00 0.000e+00
-##  item.2   F           0.000e+00 0.000e+00
-##  item.3   SF          0.000e+00 0.000e+00
-##  Residual             1.360e-01 3.688e-01
-## Number of obs: 1104, groups:  subj, 92; item, 12
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01586   2.473
-## S           -0.01741    0.01526  -1.141
-## F            0.01748    0.01110   1.575
-## SF          -0.03226    0.01273  -2.534
+<pre><code>Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F |  
+    subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) +  
+    (0 + F | item) + (0 + SF | item))
+   Data: bs10
+
+     AIC      BIC   logLik deviance df.resid 
+  1106.1   1171.2   -540.0   1080.1     1091 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.8326 -0.2105 -0.0340  0.1138  5.1406 
+
+Random effects:
+ Groups   Name        Variance  Std.Dev. 
+ subj     (Intercept) 1.180e-02 1.086e-01
+ subj.1   S           1.008e-02 1.004e-01
+ subj.2   F           3.258e-18 1.805e-09
+ subj.3   SF          3.577e-03 5.981e-02
+ item     (Intercept) 0.000e+00 0.000e+00
+ item.1   S           0.000e+00 0.000e+00
+ item.2   F           0.000e+00 0.000e+00
+ item.3   SF          0.000e+00 0.000e+00
+ Residual             1.360e-01 3.688e-01
+Number of obs: 1104, groups:  subj, 92; item, 12
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  0.03922    0.01586   2.473
+S           -0.01741    0.01526  -1.141
+F            0.01748    0.01110   1.575
+SF          -0.03226    0.01273  -2.534
 </code></pre>
 
 <pre><code class="r">anova(m1, m0)
 </code></pre>
 
-<pre><code>## Data: bs10
-## Models:
-## m1: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F | 
-## m1:     subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) + 
-## m1:     (0 + F | item) + (0 + SF | item))
-## m0: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F + 
-## m0:     SF | item)
-##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)   
-## m1 13 1106.1 1171.2 -540.04   1080.1                            
-## m0 25 1099.2 1224.3 -524.59   1049.2 30.901     12    0.00204 **
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+<pre><code>Data: bs10
+Models:
+m1: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F | 
+m1:     subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) + 
+m1:     (0 + F | item) + (0 + SF | item))
+m0: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F + 
+m0:     SF | item)
+   Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+m1 13 1106.1 1171.2 -540.04   1080.1                         
+m0 25 1081.0 1206.1 -515.48   1031.0 49.125     12  1.989e-06
 </code></pre>
 
 <p>The <em>zcpLMM</em> fits significantly worse than the <em>maxLMM</em>. However, the results strongly suggest that quite a few of the variance components are not supported by the data. </p>
@@ -365,19 +373,19 @@ It can be conveniently specified using the <code>||</code> operator in the rando
 <pre><code class="r">summary(rePCA(m1))
 </code></pre>
 
-<pre><code>## $subj
-## Importance of components:
-##                          [,1]   [,2]   [,3]      [,4]
-## Standard deviation     0.2945 0.2722 0.1622 4.894e-09
-## Proportion of Variance 0.4636 0.3959 0.1405 0.000e+00
-## Cumulative Proportion  0.4636 0.8595 1.0000 1.000e+00
-## 
-## $item
-## Importance of components:
-##                        [,1] [,2] [,3] [,4]
-## Standard deviation        0    0    0    0
-## Proportion of Variance  NaN  NaN  NaN  NaN
-## Cumulative Proportion    NA   NA   NA   NA
+<pre><code>$subj
+Importance of components:
+                         [,1]   [,2]   [,3]      [,4]
+Standard deviation     0.2945 0.2722 0.1622 4.894e-09
+Proportion of Variance 0.4636 0.3959 0.1405 0.000e+00
+Cumulative Proportion  0.4636 0.8595 1.0000 1.000e+00
+
+$item
+Importance of components:
+                       [,1] [,2] [,3] [,4]
+Standard deviation        0    0    0    0
+Proportion of Variance  NaN  NaN  NaN  NaN
+Cumulative Proportion    NA   NA   NA   NA
 </code></pre>
 
 <p>The random effect for filler, <code>F</code>, by subject has essentially zero variance and the random effect for the interaction, <code>SF</code>, accounts for less than 15% of the total variation in the random effects.  There is no evidence for item-related random effects in <code>m1</code>.</p>
@@ -389,31 +397,31 @@ It can be conveniently specified using the <code>||</code> operator in the rando
 <pre><code class="r">print(summary(m2 &lt;- lmer(dif ~ 1+S+F+SF +  (1+S+SF||subj), bs10,  REML=FALSE)), corr=FALSE)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF |      subj))
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1096.1   1136.1   -540.0   1080.1     1096 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -4.8326 -0.2105 -0.0340  0.1138  5.1406 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev.
-##  subj     (Intercept) 0.011801 0.10863 
-##  subj.1   S           0.010078 0.10039 
-##  subj.2   SF          0.003577 0.05981 
-##  Residual             0.136033 0.36883 
-## Number of obs: 1104, groups:  subj, 92
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01586   2.473
-## S           -0.01741    0.01526  -1.141
-## F            0.01748    0.01110   1.575
-## SF          -0.03226    0.01273  -2.534
+<pre><code>Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF |      subj))
+   Data: bs10
+
+     AIC      BIC   logLik deviance df.resid 
+  1096.1   1136.1   -540.0   1080.1     1096 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.8326 -0.2105 -0.0340  0.1138  5.1406 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ subj     (Intercept) 0.011801 0.10863 
+ subj.1   S           0.010078 0.10039 
+ subj.2   SF          0.003577 0.05981 
+ Residual             0.136033 0.36883 
+Number of obs: 1104, groups:  subj, 92
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  0.03922    0.01586   2.473
+S           -0.01741    0.01526  -1.141
+F            0.01748    0.01110   1.575
+SF          -0.03226    0.01273  -2.534
 </code></pre>
 
 <p>Naturally, the fit for this model is equivalent to that for <code>m1</code> because it is only the variance components with zero estimates that are eliminated.</p>
@@ -421,62 +429,60 @@ It can be conveniently specified using the <code>||</code> operator in the rando
 <pre><code class="r">anova(m2,m1)
 </code></pre>
 
-<pre><code>## Data: bs10
-## Models:
-## m2: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF | 
-## m2:     subj))
-## m1: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F | 
-## m1:     subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) + 
-## m1:     (0 + F | item) + (0 + SF | item))
-##    Df    AIC    BIC  logLik deviance Chisq Chi Df Pr(&gt;Chisq)
-## m2  8 1096.1 1136.1 -540.04   1080.1                        
-## m1 13 1106.1 1171.2 -540.04   1080.1     0      5          1
+<pre><code>Data: bs10
+Models:
+m2: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF | 
+m2:     subj))
+m1: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F | 
+m1:     subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) + 
+m1:     (0 + F | item) + (0 + SF | item))
+   Df    AIC    BIC  logLik deviance Chisq Chi Df Pr(&gt;Chisq)
+m2  8 1096.1 1136.1 -540.04   1080.1                        
+m1 13 1106.1 1171.2 -540.04   1080.1     0      5          1
 </code></pre>
 
-<p>Next we check whether the variance component for the interactionm, <code>SF</code>, could reasonably be zero.</p>
+<p>Next we check whether the variance component for the interaction, <code>SF</code>, could reasonably be zero.</p>
 
 <pre><code class="r">print(summary(m3 &lt;- lmer(dif ~ 1+S+F+SF +  (1+S||subj), bs10, REML=FALSE)), corr=FALSE)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1097.4   1132.5   -541.7   1083.4     1097 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -4.9055 -0.2177 -0.0398  0.1207  5.0352 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev.
-##  subj     (Intercept) 0.011443 0.10697 
-##  subj.1   S           0.009721 0.09859 
-##  Residual             0.140326 0.37460 
-## Number of obs: 1104, groups:  subj, 92
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01586   2.473
-## S           -0.01741    0.01526  -1.141
-## F            0.01748    0.01127   1.551
-## SF          -0.03226    0.01127  -2.862
+<pre><code>Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
+   Data: bs10
+
+     AIC      BIC   logLik deviance df.resid 
+  1097.4   1132.5   -541.7   1083.4     1097 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.9055 -0.2177 -0.0398  0.1207  5.0352 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ subj     (Intercept) 0.011443 0.10697 
+ subj.1   S           0.009721 0.09859 
+ Residual             0.140326 0.37460 
+Number of obs: 1104, groups:  subj, 92
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  0.03922    0.01586   2.473
+S           -0.01741    0.01526  -1.141
+F            0.01748    0.01127   1.551
+SF          -0.03226    0.01127  -2.862
 </code></pre>
 
 <pre><code class="r">anova(m3, m2)
 </code></pre>
 
-<pre><code>## Data: bs10
-## Models:
-## m3: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
-## m2: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF | 
-## m2:     subj))
-##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)  
-## m3  7 1097.4 1132.5 -541.72   1083.4                           
-## m2  8 1096.1 1136.1 -540.04   1080.1 3.3506      1    0.06718 .
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+<pre><code>Data: bs10
+Models:
+m3: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
+m2: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF | 
+m2:     subj))
+   Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+m3  7 1097.4 1132.5 -541.72   1083.4                         
+m2  8 1096.1 1136.1 -540.04   1080.1 3.3506      1    0.06718
 </code></pre>
 
 <p>Not quite significant, but could be considered. The fit is still worse than for the <em>maxLMM</em> <code>m0</code>. We now reintroduce a correlation parameters in the vector-valued random effects for <code>subj</code>.</p>
@@ -486,47 +492,45 @@ It can be conveniently specified using the <code>||</code> operator in the rando
 <pre><code class="r">print(summary(m4 &lt;- lmer(dif ~ 1+S+F+SF + (1+S|subj), bs10,  REML=FALSE)), corr=FALSE)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + (1 + S | subj)
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1088.8   1128.9   -536.4   1072.8     1096 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -4.7083 -0.1947 -0.0455  0.0983  5.1540 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev. Corr 
-##  subj     (Intercept) 0.011443 0.10697       
-##           S           0.009721 0.09859  -0.70
-##  Residual             0.140326 0.37460       
-## Number of obs: 1104, groups:  subj, 92
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01586   2.473
-## S           -0.01741    0.01526  -1.141
-## F            0.01748    0.01127   1.551
-## SF          -0.03226    0.01127  -2.862
+<pre><code>Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+Formula: dif ~ 1 + S + F + SF + (1 + S | subj)
+   Data: bs10
+
+     AIC      BIC   logLik deviance df.resid 
+  1088.8   1128.9   -536.4   1072.8     1096 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.7083 -0.1947 -0.0455  0.0983  5.1540 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ subj     (Intercept) 0.011443 0.10697       
+          S           0.009721 0.09859  -0.70
+ Residual             0.140326 0.37460       
+Number of obs: 1104, groups:  subj, 92
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  0.03922    0.01586   2.473
+S           -0.01741    0.01526  -1.141
+F            0.01748    0.01127   1.551
+SF          -0.03226    0.01127  -2.862
 </code></pre>
 
 <pre><code class="r">anova(m3, m4, m0)
 </code></pre>
 
-<pre><code>## Data: bs10
-## Models:
-## m3: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
-## m4: dif ~ 1 + S + F + SF + (1 + S | subj)
-## m0: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F + 
-## m0:     SF | item)
-##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)   
-## m3  7 1097.4 1132.5 -541.72   1083.4                            
-## m4  8 1088.8 1128.9 -536.40   1072.8 10.628      1   0.001114 **
-## m0 25 1099.2 1224.3 -524.59   1049.2 23.623     17   0.130036   
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+<pre><code>Data: bs10
+Models:
+m3: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
+m4: dif ~ 1 + S + F + SF + (1 + S | subj)
+m0: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F + 
+m0:     SF | item)
+   Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+m3  7 1097.4 1132.5 -541.72   1083.4                         
+m4  8 1088.8 1128.9 -536.40   1072.8 10.628      1  0.0011140
+m0 25 1081.0 1206.1 -515.48   1031.0 41.848     17  0.0007054
 </code></pre>
 
 <p>Looks like we have evidence for a significant correlation parameter. Moreover, LMM <code>m4</code> fits as well as <em>maxLMM</em>. </p>
@@ -540,27 +544,28 @@ It can be conveniently specified using the <code>||</code> operator in the rando
 <pre><code class="r">sessionInfo()
 </code></pre>
 
-<pre><code>## R version 3.1.3 (2015-03-09)
-## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 14.10
-## 
-## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8       
-##  [4] LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
-##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C              
-## [10] LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
-## 
-## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
-## 
-## other attached packages:
-## [1] knitr_1.8.3         RePsychLing_0.0.3   devtools_1.6.1.9000 lme4_1.1-8         
-## [5] Rcpp_0.11.3         Matrix_1.1-4       
-## 
-## loaded via a namespace (and not attached):
-##  [1] digest_0.6.8    evaluate_0.5.5  formatR_1.0     grid_3.1.3      htmltools_0.2.6
-##  [6] lattice_0.20-30 MASS_7.3-39     minqa_1.2.4     nlme_3.1-120    nloptr_1.0.4   
-## [11] rmarkdown_0.4.2 splines_3.1.3   stringr_0.6.2   tools_3.1.3     yaml_2.1.13
+<pre><code>R version 3.1.3 (2015-03-09)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 14.10
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8       
+ [4] LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C              
+[10] LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] knitr_1.9.5       RePsychLing_0.0.3 lme4_1.1-8        Rcpp_0.11.3      
+[5] Matrix_1.1-4     
+
+loaded via a namespace (and not attached):
+ [1] devtools_1.7.0.9000 digest_0.6.8        evaluate_0.5.5      formatR_1.0        
+ [5] grid_3.1.3          htmltools_0.2.6     lattice_0.20-30     MASS_7.3-39        
+ [9] minqa_1.2.4         nlme_3.1-120        nloptr_1.0.4        rmarkdown_0.4.2    
+[13] splines_3.1.3       stringr_0.6.2       tools_3.1.3         yaml_2.1.13        
 </code></pre>
 
 <h1>References</h1>

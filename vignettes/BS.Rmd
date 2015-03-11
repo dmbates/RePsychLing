@@ -39,7 +39,7 @@ The two experimental factors `S` and `F`, both at two levels, are represented in
 
 ### Maximal linear mixed model (_maxLMM_)
 
-The maximal model has a full factorial design `1+S+F+SF` for the fixed-effects and for potentially correlated vector-valued random effects for the subject and the item.  We use the parameter estimates from an `lmm` fit using the [MixedModels package](https://github.com/dmbates/MixedModels.jl) package for [Julia](http://julialang.org), which can be much faster than fitting this model with `lmer`. (In addition to being faster, the fit from `lmm` produced a significantly lower deviance.)
+The maximal model has a full factorial design `1+S+F+SF` for the fixed-effects and for potentially correlated vector-valued random effects for `subj` and for `item`.  We use the parameter estimates from an `lmm` fit using the [MixedModels package](https://github.com/dmbates/MixedModels.jl) package for [Julia](http://julialang.org), which can be much faster than fitting this model with `lmer`. (In addition to being faster, the fit from `lmm` produced a significantly lower deviance.)
 
 ```{r m0,warning=FALSE}
 m0 <- lmer(dif ~ 1+S+F+SF + (1+S+F+SF|subj) + (1+S+F+SF|item), bs10, REML=FALSE, start=thcvg$bs10$m0,
@@ -48,7 +48,7 @@ m0 <- lmer(dif ~ 1+S+F+SF + (1+S+F+SF|subj) + (1+S+F+SF|item), bs10, REML=FALSE,
 summary(m0)
 ```
 
-The model converges with warnings. Nine of 12 correlation parameters are estimated at the +/-1 boundary. 
+The model converges with warnings. Six of 12 correlation parameters are estimated at the +/-1 boundary. 
 
 Notice that there are only 12 items.  Expecting to estimate 4 variances and 6 covariances from 12 items is optimistic.
 
