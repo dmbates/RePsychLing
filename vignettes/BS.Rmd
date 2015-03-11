@@ -1,7 +1,7 @@
 ---
-title: "RePsychLing Barr & Seyfeddinipur (2011)"
-author: "Reinhold Kliegl"
-date: "05 March, 2015"
+title: "RePsychLing Barr and Seyfeddinipur (2010)"
+author: "Reinhold Kliegl and Douglas Bates"
+date: "11 March, 2015"
 output:
   html_document: default
   pdf_document:
@@ -14,14 +14,15 @@ bibliography: RePsychLing.bib
 ---
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{RePsychLing Barr & Seyfeddinipur (2011)}
+%\VignetteIndexEntry{RePsychLing Barr and Seyfeddinipur (2010)}
 -->
 
 ```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
 library(lme4)
 library(RePsychLing)
 library(knitr)
-options(width=92)
+opts_chunk$set(comment=NA)
+options(width=92,show.signif.stars = FALSE)
 ```
 
 ## Data from @barrseyfedd2010
@@ -32,16 +33,19 @@ Some of the data from @barrseyfedd2010 are available as the data frame `bs10` in
 str(bs10)
 ```
 
-As with other data frames in this package, the subject and item factors are called `subj` and `item`.  The response being modelled, `dif`, variable is the difference in two response times.
+As with other data frames in this package, the subject and item factors are called `subj` and `item`.  The response being modelled, `dif`, is the difference in two response times.
 
 The two experimental factors `S` and `F`, both at two levels, are represented in the -1/+1 encoding, as is their interaction, `SF`.  The `S` factor is the speaker condition with levels -1 for the same speaker in both trials and +1 for different speakers.  The `F` factor is the filler condition with levels -1 for `NS` and +1 for `FP`.
 
 ### Maximal linear mixed model (_maxLMM_)
 
-The maximal model has a full factorial design `1+S+F+SF` for the fixed-effects and for potentially correlated vector-valued random effects for the subject and the item.
+The maximal model has a full factorial design `1+S+F+SF` for the fixed-effects and for potentially correlated vector-valued random effects for the subject and the item.  We use the parameter estimates from an `lmm` fit using the [MixedModels package](https://github.com/dmbates/MixedModels.jl) package for [Julia](http://julialang.org), which can be much faster than fitting this model with `lmer`. (In addition to being faster, the fit from `lmm` produced a significantly lower deviance.)
 
-```{r m0}
-print(summary(m0 <- lmer(dif ~ 1+S+F+SF + (1+S+F+SF|subj) + (1+S+F+SF|item), bs10, REML=FALSE)), corr=FALSE)
+```{r m0,warning=FALSE}
+m0 <- lmer(dif ~ 1+S+F+SF + (1+S+F+SF|subj) + (1+S+F+SF|item), bs10, REML=FALSE, start=thcvg$bs10$m0,
+           control=lmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=1L),
+                               check.conv.grad="ignore",check.conv.hess="ignore"))
+summary(m0)
 ```
 
 The model converges with warnings. Nine of 12 correlation parameters are estimated at the +/-1 boundary. 
@@ -93,7 +97,7 @@ Naturally, the fit for this model is equivalent to that for `m1` because it is o
 anova(m2,m1)
 ```
 
-Next we check whether the variance component for the interactionm, `SF`, could reasonably be zero.
+Next we check whether the variance component for the interaction, `SF`, could reasonably be zero.
 
 ```{r m3}
 print(summary(m3 <- lmer(dif ~ 1+S+F+SF +  (1+S||subj), bs10, REML=FALSE)), corr=FALSE)

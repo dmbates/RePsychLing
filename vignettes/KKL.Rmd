@@ -19,7 +19,7 @@ library(lme4)
 library(knitr)
 library(RePsychLing)
 
-opts_chunk$set(cache=TRUE)
+opts_chunk$set(cache=FALSE)
 options(show.signif.stars=FALSE,width=92)
 ```
 
@@ -47,7 +47,7 @@ KKL$sze_grv_orn <- mm[, 16]
 m0 <- lmer(lrt ~ sze*(spt+obj+grv)*orn + 
                              (spt + obj + grv + orn + spt_orn + obj_orn + grv_orn | subj),
                          data=KKL, REML=FALSE, control=lmerControl(optCtrl=list(maxfun=10000L)))
-print(summary(m0), corr=FALSE)   
+#print(summary(m0), corr=FALSE)   
 ```
 
 The _maxLMM_ converges with a warning (i.e., "maxfun < 10 * length(par)^2 is not recommended") that we may be asking too much of these data. Nevertheless, at a first glance, model parameters look agreeable. None of the variance components are very close to zero and none of the correlation parameters are at the boundary (i.e., assume values of +1 or -1). 
