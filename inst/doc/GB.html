@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>Data from @barrseyfedd2010</title>
+<title>Data from Gann &amp; Barr (2012)</title>
 
 <script type="text/javascript">
 window.onload = function() {
@@ -203,337 +203,311 @@ hr {
 <body>
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{RePsychLing Barr & Seyfeddinipur (2011)}
+%\VignetteIndexEntry{RePsychLing Gann & Barr (2012)}
 -->
 
-<h2>Data from @barrseyfedd2010</h2>
+<h2>Data from Gann &amp; Barr (2012)</h2>
 
-<p>Some of the data from @barrseyfedd2010 are available as the data frame <code>bs10</code> in the <code>RePsychLing</code> package.  </p>
+<p>These data are available as <code>gb12</code> in the <code>RePsychLing</code> package.</p>
 
-<pre><code class="r">str(bs10)
+<pre><code class="r">str(gb12)
 </code></pre>
 
-<pre><code>## &#39;data.frame&#39;:    1104 obs. of  6 variables:
-##  $ subj: Factor w/ 92 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ item: Factor w/ 12 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 12 3 6 9 11 10 5 7 2 1 ...
-##  $ dif : num  0 0 0 0 0 0.55 1 0 -0.8 0 ...
-##  $ S   : int  -1 1 1 -1 -1 -1 -1 1 1 1 ...
-##  $ F   : num  -1 1 -1 -1 1 -1 1 -1 1 1 ...
-##  $ SF  : num  1 1 -1 1 -1 1 -1 -1 1 1 ...
+<pre><code>## &#39;data.frame&#39;:    512 obs. of  12 variables:
+##  $ session  : Factor w/ 32 levels &quot;56&quot;,&quot;57&quot;,&quot;60&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ phase    : Factor w/ 4 levels &quot;2&quot;,&quot;4&quot;,&quot;6&quot;,&quot;8&quot;: 1 1 1 1 2 2 2 2 3 3 ...
+##  $ list     : Factor w/ 4 levels &quot;1&quot;,&quot;2&quot;,&quot;5&quot;,&quot;6&quot;: 4 4 4 4 4 4 4 4 4 4 ...
+##  $ item     : Factor w/ 16 levels &quot;4&quot;,&quot;5&quot;,&quot;9&quot;,&quot;10&quot;,..: 2 1 4 3 5 6 8 7 9 10 ...
+##  $ sottrunc2: num  2461 1497 1648 3320 1671 ...
+##  $ T        : num  1 1 -1 -1 1 1 -1 -1 1 1 ...
+##  $ P        : num  -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 ...
+##  $ F        : num  -1 -1 -1 -1 -1 -1 -1 -1 1 1 ...
+##  $ TP       : num  -1 -1 1 1 -1 -1 1 1 -1 -1 ...
+##  $ TF       : num  -1 -1 1 1 -1 -1 1 1 1 1 ...
+##  $ PF       : num  1 1 1 1 1 1 1 1 -1 -1 ...
+##  $ TPF      : num  1 1 -1 -1 1 1 -1 -1 -1 -1 ...
 </code></pre>
 
-<p>As with other data frames in this package, the subject and item factors are called <code>subj</code> and <code>item</code>.  The response being modelled, <code>dif</code>, variable is the difference in two response times.</p>
+<pre><code class="r">summary(gb12)
+</code></pre>
 
-<p>The two experimental factors <code>S</code> and <code>F</code>, both at two levels, are represented in the -1/+1 encoding, as is their interaction, <code>SF</code>.  The <code>S</code> factor is the speaker condition with levels -1 for the same speaker in both trials and +1 for different speakers.  The <code>F</code> factor is the filler condition with levels -1 for <code>NS</code> and +1 for <code>FP</code>.</p>
+<pre><code>##     session    phase   list         item       sottrunc2          T            P     
+##  56     : 16   2:128   1:128   4      : 32   Min.   : 661   Min.   :-1   Min.   :-1  
+##  57     : 16   4:128   2:128   5      : 32   1st Qu.:1262   1st Qu.:-1   1st Qu.:-1  
+##  60     : 16   6:128   5:128   9      : 32   Median :1604   Median : 0   Median : 0  
+##  61     : 16   8:128   6:128   10     : 32   Mean   :1788   Mean   : 0   Mean   : 0  
+##  62     : 16                   14     : 32   3rd Qu.:2044   3rd Qu.: 1   3rd Qu.: 1  
+##  63     : 16                   15     : 32   Max.   :4216   Max.   : 1   Max.   : 1  
+##  (Other):416                   (Other):320                                           
+##        F            TP           TF           PF          TPF    
+##  Min.   :-1   Min.   :-1   Min.   :-1   Min.   :-1   Min.   :-1  
+##  1st Qu.:-1   1st Qu.:-1   1st Qu.:-1   1st Qu.:-1   1st Qu.:-1  
+##  Median : 0   Median : 0   Median : 0   Median : 0   Median : 0  
+##  Mean   : 0   Mean   : 0   Mean   : 0   Mean   : 0   Mean   : 0  
+##  3rd Qu.: 1   3rd Qu.: 1   3rd Qu.: 1   3rd Qu.: 1   3rd Qu.: 1  
+##  Max.   : 1   Max.   : 1   Max.   : 1   Max.   : 1   Max.   : 1  
+## 
+</code></pre>
 
 <h3>Maximal linear mixed model (<em>maxLMM</em>)</h3>
 
-<p>The maximal model has a full factorial design <code>1+S+F+SF</code> for the fixed-effects and for potentially correlated vector-valued random effects for the subject and the item.</p>
+<p>We assume <code>P</code>, the partner, is a between-session factor and <code>F</code>, feedback, is a between-item factor (i.e., they are not included in RE terms). The model fit in the paper is:</p>
 
-<pre><code class="r">print(summary(m0 &lt;- lmer(dif ~ 1+S+F+SF + (1+S+F+SF|subj) + (1+S+F+SF|item), bs10, REML=FALSE)), corr=FALSE)
+<pre><code class="r">print(summary(m0 &lt;- lmer(
+    sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF+(1+T+F+TF|session)+(1+T+P+TP|item), gb12,REML=FALSE)), corr=FALSE)
 </code></pre>
 
 <pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F +      SF | item)
-##    Data: bs10
+## Formula: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + (1 + T + F +  
+##     TF | session) + (1 + T + P + TP | item)
+##    Data: gb12
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##   1099.2   1224.3   -524.6   1049.2     1079 
+##   7984.7   8107.7  -3963.4   7926.7      483 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -5.0282 -0.1408 -0.0351  0.0816  5.3237 
+## -2.9475 -0.5692 -0.1048  0.4505  3.4792 
 ## 
 ## Random effects:
-##  Groups   Name        Variance  Std.Dev. Corr             
-##  subj     (Intercept) 1.030e-02 0.101492                  
-##           S           8.453e-03 0.091940 -1.00            
-##           F           2.876e-03 0.053630  1.00 -1.00      
-##           SF          3.614e-03 0.060112 -0.64  0.64 -0.62
-##  item     (Intercept) 2.729e-04 0.016520                  
-##           S           7.356e-05 0.008577 -1.00            
-##           F           1.060e-04 0.010294  1.00 -1.00      
-##           SF          7.535e-05 0.008680 -1.00  1.00 -1.00
-##  Residual             1.358e-01 0.368469                  
-## Number of obs: 1104, groups:  subj, 92; item, 12
+##  Groups   Name        Variance Std.Dev. Corr             
+##  session  (Intercept) 103464   321.66                    
+##           T            26882   163.96    0.99            
+##           F            15328   123.81    0.13 -0.04      
+##           TF            2776    52.69    0.12 -0.04  1.00
+##  item     (Intercept)  19870   140.96                    
+##           T            10218   101.09   1.00             
+##           P             2475    49.75   0.31  0.31       
+##           TP            1991    44.62   0.35  0.35  1.00 
+##  Residual             242055   491.99                    
+## Number of obs: 512, groups:  session, 32; item, 16
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01605   2.443
-## S           -0.01741    0.01487  -1.171
-## F            0.01748    0.01277   1.369
-## SF          -0.03226    0.01298  -2.485
+## (Intercept)  1787.92      70.34  25.418
+## T             368.71      44.18   8.346
+## P              63.99      62.13   1.030
+## F             -98.34      46.84  -2.100
+## TP            131.56      37.91   3.470
+## TF             12.14      34.61   0.351
+## PF            -29.33      33.26  -0.882
+## TPF           -29.89      26.15  -1.143
 ## convergence code: 0
-## Model failed to converge with max|grad| = 0.09297 (tol = 0.002, component 1)
 ## Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
 </code></pre>
 
-<p>The model converges with warnings. Nine of 12 correlation parameters are estimated at the +/-1 boundary. </p>
+<p>The model converges without problems, but two correlation parameters are estimated as 1.</p>
 
-<p>Notice that there are only 12 items.  Expecting to estimate 4 variances and 6 covariances from 12 items is optimistic.</p>
-
-<h3>PCA analysis of the <em>maxLMM</em></h3>
-
-<p>A summary of a principal components analysis (PCA) of the random-effects variance-covariance
-matrices shows</p>
+<h3>Principal components analysis for <em>maxLMM</em></h3>
 
 <pre><code class="r">summary(rePCA(m0))
 </code></pre>
 
-<pre><code>## $subj
+<pre><code>## $session
 ## Importance of components:
-##                          [,1]    [,2]      [,3] [,4]
-## Standard deviation     0.4140 0.12069 7.062e-07    0
-## Proportion of Variance 0.9217 0.07834 0.000e+00    0
-## Cumulative Proportion  0.9217 1.00000 1.000e+00    1
+##                          [,1]   [,2]      [,3]      [,4]
+## Standard deviation     0.7327 0.2764 2.449e-07 2.488e-08
+## Proportion of Variance 0.8755 0.1245 0.000e+00 0.000e+00
+## Cumulative Proportion  0.8755 1.0000 1.000e+00 1.000e+00
 ## 
 ## $item
 ## Importance of components:
-##                           [,1]      [,2]      [,3] [,4]
-## Standard deviation     0.06235 6.156e-08 2.446e-08    0
-## Proportion of Variance 1.00000 0.000e+00 0.000e+00    0
-## Cumulative Proportion  1.00000 1.000e+00 1.000e+00    1
+##                          [,1]  [,2]      [,3] [,4]
+## Standard deviation     0.3558 0.127 1.478e-07    0
+## Proportion of Variance 0.8870 0.113 0.000e+00    0
+## Cumulative Proportion  0.8870 1.000 1.000e+00    1
 </code></pre>
 
-<p>For both the by-subject and the by-item random effects the estimated variance-covariance matrices are singular.  There are at least 2 dimensions with no variation in the subject-related random-effects and 3 directions with no variation for the item-related random-effects.</p>
-
-<p>Clearly the model is over-specified.</p>
+<p>The PCA results indicate two dimensions with no variability in the random
+effects for session and another two dimensions in the random effects for item.</p>
 
 <h3>Zero-correlation-parameter linear mixed model (<em>zcpLMM</em>)</h3>
 
-<p>A zero-correlation-parameter model fits independent random effects for the intercept, the experimental factors and their interaction for each of the <code>subj</code> and <code>item</code> grouping factors.
-It can be conveniently specified using the <code>||</code> operator in the random-effects terms.</p>
-
-<pre><code class="r">print(summary(m1 &lt;- lmer(dif ~ 1+S+F+SF + (1+S+F+SF||subj) + (1+S+F+SF||item), bs10, REML=FALSE)), corr=FALSE)
+<pre><code class="r">m1 &lt;- 
+  lmer(sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF + (1+T+F+TF||session) + (1+T+P+TP||item),
+       gb12, REML=FALSE)
+VarCorr(m1)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F |  
-##     subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) +  
-##     (0 + F | item) + (0 + SF | item))
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1106.1   1171.2   -540.0   1080.1     1091 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -4.8326 -0.2105 -0.0340  0.1138  5.1406 
-## 
-## Random effects:
-##  Groups   Name        Variance  Std.Dev. 
-##  subj     (Intercept) 1.180e-02 1.086e-01
-##  subj.1   S           1.008e-02 1.004e-01
-##  subj.2   F           3.258e-18 1.805e-09
-##  subj.3   SF          3.577e-03 5.981e-02
-##  item     (Intercept) 0.000e+00 0.000e+00
-##  item.1   S           0.000e+00 0.000e+00
-##  item.2   F           0.000e+00 0.000e+00
-##  item.3   SF          0.000e+00 0.000e+00
-##  Residual             1.360e-01 3.688e-01
-## Number of obs: 1104, groups:  subj, 92; item, 12
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01586   2.473
-## S           -0.01741    0.01526  -1.141
-## F            0.01748    0.01110   1.575
-## SF          -0.03226    0.01273  -2.534
+<pre><code>##  Groups    Name        Std.Dev.
+##  session   (Intercept) 316.72  
+##  session.1 T           145.16  
+##  session.2 F           110.79  
+##  session.3 TF            0.00  
+##  item      (Intercept) 130.96  
+##  item.1    T            79.50  
+##  item.2    P             0.00  
+##  item.3    TP            0.00  
+##  Residual              514.69
 </code></pre>
 
 <pre><code class="r">anova(m1, m0)
 </code></pre>
 
-<pre><code>## Data: bs10
+<pre><code>## Data: gb12
 ## Models:
-## m1: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F | 
-## m1:     subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) + 
-## m1:     (0 + F | item) + (0 + SF | item))
-## m0: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F + 
-## m0:     SF | item)
-##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)   
-## m1 13 1106.1 1171.2 -540.04   1080.1                            
-## m0 25 1099.2 1224.3 -524.59   1049.2 30.901     12    0.00204 **
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## m1: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + ((1 | session) + 
+## m1:     (0 + T | session) + (0 + F | session) + (0 + TF | session)) + 
+## m1:     ((1 | item) + (0 + T | item) + (0 + P | item) + (0 + TP | 
+## m1:         item))
+## m0: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + (1 + T + F + 
+## m0:     TF | session) + (1 + T + P + TP | item)
+##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m1 17 8011.4 8083.4 -3988.7   7977.4                         
+## m0 29 7984.7 8107.7 -3963.4   7926.7 50.621     12  1.086e-06
 </code></pre>
 
-<p>The <em>zcpLMM</em> fits significantly worse than the <em>maxLMM</em>. However, the results strongly suggest that quite a few of the variance components are not supported by the data. </p>
-
-<h3>PCA for the <em>zcpLMM</em></h3>
-
-<pre><code class="r">summary(rePCA(m1))
-</code></pre>
-
-<pre><code>## $subj
-## Importance of components:
-##                          [,1]   [,2]   [,3]      [,4]
-## Standard deviation     0.2945 0.2722 0.1622 4.894e-09
-## Proportion of Variance 0.4636 0.3959 0.1405 0.000e+00
-## Cumulative Proportion  0.4636 0.8595 1.0000 1.000e+00
-## 
-## $item
-## Importance of components:
-##                        [,1] [,2] [,3] [,4]
-## Standard deviation        0    0    0    0
-## Proportion of Variance  NaN  NaN  NaN  NaN
-## Cumulative Proportion    NA   NA   NA   NA
-</code></pre>
-
-<p>The random effect for filler, <code>F</code>, by subject has essentially zero variance and the random effect for the interaction, <code>SF</code>, accounts for less than 15% of the total variation in the random effects.  There is no evidence for item-related random effects in <code>m1</code>.</p>
+<p>The <em>zcpLMM</em> fits significantly worse than the <em>maxLMM</em>, but it reveals several variance components with values close to or of zero.  </p>
 
 <h3>Iterative reduction of model complexity</h3>
 
-<p>Remove all variance components estimated with a value of zero. </p>
+<p>Let&#39;s refit the model without small variance components. </p>
 
-<pre><code class="r">print(summary(m2 &lt;- lmer(dif ~ 1+S+F+SF +  (1+S+SF||subj), bs10,  REML=FALSE)), corr=FALSE)
+<pre><code class="r">m2 &lt;-
+  lmer(sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF + (1+T+F||session) + (1+T||item), 
+       gb12, REML=FALSE)
+VarCorr(m2)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF |      subj))
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1096.1   1136.1   -540.0   1080.1     1096 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -4.8326 -0.2105 -0.0340  0.1138  5.1406 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev.
-##  subj     (Intercept) 0.011801 0.10863 
-##  subj.1   S           0.010078 0.10039 
-##  subj.2   SF          0.003577 0.05981 
-##  Residual             0.136033 0.36883 
-## Number of obs: 1104, groups:  subj, 92
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01586   2.473
-## S           -0.01741    0.01526  -1.141
-## F            0.01748    0.01110   1.575
-## SF          -0.03226    0.01273  -2.534
+<pre><code>##  Groups    Name        Std.Dev.
+##  session   (Intercept) 316.72  
+##  session.1 T           145.16  
+##  session.2 F           110.79  
+##  item      (Intercept) 130.96  
+##  item.1    T            79.50  
+##  Residual              514.69
 </code></pre>
 
-<p>Naturally, the fit for this model is equivalent to that for <code>m1</code> because it is only the variance components with zero estimates that are eliminated.</p>
-
-<pre><code class="r">anova(m2,m1)
+<pre><code class="r">anova(m2, m1, m0)
 </code></pre>
 
-<pre><code>## Data: bs10
+<pre><code>## Data: gb12
 ## Models:
-## m2: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF | 
-## m2:     subj))
-## m1: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + F | 
-## m1:     subj) + (0 + SF | subj)) + ((1 | item) + (0 + S | item) + 
-## m1:     (0 + F | item) + (0 + SF | item))
-##    Df    AIC    BIC  logLik deviance Chisq Chi Df Pr(&gt;Chisq)
-## m2  8 1096.1 1136.1 -540.04   1080.1                        
-## m1 13 1106.1 1171.2 -540.04   1080.1     0      5          1
+## m2: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + ((1 | session) + 
+## m2:     (0 + T | session) + (0 + F | session)) + ((1 | item) + (0 + 
+## m2:     T | item))
+## m1: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + ((1 | session) + 
+## m1:     (0 + T | session) + (0 + F | session) + (0 + TF | session)) + 
+## m1:     ((1 | item) + (0 + T | item) + (0 + P | item) + (0 + TP | 
+## m1:         item))
+## m0: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + (1 + T + F + 
+## m0:     TF | session) + (1 + T + P + TP | item)
+##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m2 14 8005.4 8064.7 -3988.7   7977.4                         
+## m1 17 8011.4 8083.4 -3988.7   7977.4  0.000      3          1
+## m0 29 7984.7 8107.7 -3963.4   7926.7 50.621     12  1.086e-06
 </code></pre>
 
-<p>Next we check whether the variance component for the interactionm, <code>SF</code>, could reasonably be zero.</p>
+<p>Let&#39;s check the support of item-related variance components</p>
 
-<pre><code class="r">print(summary(m3 &lt;- lmer(dif ~ 1+S+F+SF +  (1+S||subj), bs10, REML=FALSE)), corr=FALSE)
+<pre><code class="r">m3 &lt;-
+  lmer(sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF + (1+T+F||session) + (1|item),
+       gb12, REML=FALSE)
+VarCorr(m3)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1097.4   1132.5   -541.7   1083.4     1097 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -4.9055 -0.2177 -0.0398  0.1207  5.0352 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev.
-##  subj     (Intercept) 0.011443 0.10697 
-##  subj.1   S           0.009721 0.09859 
-##  Residual             0.140326 0.37460 
-## Number of obs: 1104, groups:  subj, 92
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01586   2.473
-## S           -0.01741    0.01526  -1.141
-## F            0.01748    0.01127   1.551
-## SF          -0.03226    0.01127  -2.862
+<pre><code>##  Groups    Name        Std.Dev.
+##  session   (Intercept) 315.49  
+##  session.1 T           142.44  
+##  session.2 F           107.54  
+##  item      (Intercept) 129.93  
+##  Residual              522.10
 </code></pre>
 
 <pre><code class="r">anova(m3, m2)
 </code></pre>
 
-<pre><code>## Data: bs10
+<pre><code>## Data: gb12
 ## Models:
-## m3: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
-## m2: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj) + (0 + SF | 
-## m2:     subj))
-##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)  
-## m3  7 1097.4 1132.5 -541.72   1083.4                           
-## m2  8 1096.1 1136.1 -540.04   1080.1 3.3506      1    0.06718 .
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## m3: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + ((1 | session) + 
+## m3:     (0 + T | session) + (0 + F | session)) + (1 | item)
+## m2: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + ((1 | session) + 
+## m2:     (0 + T | session) + (0 + F | session)) + ((1 | item) + (0 + 
+## m2:     T | item))
+##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m3 13 8006.1 8061.2 -3990.1   7980.1                         
+## m2 14 8005.4 8064.7 -3988.7   7977.4 2.7666      1    0.09625
 </code></pre>
 
-<p>Not quite significant, but could be considered. The fit is still worse than for the <em>maxLMM</em> <code>m0</code>. We now reintroduce a correlation parameters in the vector-valued random effects for <code>subj</code>.</p>
+<p>Marginally significant drop. (Deleting also intercept leads to significant drop in goodness of fit.)</p>
 
 <h3>Extending the reduced LMM with correlation parameters</h3>
 
-<pre><code class="r">print(summary(m4 &lt;- lmer(dif ~ 1+S+F+SF + (1+S|subj), bs10,  REML=FALSE)), corr=FALSE)
+<p>Let&#39;s check correlation parameters for <code>SubjID</code></p>
+
+<pre><code class="r">m4 &lt;- 
+  lmer(sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF + (1+T+F|session) + (1|item), 
+       gb12, REML=FALSE)
 </code></pre>
 
-<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
-## Formula: dif ~ 1 + S + F + SF + (1 + S | subj)
-##    Data: bs10
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1088.8   1128.9   -536.4   1072.8     1096 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -4.7083 -0.1947 -0.0455  0.0983  5.1540 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev. Corr 
-##  subj     (Intercept) 0.011443 0.10697       
-##           S           0.009721 0.09859  -0.70
-##  Residual             0.140326 0.37460       
-## Number of obs: 1104, groups:  subj, 92
-## 
-## Fixed effects:
-##             Estimate Std. Error t value
-## (Intercept)  0.03922    0.01586   2.473
-## S           -0.01741    0.01526  -1.141
-## F            0.01748    0.01127   1.551
-## SF          -0.03226    0.01127  -2.862
+<pre><code>## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl = control$checkConv, : Model failed
+## to converge with max|grad| = 0.0674817 (tol = 0.002, component 1)
 </code></pre>
 
-<pre><code class="r">anova(m3, m4, m0)
+<pre><code>## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl = control$checkConv, : Model is nearly unidentifiable: large eigenvalue ratio
+##  - Rescale variables?
 </code></pre>
 
-<pre><code>## Data: bs10
+<pre><code class="r">VarCorr(m4)
+</code></pre>
+
+<pre><code>##  Groups   Name        Std.Dev. Corr       
+##  session  (Intercept) 317.90              
+##           T           158.89   1.000      
+##           F           109.68   0.098 0.098
+##  item     (Intercept) 129.19              
+##  Residual             514.89
+</code></pre>
+
+<pre><code class="r">anova(m3, m4)
+</code></pre>
+
+<pre><code>## Data: gb12
 ## Models:
-## m3: dif ~ 1 + S + F + SF + ((1 | subj) + (0 + S | subj))
-## m4: dif ~ 1 + S + F + SF + (1 + S | subj)
-## m0: dif ~ 1 + S + F + SF + (1 + S + F + SF | subj) + (1 + S + F + 
-## m0:     SF | item)
-##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)   
-## m3  7 1097.4 1132.5 -541.72   1083.4                            
-## m4  8 1088.8 1128.9 -536.40   1072.8 10.628      1   0.001114 **
-## m0 25 1099.2 1224.3 -524.59   1049.2 23.623     17   0.130036   
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## m3: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + ((1 | session) + 
+## m3:     (0 + T | session) + (0 + F | session)) + (1 | item)
+## m4: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + (1 + T + F | 
+## m4:     session) + (1 | item)
+##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m3 13 8006.1 8061.2 -3990.1   7980.1                         
+## m4 16 7981.7 8049.5 -3974.8   7949.7 30.478      3  1.095e-06
 </code></pre>
 
-<p>Looks like we have evidence for a significant correlation parameter. Moreover, LMM <code>m4</code> fits as well as <em>maxLMM</em>. </p>
+<p>The correlation parameter is significant, but one correlation is 1.000, indicating a singular model. Let&#39;s remove the small correlation parameters.</p>
 
-<h3>Summary</h3>
+<h3>Pruning small correlation parameters</h3>
 
-<p>LMM <code>m4</code> is the optimal model. It might be worth while to check the theoretical contribution of the correlation parameter.  </p>
+<pre><code class="r">m5 &lt;-
+  lmer(sottrunc2 ~ 1+T+P+F+TP+TF+PF+TPF + (1+F|session) + (0+T|session) + (1|item),
+       gb12, REML=FALSE)
+VarCorr(m5)
+</code></pre>
+
+<pre><code>##  Groups    Name        Std.Dev. Corr 
+##  session   (Intercept) 315.49        
+##            F           107.54   0.142
+##  session.1 T           142.44        
+##  item      (Intercept) 129.91        
+##  Residual              522.10
+</code></pre>
+
+<pre><code class="r">anova(m5, m4)
+</code></pre>
+
+<pre><code>## Data: gb12
+## Models:
+## m5: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + (1 + F | session) + 
+## m5:     (0 + T | session) + (1 | item)
+## m4: sottrunc2 ~ 1 + T + P + F + TP + TF + PF + TPF + (1 + T + F | 
+## m4:     session) + (1 | item)
+##    Df    AIC    BIC  logLik deviance  Chisq Chi Df Pr(&gt;Chisq)
+## m5 14 8007.9 8067.2 -3990.0   7979.9                         
+## m4 16 7981.7 8049.5 -3974.8   7949.7 30.256      2  2.692e-07
+</code></pre>
+
+<p>Now the model is clearly degenerate: The correlation is at the boundary (-1); <code>theta</code> returns a zero value for one of the variance components.</p>
+
+<h2>Summary</h2>
 
 <h2>Versions of packages used</h2>
 
@@ -559,11 +533,10 @@ It can be conveniently specified using the <code>||</code> operator in the rando
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] digest_0.6.8    evaluate_0.5.5  formatR_1.0     grid_3.1.3      htmltools_0.2.6
-##  [6] lattice_0.20-30 MASS_7.3-39     minqa_1.2.4     nlme_3.1-120    nloptr_1.0.4   
-## [11] rmarkdown_0.4.2 splines_3.1.3   stringr_0.6.2   tools_3.1.3     yaml_2.1.13
+##  [6] lattice_0.20-30 markdown_0.7.4  MASS_7.3-39     minqa_1.2.4     nlme_3.1-120   
+## [11] nloptr_1.0.4    rmarkdown_0.4.2 splines_3.1.3   stringr_0.6.2   tools_3.1.3    
+## [16] yaml_2.1.13
 </code></pre>
-
-<h1>References</h1>
 
 </body>
 

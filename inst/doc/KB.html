@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>Data from Kronmüller &amp; Barr (2007)</title>
+<title>Revisiting Kronmüller &amp; Barr (2007)</title>
 
 <script type="text/javascript">
 window.onload = function() {
@@ -203,8 +203,10 @@ hr {
 <body>
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Revisiting Kronmueller & Barr (2007)}
+%\VignetteIndexEntry{RePsychLing Kronmueller & Barr (2007)}
 -->
+
+<h1>Revisiting Kronmüller &amp; Barr (2007)</h1>
 
 <p>We apply the iterative reduction of LMM complexity to truncated response times of a 2x2x2 factorial psycholinguistic experiment (Kronmüller &amp; Barr, 2007, Exp. 2; reanalyzed with an LMM in Barr et al., 2012). The data are from 56 subjects who responded to 32 items. Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved (1) auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (2) with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker, and (3) whether the task had to be performed without or with a cognitive load consisting of six random digits. All factors were varied within subjects and within items. There were main effects of Load, Speaker, and Precedent; none of the interactions were significant. Although standard errors of fixed-effect coefficents varied slightly across models, our reanalyses afforded the same statistical inference about the experimental manipulations as the original article, irrespective of LMM specification. The purpose of the analysis is to illustrate an assessment of model complexity as far as variance components and correlation parameters are concerned, neither of which were in the focus of the original publication. </p>
 
@@ -646,12 +648,13 @@ print(summary(m6), corr=FALSE)
 <pre><code class="r">sessionInfo()
 </code></pre>
 
-<pre><code>## R version 3.1.2 (2014-10-31)
+<pre><code>## R version 3.1.3 (2015-03-09)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 14.10
 ## 
 ## locale:
 ##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8       
-##  [4] LC_COLLATE=C               LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [4] LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
 ##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C              
 ## [10] LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
@@ -659,13 +662,14 @@ print(summary(m6), corr=FALSE)
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] knitr_1.9           RePsychLing_0.0.3-0 lme4_1.1-8          Rcpp_0.11.4        
-## [5] Matrix_1.1-5       
+## [1] knitr_1.8.3         RePsychLing_0.0.3   devtools_1.6.1.9000 lme4_1.1-8         
+## [5] Rcpp_0.11.3         Matrix_1.1-4       
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] MASS_7.3-39     evaluate_0.5.5  formatR_1.0     grid_3.1.2      lattice_0.20-30
-##  [6] markdown_0.7.4  minqa_1.2.4     nlme_3.1-120    nloptr_1.0.4    splines_3.1.2  
-## [11] stringr_0.6.2   tools_3.1.2
+##  [1] digest_0.6.8    evaluate_0.5.5  formatR_1.0     grid_3.1.3      htmltools_0.2.6
+##  [6] lattice_0.20-30 markdown_0.7.4  MASS_7.3-39     minqa_1.2.4     nlme_3.1-120   
+## [11] nloptr_1.0.4    rmarkdown_0.4.2 splines_3.1.3   stringr_0.6.2   tools_3.1.3    
+## [16] yaml_2.1.13
 </code></pre>
 
 </body>
