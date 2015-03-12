@@ -1,7 +1,7 @@
 ---
-title: "RePsychLing Kronmüller & Barr (2007)"
+title: "RePsychLing Kronmüller and Barr (2007)"
 author: "Reinhold Kliegl"
-date: "March 5, 2015"
+date: "March 11, 2015"
 output:
   html_document: default
   pdf_document:
@@ -10,10 +10,11 @@ output:
   word_document: default
 geometry: margin=1in
 fontsize: 12pt
+bibliography: RePsychLing.bib
 ---
 <!-- 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{RePsychLing Kronmueller & Barr (2007)}
+%\VignetteIndexEntry{RePsychLing Kronmueller and Barr (2007)}
 -->
 
 
@@ -21,14 +22,14 @@ fontsize: 12pt
 library(lme4)
 library(RePsychLing)
 library(knitr)
-#opts_chunk$set(cache=TRUE)
+opts_chunk$set(comment=NA)
 options(width=92,show.signif.stars = FALSE)
 ```
-# Revisiting Kronmüller & Barr (2007)
+# Revisiting @Kronmuller:Barr:2007
 
-We apply the iterative reduction of LMM complexity to truncated response times of a 2x2x2 factorial psycholinguistic experiment (Kronmüller \& Barr, 2007, Exp. 2; reanalyzed with an LMM in Barr et al., 2012). The data are from 56 subjects who responded to 32 items. Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved (1) auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (2) with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker, and (3) whether the task had to be performed without or with a cognitive load consisting of six random digits. All factors were varied within subjects and within items. There were main effects of Load, Speaker, and Precedent; none of the interactions were significant. Although standard errors of fixed-effect coefficents varied slightly across models, our reanalyses afforded the same statistical inference about the experimental manipulations as the original article, irrespective of LMM specification. The purpose of the analysis is to illustrate an assessment of model complexity as far as variance components and correlation parameters are concerned, neither of which were in the focus of the original publication. 
+We apply the iterative reduction of LMM complexity to truncated response times of a 2x2x2 factorial psycholinguistic experiment (@Kronmuller:Barr:2007, Exp. 2; reanalyzed with an LMM in @Barr:Levy:Scheepers:Tily:13). The data are from 56 subjects who responded to 32 items. Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved (1) auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (2) with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker, and (3) whether the task had to be performed without or with a cognitive load consisting of six random digits. All factors were varied within subjects and within items. There were main effects of Load, Speaker, and Precedent; none of the interactions were significant. Although standard errors of fixed-effect coefficents varied slightly across models, our reanalyses afforded the same statistical inference about the experimental manipulations as the original article, irrespective of LMM specification. The purpose of the analysis is to illustrate an assessment of model complexity as far as variance components and correlation parameters are concerned, neither of which were in the focus of the original publication. 
 
-## Data from Kronmüller & Barr (2007)
+## Data from @Kronmuller:Barr:2007
 
 The data are available as `kb07` in the `RePsychLing` package.  
 
@@ -39,45 +40,13 @@ str(kb07)
 ### Maximal linear mixed model (_maxLMM_)
 
 Barr et al. (2012, supplement) analyzed Kronmüller and Barr (2007, Exp. 2) with the _maxLMM_ comprising 16 variance components (eight each for the random factors `subj` and `item`, respectively) (Footnote below output). This model takes a long time to fit using `lmer` because there are so many parameters and the likelihood surface is very flat.  The `lmm` function from the [MixedModels](https://github.com/dmbates/MixedModels.jl) package for [Julia](http://julialang.org) is much faster fitting this particular model, providing the results
+```{r m0}
+m0 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+S+P+C+SP+SC+PC+SPC|subj) + (1+S+P+C+SP+SC+PC+SPC|item),
+           kb07, REML=FALSE, start=thcvg$kb07$m0,
+           control=lmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=1L),
+                              check.conv.grad="ignore",check.conv.hess="ignore"))
 ```
-Linear mixed model fit by maximum likelihood
-Formula: RTtrunc ~ 1 + S + P + C + SP + SC + PC + SPC + ((1 + S + P + C + SP + SC + PC + SPC) | subj) + ((1 + S + P + C + SP + SC + PC + SPC) | item)
-
- logLik: -14293.158810, deviance: 28586.317621
-
- Variance components:
-                Variance    Std.Dev.  Corr.
- subj         90767.624499  301.276658
-              5182.066776   71.986574  -0.43
-              5543.682920   74.455913  -0.47 -0.47
-              7586.760521   87.102012   0.21  0.21  0.21
-              8829.390369   93.964836   0.20  0.20  0.20  0.20
-              1821.475112   42.678743   0.47  0.47  0.47  0.47  0.47
-              7422.143831   86.151865  -0.10 -0.10 -0.10 -0.10 -0.10 -0.10
-              3802.221282   61.662154  -0.48 -0.48 -0.48 -0.48 -0.48 -0.48 -0.48
- item         129826.159849  360.313974
-              1855.215345   43.072211  -0.34
-              62394.709532  249.789330  -0.68 -0.68
-              2947.499298   54.290877   0.20  0.20  0.20
-              1042.837137   32.292989   0.57  0.57  0.57  0.57
-              1620.926380   40.260730   0.28  0.28  0.28  0.28  0.28
-              4700.349645   68.559096   0.08  0.08  0.08  0.08  0.08  0.08
-              4820.059886   69.426651   0.04  0.04  0.04  0.04  0.04  0.04  0.04
- Residual     399613.415344  632.149836
- Number of obs: 1790; levels of grouping factors: 56, 32
-
-  Fixed-effects parameters:
-             Estimate Std.Error  z value
-(Intercept)   2180.63   76.8193  28.3865
-S            -66.9899   19.3337 -3.46493
-P            -333.881   47.6666  -7.0045
-C              78.987   21.2336   3.7199
-SP            22.1518   20.3356  1.08931
-SC           -18.9244    17.506 -1.08102
-PC            5.26193   22.4211 0.234687
-SPC           -23.951   21.0191 -1.13949
-```
-This fit converges and produces what look like reasonable parameter estimates (i.e., no variance components with estimates close to zero; no correlation parameters with values close to +/-1).
+This fit converges and produces what look like reasonable parameter estimates (i.e., no variance components with estimates close to zero; no correlation parameters with values close to $\pm1$).
 
 ```{r m0, eval=FALSE}
 m0 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC+(1+S+P+C+SP+SC+PC+SPC|subj)+(1+S+P+C+SP+SC+PC+SPC|item),kb07,start=kb07maxLMMtheta,control=lmerControl(optimizer="none"))
