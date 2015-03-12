@@ -5,7 +5,7 @@ date: "11 Mar 2015"
 output: html_document
 ---
 
-```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
+```{r preliminaries,echo=FALSE,include=TRUE,cache=FALSE}
 library(RePsychLing)
 library(knitr)
 library(rstan)
@@ -27,12 +27,16 @@ dat <-
     K = nlevels(kb07$item))
 ```
 
+Maximal model analysis:
 
 ```{r runmodel,echo=FALSE,include=FALSE,cache=FALSE}
 if (file.exists("../../data/KB07_stan.Rda")) {   
-  load("../../data/kb07_stan.rda")
+  ## this is a matrix object containing only
+  ## a subset of the results
+  load("../../data/KB07_stan.rda")
+  
 } else {
-kb07model <- stan("KB07model.stan", 
+kb07model <- stan("KB07maxmodel.stan", 
                    data = dat, 
                    chains = 0)
   
@@ -46,12 +50,20 @@ sflist <-
                             chain_id = i, 
                             refresh = -1))
 
+## note that this would be a huge file if saved:
 KB07_stan <- sflist2stanfit(sflist)
-save(kb07_stan,file="../../data/kb07_stan.rda")
+  ## save as matrix
+KB07mat<-as.matrix(KB07_stan)
+KB07reduced<-KB07mat[,1:153]
+## saved in RePsychLing data dir:
+save(KB07reduced,file="../../data/kb07_stan.Rda")
 }
 ```
 
-```{r plotting, echo=FALSE,cache=FALSE}
-plot(KB07_stan)
+```{r summaryresults, echo=FALSE,cache=FALSE}
+datadir<-"../../data/"
+## to be elaborated on
+summary(KB07reduced[,1:26])
 ```
   
+Final model analysis. Varying intercepts only: to-do.
