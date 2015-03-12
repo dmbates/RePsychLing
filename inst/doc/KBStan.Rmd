@@ -1,0 +1,69 @@
+---
+title: "A Bayesian Linear Mixed Model Analysis of the Kronmueller and Barr (2007) data"
+author: "Shravan Vasishth (vasishth@uni-potsdam.de)"
+date: "11 Mar 2015"
+output: html_document
+---
+
+```{r preliminaries,echo=FALSE,include=TRUE,cache=FALSE}
+library(RePsychLing)
+library(knitr)
+library(rstan)
+library(parallel)
+#opts_chunk$set(cache=TRUE)
+options(width=92,show.signif.stars = FALSE)
+```
+
+```{r preparedata,echo=FALSE,include=FALSE,cache=FALSE}
+load("../../data/kb07.rda")
+dat <- 
+  c(unclass(subset(kb07, select = c(RTtrunc,
+                                    S,P,C,SP,SC,
+                                    PC,SPC))),
+    subj = list(as.integer(kb07$subj)),
+    item = list(as.integer(kb07$item)),    
+    N = nrow(kb07),
+    I = nlevels(kb07$subj),
+    K = nlevels(kb07$item))
+```
+
+Maximal model analysis:
+
+```{r runmodel,echo=FALSE,include=FALSE,cache=FALSE}
+if (file.exists("../../data/KB07_stan.Rda")) {   
+  ## this is a matrix object containing only
+  ## a subset of the results
+  load("../../data/KB07_stan.rda")
+  
+} else {
+kb07model <- stan("KB07maxmodel.stan", 
+                   data = dat, 
+                   chains = 0)
+  
+## Adjust cores to match your computer:
+sflist <- 
+  mclapply(1:4, mc.cores = 4, 
+           function(i) stan(fit = kb07model, 
+                            data = dat,
+                            iter=2000,
+                            chains = 1, 
+                            chain_id = i, 
+                            refresh = -1))
+
+## note that this would be a huge file if saved:
+KB07_stan <- sflist2stanfit(sflist)
+  ## save as matrix
+KB07mat<-as.matrix(KB07_stan)
+KB07reduced<-KB07mat[,1:153]
+## saved in RePsychLing data dir:
+save(KB07reduced,file="../../data/kb07_stan.Rda")
+}
+```
+
+```{r summaryresults, echo=FALSE,cache=FALSE}
+datadir<-"../../data/"
+## to be elaborated on
+summary(KB07reduced[,1:26])
+```
+  
+Final model analysis. Varying intercepts only: to-do.

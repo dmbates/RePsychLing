@@ -1,0 +1,72 @@
+---
+title: "A Bayesian Linear Mixed Model Analysis of Kliegl et al (2015) data"
+author: "Shravan Vasishth"
+date: "12 Mar 2015"
+output: html_document
+---
+
+```{r preliminaries,echo=FALSE,include=TRUE,cache=FALSE}
+library(RePsychLing)
+library(knitr)
+library(rstan)
+library(parallel)
+#opts_chunk$set(cache=TRUE)
+options(width=92,show.signif.stars = FALSE)
+```
+
+```{r preparedata,echo=TRUE,include=TRUE,cache=FALSE}
+mm <- model.matrix(~ sze*(spt+obj+grv)*orn, data=KKL)
+spt_orn <- mm[ ,11]
+obj_orn <- mm[, 12]
+grv_orn <- mm[, 13]
+
+KKL$spt_orn<-spt_orn
+KKL$obj_orn<-obj_orn
+KKL$grv_orn<-grv_orn
+
+dat <- 
+  c(unclass(subset(KKL, select = c(lrt,
+                                   sze, spt, obj, grv, orn, 
+                                   spt_orn, obj_orn, grv_orn,
+                                   sze_spt, sze_obj, sze_grv, sze_orn,
+                                   sze_spt_orn, sze_obj_orn, sze_grv_orn))),
+    subj = list(as.integer(KKL$subj)),
+    N = nrow(KKL),
+    I = nlevels(KKL$subj))
+```
+
+```{r runmodel,echo=TRUE,include=TRUE,cache=FALSE}
+if (file.exists("../../data/KKL_stan.Rda")) {
+  load("../../data/KKL_stan.Rda")
+} else {
+KKLmodel <- stan("KKLmodel.stan", 
+                   data = dat, 
+                   chains = 0)
+
+## Adjust cores to match your computer:
+sflist <- 
+  mclapply(1:4, mc.cores = 4, 
+           function(i) stan(fit = KKLmodel, 
+                            data = dat,
+                            iter=2000,
+                            chains = 1, 
+                            chain_id = i, 
+                            refresh = -1))
+
+KKL0_stan <- sflist2stanfit(sflist)
+
+## get only relevant part:
+KKL0reduced_stan<-as.matrix(KKL0_stan)[,1:89]
+
+save(KKL0reduced_stan,
+     file="../../data/KKL_stan.Rda")
+}
+```
+
+to-do:
+
+```{r summarize,echo=TRUE,include=TRUE,cache=FALSE}
+summary(KKL0reduced_stan[,1:16])
+```
+
+
