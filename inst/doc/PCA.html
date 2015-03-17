@@ -116,7 +116,8 @@ c3 -0.136 -0.422  0.456</code></pre>
             0.26533             0.01377            -0.11913             0.15204 
          subj.c3.c2             subj.c3 
             0.05662             0.00000 </code></pre>
-<p>(The <code>zapsmall</code> function, used here and in what follows, sets the format for printing a numerical vector or matrix so that very small elements do not cause a shift to scientific notation. In scientific notation it is more difficult to see at a glance which numbers are large and which are small.)</p>
+<p>has a value that is effectively zero in the last position.</p>
+<p>(The <code>zapsmall</code> function, used here and in what follows, sets the format for printing a numeric vector or matrix so that very small elements do not cause a shift to scientific notation. In scientific notation it is more difficult to see at a glance which numbers are large and which are small.)</p>
 <p>These 10 parameter values are the values on and below the diagonal of a lower triangular Cholesky factor</p>
 <pre class="r"><code>zapsmall(chf &lt;- getME(m0,&quot;Tlist&quot;)[[1]])</code></pre>
 <pre><code>         [,1]     [,2]    [,3] [,4]
@@ -124,7 +125,7 @@ c3 -0.136 -0.422  0.456</code></pre>
 [2,]  0.20105  0.26533 0.00000    0
 [3,] -0.02023  0.01377 0.15204    0
 [4,] -0.03389 -0.11913 0.05662    0</code></pre>
-<p>The <span class="math">\(\theta\)</span> vector elements fill the lower triangular matrix in <em>column major order</em>. That is, the first four elements of the vector are the first column, the next three are the elements on and below the diagonal of the second column, etc.</p>
+<p>The <span class="math">\(\theta\)</span> vector elements fill the lower triangular matrix in <em>column major order</em>. That is, the first four elements of the vector are the first column, the next three are the elements on and below the diagonal in the second column, and so on.</p>
 <p>The <em>relative covariance</em> matrix for the random effects is <span class="math">\(\Lambda\Lambda'\)</span>, which can be evaluated as</p>
 <pre class="r"><code>tcrossprod(chf)</code></pre>
 <pre><code>          [,1]        [,2]        [,3]       [,4]
@@ -144,7 +145,7 @@ c3 -0.136 -0.422  0.456</code></pre>
 <p>The (unconditional) correlation matrix of the random effects is obtained by scaling each row of <span class="math">\(\Lambda\)</span> to have unit length, then applying <code>tcrossprod</code>.</p>
 <pre class="r"><code>(rowlengths &lt;- sqrt(rowSums(chf*chf)))</code></pre>
 <pre><code>[1] 0.79044 0.33290 0.15400 0.13618</code></pre>
-<pre class="r"><code>tcrossprod((1/rowlengths)*chf)</code></pre>
+<pre class="r"><code>tcrossprod(chf/rowlengths)</code></pre>
 <pre><code>         [,1]       [,2]       [,3]     [,4]
 [1,]  1.00000  0.6039416 -0.1313515 -0.24886
 [2,]  0.60394  1.0000000 -0.0080537 -0.84751
@@ -154,7 +155,7 @@ c3 -0.136 -0.422  0.456</code></pre>
 <div id="singularity-in-the-cholesky-factor" class="section level2">
 <h2>Singularity in the Cholesky factor</h2>
 <p>Some of the material in this section gets a bit technical. Don’t be too concerned if parts seem unintelligible.</p>
-<p>Because the last column of <code>chf</code> is the zero vector, <code>chf</code> is rank-deficient. Although it is a 4x4 matrix, the linear subspace formed by all possible linear combinations of the columns is 3-dimensional. The random-effects vectors that can be generated from this fitted model must lie in this 3-dimensional subspace. That is, there will be no variability in one direction of the space of random effects.</p>
+<p>Because the last column of <code>chf</code> is the zero vector, <code>chf</code> is rank-deficient. That is, although <code>chf</code> is a 4x4 matrix, the linear subspace formed by all possible linear combinations of the columns is 3-dimensional. The random-effects vectors that can be generated from this fitted model must lie in this 3-dimensional subspace. Thus there will be no variability in one direction of the space of random effects.</p>
 <p>The <em>singular value decomposition</em> of <code>chf</code></p>
 <pre class="r"><code>(svd0 &lt;- svd(chf,nv=0))</code></pre>
 <pre><code>$d
@@ -366,13 +367,13 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] knitr_1.9.5       RePsychLing_0.0.3 lme4_1.1-8        Rcpp_0.11.3      
-[5] Matrix_1.1-4     
+[1] knitr_1.9.5       RePsychLing_0.0.3 lme4_1.1-8        Rcpp_0.11.5      
+[5] Matrix_1.1-5     
 
 loaded via a namespace (and not attached):
  [1] digest_0.6.8    evaluate_0.5.5  formatR_1.0     grid_3.1.3      htmltools_0.2.6
  [6] lattice_0.20-30 MASS_7.3-39     minqa_1.2.4     nlme_3.1-120    nloptr_1.0.4   
-[11] rmarkdown_0.4.2 splines_3.1.3   stringr_0.6.2   tools_3.1.3     yaml_2.1.13    </code></pre>
+[11] rmarkdown_0.5.1 splines_3.1.3   stringr_0.6.2   tools_3.1.3     yaml_2.1.13    </code></pre>
 <div class="references">
 <h2>References</h2>
 <p>Barr, Dale J, Roger Levy, Christoph Scheepers, and Harry J Tily. 2013. “Random Effects Structure for Confirmatory Hypothesis Testing: Keep It Maximal.” <em>Journal of Memory and Language</em> 68 (3). Elsevier: 255–78.</p>
