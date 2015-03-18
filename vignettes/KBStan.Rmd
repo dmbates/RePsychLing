@@ -15,7 +15,7 @@ options(width=92,show.signif.stars = FALSE)
 ```
 
 ```{r preparedata,echo=FALSE,include=FALSE,cache=FALSE}
-load("../../data/kb07.rda")
+load("../data/kb07.rda")
 dat <- 
   c(unclass(subset(kb07, select = c(RTtrunc,
                                     S,P,C,SP,SC,
@@ -55,15 +55,128 @@ KB07_stan <- sflist2stanfit(sflist)
   ## save as matrix
 KB07mat<-as.matrix(KB07_stan)
 KB07reduced<-KB07mat[,1:153]
-## saved in RePsychLing data dir:
-save(KB07reduced,file="../../data/kb07_stan.Rda")
+param_names<-colnames(KB07reduced)
+resultsKBmax<-matrix(rep(NA,153*3),ncol=3)
+for(i in 1:153){
+  resultsKBmax[i,]<-c(mean(KB07max[,i]),
+                     quantile(KB07max[,i],
+                     probs=c(0.025,0.975)))
 }
-```
 
-```{r summaryresults, echo=FALSE,cache=FALSE}
-datadir<-"../../data/"
-## to be elaborated on
-summary(KB07reduced[,1:26])
+resultsKBmax<-data.frame(resultsKBmax)
+colnames(resultsKBmax)<-c("mean","lower","upper")
+rownames(resultsKBmax)<-param_names
+
+## saved in RePsychLing data dir:
+save(resultsKBmax,
+     file="../../data/kb07_maxstanresults.Rda",
+     compress="xz")
 ```
   
-Final model analysis. Varying intercepts only: to-do.
+Final model:
+
+```{r runmodel,echo=FALSE,include=FALSE,cache=FALSE}
+if (file.exists("../data/kb07_finstanresults.Rda")) {   
+  ## this is a matrix object containing only
+  ## a subset of the results
+  load("../data/kb07_finstanresults.Rda")
+} else {
+kb07finmodel <- stan("KB07finmodel.stan", 
+                   data = dat, 
+                   chains = 0)
+  
+## Adjust cores to match your computer:
+sflist <- 
+  mclapply(1:4, mc.cores = 4, 
+           function(i) stan(fit = kb07finmodel, 
+                            data = dat,
+                            iter=3000,
+                            chains = 1, 
+                            chain_id = i, 
+                            refresh = -1))
+
+## note that this would be a huge file if saved:
+KB07_finstan <- sflist2stanfit(sflist)
+  ## save as matrix
+KB07mat<-as.matrix(KB07_finstan)
+
+colnames(KB07mat)[1:12]
+
+## all except correlation parameter:
+KB07reduced<-KB07mat[,1:12]
+param_names<-colnames(KB07reduced)
+resultsKBfin<-matrix(rep(NA,12*3),ncol=3)
+for(i in 1:12){
+  resultsKBfin[i,]<-c(mean(KB07reduced[,i]),
+                     quantile(KB07reduced[,i],
+                     probs=c(0.025,0.975)))
+}
+
+resultsKBfin<-data.frame(resultsKBfin)
+colnames(resultsKBfin)<-c("mean","lower","upper")
+
+## saved in RePsychLing data dir:
+save(resultsKBfin,
+     file="../data/kb07_finstanresults.Rda",
+     compress="xz")
+}
+
+
+## extract correlation parameters:
+e<-extract(KB07_finstan)
+n_samp <- dim(e[[1]])[1]
+## correlations subject:
+cor_listw <- lapply(seq(n_samp), 
+                   function(i) {
+  L <- e$L_w[i, , ]
+  t(L) %*% L
+})
+
+
+# number of random effects
+n_ran <- nrow(cor_listw[[1]])
+
+## final model:
+kb7<-lmer(RTtrunc ~ 1 + S + P + C + 
+            SP + SC + PC + SPC + 
+            (1 | subj) + (1 + P | item),
+          kb07)
+
+kb7_cor_i <- attr(VarCorr(kb7)$item,"correlation")
+
+# create indices of correlation coefficients (upper triangular)
+cor_idx_i <- which(upper.tri(kb7_cor_i), arr.ind = TRUE)
+
+cor_summarykb7<-matrix(rep(NA,1*3),ncol=3)
+#rnames<-rep(NA,3)
+## this for-loop is trivial but can be extended
+## should the model change to something more complex:
+for (i in 1:1) {
+  idx <- cor_idx_i[i, , drop = FALSE]
+  kb7_cor <- kb7_cor_i[idx]
+  kb7i_cor <- sapply(cor_listw, "[", idx)
+  ## save means and quantiles, Stan:
+cor_summarykb7[i,1:3]<-c(mean(kb7i_cor),
+                   quantile(kb7i_cor,
+                           probs=c(0.025,
+                                   0.975))) 
+## save rownames:
+#rnames[i]<-paste(rownames(kb7_cor_i)[idx], collapse = " : ")
+}
+rownames(cor_summarykb7)<-"13"
+
+## saved in RePsychLing data dir:
+save(resultsKBfin,
+     file="../data/kb07_finstanresults.Rda",
+     compress="xz")
+
+save(cor_summarykb7,
+     file="../data/kb07_finstanresultscorr.Rda",
+     compress="xz")
+```
+
+```{r summaryresults,cache=FALSE}
+## to be elaborated on
+rownames(resultsKBfin)<-param_names
+round(resultsKBfin,digits=2)
+```
