@@ -43,13 +43,15 @@ The parameter vector, $\theta$, for this model
 ```{r theta}
 zapsmall(getME(m0,"theta"))
 ```
-(The `zapsmall` function, used here and in what follows, sets the format for printing a numerical vector or matrix so that very small elements do not cause a shift to scientific notation.  In scientific notation it is more difficult to see at a glance which numbers are large and which are small.)
+has a value that is effectively zero in the last position.
+
+(The `zapsmall` function, used here and in what follows, sets the format for printing a numeric vector or matrix so that very small elements do not cause a shift to scientific notation.  In scientific notation it is more difficult to see at a glance which numbers are large and which are small.)
 
 These 10 parameter values are the values on and below the diagonal of a lower triangular Cholesky factor
 ```{r chf}
 zapsmall(chf <- getME(m0,"Tlist")[[1]])
 ```
-The $\theta$ vector elements fill the lower triangular matrix in _column major order_.  That is, the first four elements of the vector are the first column, the next three are the elements on and below the diagonal of the second column, etc.
+The $\theta$ vector elements fill the lower triangular matrix in _column major order_.  That is, the first four elements of the vector are the first column, the next three are the elements on and below the diagonal in the second column, and so on.
 
 The _relative covariance_ matrix for the random effects is $\Lambda\Lambda'$, which can be evaluated as
 ```{r relvcov}
@@ -68,7 +70,7 @@ The (unconditional) correlation matrix of the random effects is obtained by scal
 (rowlengths <- sqrt(rowSums(chf*chf)))
 ```
 ```{r corr}
-tcrossprod((1/rowlengths)*chf)
+tcrossprod(chf/rowlengths)
 ```
 (Compare the off-diagonal elements of this matrix with the correlations in the model summary.)
 
@@ -76,7 +78,7 @@ tcrossprod((1/rowlengths)*chf)
 
 Some of the material in this section gets a bit technical.  Don't be too concerned if parts seem unintelligible.
 
-Because the last column of `chf` is the zero vector, `chf` is rank-deficient.  Although it is a 4x4 matrix, the linear subspace formed by all possible linear combinations of the columns is 3-dimensional.  The random-effects vectors that can be generated from this fitted model must lie in this 3-dimensional subspace.  That is, there will be no variability in one direction of the space of random effects.
+Because the last column of `chf` is the zero vector, `chf` is rank-deficient.  That is, although `chf` is a 4x4 matrix, the linear subspace formed by all possible linear combinations of the columns is 3-dimensional.  The random-effects vectors that can be generated from this fitted model must lie in this 3-dimensional subspace.  Thus there will be no variability in one direction of the space of random effects.
 
 The _singular value decomposition_ of `chf`
 ```{r chfsvd}
