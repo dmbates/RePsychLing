@@ -13,6 +13,8 @@ vignette: >
 library(lme4)
 library(RePsychLing)
 library(knitr)
+library(parallel)
+library(rstan)
 opts_chunk$set(comment=NA)
 options(width=92,show.signif.stars = FALSE)
 ```
@@ -201,7 +203,7 @@ colnames(cor_summary)<-c("lmer est.",
                          "97.5th%ile")
 ```
 
-```{r finalmodelsave,echo=TRUE,eval=FALSE,cache=FALSE}
+```{r finalmodelcorrsave,echo=TRUE,eval=FALSE,cache=FALSE}
 save(cor_summary,file="../data/KKLfincorsubj.rda",compress="xz")
 ```
 
