@@ -13,6 +13,8 @@ vignette: >
 library(lme4)
 library(RePsychLing)
 library(knitr)
+library(rstan)
+library(parallel)
 opts_chunk$set(comment=NA)
 options(width=92,show.signif.stars = FALSE)
 ```
@@ -62,8 +64,8 @@ KB07reduced<-KB07mat[,1:153]
 param_names<-colnames(KB07reduced)
 resultsKBmax<-matrix(rep(NA,153*3),ncol=3)
 for(i in 1:153){
-  resultsKBmax[i,]<-c(mean(KB07max[,i]),
-                     quantile(KB07max[,i],
+  resultsKBmax[i,]<-c(mean(KB07reduced[,i]),
+                     quantile(KB07reduced[,i],
                      probs=c(0.025,0.975)))
 }
 
@@ -127,7 +129,6 @@ save(resultsKBfin,
 
 Extract correlation parameters:
 
-
 ```{r finmodelcorr,echo=TRUE,eval=FALSE,cache=FALSE}
 ## extract correlation parameters:
 e<-extract(KB07_finstan)
@@ -148,10 +149,12 @@ kb7<-lmer(RTtrunc ~ 1 + S + P + C +
             (1 | subj) + (1 + P | item),
           kb07)
 
-kb7_cor_i <- attr(VarCorr(kb7)$item,"correlation")
+kb7_cor_i <- attr(VarCorr(kb7)$item,
+                  "correlation")
 
 # create indices of correlation coefficients (upper triangular)
-cor_idx_i <- which(upper.tri(kb7_cor_i), arr.ind = TRUE)
+cor_idx_i <- which(upper.tri(kb7_cor_i), 
+                   arr.ind = TRUE)
 
 cor_summarykb7<-matrix(rep(NA,1*3),ncol=3)
 ## this for-loop is trivial but can be extended
@@ -172,16 +175,16 @@ rownames(cor_summarykb7)<-"13"
 
 ```{r finmodelsave,echo=TRUE,eval=FALSE,cache=FALSE}
 ## Saved in RePsychLing data dir:
-save(resultsKBfin,
-     file="../data/kb07_finstanresults.Rda",
-     compress="xz")
+#save(resultsKBfin,
+#     file="../data/kb07_finstanresults.Rda",
+#     compress="xz")
 
 save(cor_summarykb7,
      file="../data/kb07_finstanresultscorr.Rda",
      compress="xz")
 ```
 
-```{r summaryresults,cache=FALSE}
+```{r summaryresults,echo=TRUE,eval=FALSE,cache=FALSE}
 ## to be elaborated on
 rownames(resultsKBfin)<-param_names
 round(resultsKBfin,digits=2)
