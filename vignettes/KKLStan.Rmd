@@ -1,20 +1,25 @@
 ---
-title: "A Bayesian Linear Mixed Model Analysis of Kliegl et al (2015) data"
+title: "A Bayesian Linear Mixed Model Analysis of Kliegl et al (2015) data using Stan"
 author: "Shravan Vasishth"
-date: "12 Mar 2015"
-output: html_document
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{KKL Bayesian data analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
-```{r preliminaries,echo=FALSE,include=TRUE,cache=FALSE}
+```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
+library(lme4)
 library(RePsychLing)
 library(knitr)
-library(rstan)
-library(parallel)
-#opts_chunk$set(cache=TRUE)
+opts_chunk$set(comment=NA)
 options(width=92,show.signif.stars = FALSE)
 ```
 
-```{r preparedata,echo=TRUE,include=TRUE,cache=FALSE}
+## Load data
+
+```{r preparedata,echo=TRUE,eval=FALSE,cache=FALSE}
 mm <- model.matrix(~ sze*(spt+obj+grv)*orn, data=KKL)
 spt_orn <- mm[ ,11]
 obj_orn <- mm[, 12]
@@ -35,9 +40,11 @@ dat <-
     I = nlevels(KKL$subj))
 ```
 
-```{r runmodel,echo=TRUE,include=TRUE,cache=FALSE}
-if (file.exists("../../data/KKL0_maxstanresults.Rda")) {
-  load("../../data/KKL0_maxstanresults.Rda")
+## Maximal model
+
+```{r runmodel,echo=TRUE,eval=FALSE,cache=FALSE}
+if (file.exists("../data/KKL0_maxstanresults.Rda")) {
+  load("../data/KKL0_maxstanresults.Rda")
 } else {
 KKLmaxmodel <- stan("KKLmaxmodel.stan", 
                    data = dat, 
@@ -68,19 +75,23 @@ for(i in 1:89){
 
 resultsKKL0max<-data.frame(resultsKKL0max)
 colnames(resultsKKL0max)<-c("mean","lower","upper")
+```
 
+Save results:
+
+```{r maxmodelsave,echo=TRUE,eval=FALSE,cache=FALSE}
 ## saved in RePsychLing data dir:
 save(resultsKKL0max,
-     file="../../data/KKL0_maxstanresults.Rda",
+     file="../data/KKL0_maxstanresults.Rda",
      compress="xz")
 }
 ```
 
-Final model:
+## Final model
 
-```{r finalmodel,echo=TRUE,include=TRUE,cache=FALSE}
-if (file.exists("../../data/KKL0_finstanresults.Rda")) {
-  load("../../data/KKL0_finstanresults.Rda")
+```{r finalmodelanalysis,echo=TRUE,eval=FALSE,cache=FALSE}
+if (file.exists("../data/KKL0_finstanresults.Rda")) {
+  load("../data/KKL0_finstanresults.Rda")
 } else {
 KKLfinmodel <- stan("KKLfinmodel.stan", 
                    data = dat, 
@@ -113,12 +124,15 @@ param_names<-c("Intercept","sze",
                "grv_orn","sze_spt_orn",
                "sze_obj_orn",
                "sze_grv_orn","sigma_e","sigma_u1",
-               "sigma_u2","sigma_u3","sigma_u_obj","sigma_u_spt_orn","sigma_u_orn")
+               "sigma_u2","sigma_u3","sigma_u_obj",
+               "sigma_u_spt_orn",
+               "sigma_u_orn")
  
 
 resultsKKL0fin<-matrix(rep(NA,
                            length(params)*3),
                        ncol=3)
+
 for(i in 1:length(params)){
   resultsKKL0fin[i,]<-c(mean(KKL0finreduced[,i]),
                      quantile(KKL0finreduced[,i],
@@ -130,11 +144,17 @@ rownames(resultsKKL0fin)<-param_names
 resultsKKL0fin<-data.frame(resultsKKL0fin)
 colnames(resultsKKL0fin)<-c("mean","lower",
                             "upper")
+```
+
+```{r finalmodelsave,echo=TRUE,eval=FALSE,cache=FALSE}
 
 ## saved in RePsychLing data dir:
 save(resultsKKL0fin,
      file="../data/KKL_finstanresults.Rda",
      compress="xz")
+```
+
+```{r finalmodelcorr,echo=TRUE,eval=FALSE,cache=FALSE}
 
 ## extract correlation parameters:
 e<-extract(KKL0fin_stan)
@@ -145,7 +165,6 @@ cor_listu <- lapply(seq(n_samp),
   L <- e$L_u[i, , ]
   t(L) %*% L
 })
-
 
 # number of random effects
 n_ran <- nrow(cor_listu[[1]])
@@ -180,7 +199,9 @@ colnames(cor_summary)<-c("lmer est.",
                          "Stan est.",
                          "2.5th%ile",
                          "97.5th%ile")
+```
 
+```{r finalmodelsave,echo=TRUE,eval=FALSE,cache=FALSE}
 save(cor_summary,file="../data/KKLfincorsubj.rda",compress="xz")
 ```
 
