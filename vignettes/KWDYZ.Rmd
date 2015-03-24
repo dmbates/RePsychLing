@@ -1,9 +1,13 @@
 ---
 title: "RePsychLing Kliegl et al. (2011)"
 author: "Reinhold Kliegl"
-date: "2015-03-11"
-output: html_document
+date: "2015-03-24"
+output: rmarkdown::html_vignette
 bibliography: RePsychLing.bib
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{RePsychLing Kliegl et al. (2011)}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
@@ -13,10 +17,6 @@ library(RePsychLing)
 opts_chunk$set(comment=NA)
 options(width=92,show.signif.stars=FALSE)
 ```
-<!-- 
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{RePsychLing Kliegl et al. (2011)}
--->
 
 This is a set of follow-up analyses of the data described in @Kliegl:Wei:Dambacher:Yan:Zhou:2011
 
