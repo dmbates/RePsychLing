@@ -45,8 +45,8 @@ dat <-
 ## Maximal model
 
 ```{r runmodel,echo=TRUE,eval=FALSE,cache=FALSE}
-if (file.exists("../data/KKL0_maxstanresults.Rda")) {
-  load("../data/KKL0_maxstanresults.Rda")
+if (file.exists("../data/KKL0_maxstanresults.rda")) {
+  load("../data/KKL0_maxstanresults.rda")
 } else {
 KKLmaxmodel <- stan("KKLmaxmodel.stan", 
                    data = dat, 
@@ -84,7 +84,7 @@ Save results:
 ```{r maxmodelsave,echo=TRUE,eval=FALSE,cache=FALSE}
 ## saved in RePsychLing data dir:
 save(resultsKKL0max,
-     file="../data/KKL0_maxstanresults.Rda",
+     file="../data/KKL0_maxstanresults.rda",
      compress="xz")
 }
 ```
@@ -92,8 +92,8 @@ save(resultsKKL0max,
 ## Final model
 
 ```{r finalmodelanalysis,echo=TRUE,eval=FALSE,cache=FALSE}
-if (file.exists("../data/KKL0_finstanresults.Rda")) {
-  load("../data/KKL0_finstanresults.Rda")
+if (file.exists("../data/KKL0_finstanresults.rda")) {
+  load("../data/KKL0_finstanresults.rda")
 } else {
 KKLfinmodel <- stan("KKLfinmodel.stan", 
                    data = dat, 
@@ -150,9 +150,9 @@ colnames(resultsKKL0fin)<-c("mean","lower",
 
 ```{r finalmodelsave,echo=TRUE,eval=FALSE,cache=FALSE}
 
-## saved in RePsychLing data dir:
+## saved in RePsychLing data dir:xxx
 save(resultsKKL0fin,
-     file="../data/KKL_finstanresults.Rda",
+     file="../data/KKL_finstanresults.rda",
      compress="xz")
 ```
 
