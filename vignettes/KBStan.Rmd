@@ -37,10 +37,10 @@ dat <-
 ## Maximal model analysis
 
 ```{r runmaxmodel,echo=TRUE,eval=FALSE,cache=FALSE}
-if (file.exists("../data/kb07_maxstanresults.Rda")) {   
+if (file.exists("../data/kb07_maxstanresults.rda")) {   
   ## this is a matrix object containing only
   ## a subset of the results
-  load("../data/kb07_maxstanresults.Rda") 
+  load("../data/kb07_maxstanresults.rda") 
 } else {
 kb07model <- stan("KB07maxmodel.stan", 
                    data = dat, 
@@ -76,17 +76,17 @@ rownames(resultsKBmax)<-param_names
 
 ## saved in RePsychLing data dir:
 save(resultsKBmax,
-     file="../data/kb07_maxstanresults.Rda",
+     file="../data/kb07_maxstanresults.rda",
      compress="xz")
 ```
 
 ### Final model
 
 ```{r runfinmodel,echo=TRUE,eval=FALSE,cache=FALSE}
-if (file.exists("../data/kb07_finstanresults.Rda")) {   
+if (file.exists("../data/kb07_finstanresults.rda")) {   
   ## this is a matrix object containing only
   ## a subset of the results
-  load("../data/kb07_finstanresults.Rda")
+  load("../data/kb07_finstanresults.rda")
 } else {
 kb07finmodel <- stan("KB07finmodel.stan", 
                    data = dat, 
@@ -122,7 +122,7 @@ colnames(resultsKBfin)<-c("mean","lower","upper")
 
 ## saved in RePsychLing data dir:
 save(resultsKBfin,
-     file="../data/kb07_finstanresults.Rda",
+     file="../data/kb07_finstanresults.rda",
      compress="xz")
 }
 ```
@@ -176,11 +176,11 @@ rownames(cor_summarykb7)<-"13"
 ```{r finmodelsave,echo=TRUE,eval=FALSE,cache=FALSE}
 ## Saved in RePsychLing data dir:
 #save(resultsKBfin,
-#     file="../data/kb07_finstanresults.Rda",
+#     file="../data/kb07_finstanresults.rda",
 #     compress="xz")
 
 save(cor_summarykb7,
-     file="../data/kb07_finstanresultscorr.Rda",
+     file="../data/kb07_finstanresultscorr.rda",
      compress="xz")
 ```
 
