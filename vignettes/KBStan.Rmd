@@ -141,8 +141,39 @@ KB07_maxresults<-round(KB07_results$summary,4)[,c(1,4,5)]
 ```
 
 ```{r printmaxmodel,echo=TRUE,eval=FALSE,cache=FALSE}
-print(KB07_maxresults)
+library(xtable)
+print(xtable(KB07_maxresults),type="html")
 ```
+<!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
+<!-- Thu Mar 26 20:14:21 2015 -->
+<table border=1>
+<tr> <th>  </th> <th> mean </th> <th> 2.5% </th> <th> 97.5% </th>  </tr>
+  <tr> <td align="right"> beta[1] </td> <td align="right"> 2175.64 </td> <td align="right"> 2019.95 </td> <td align="right"> 2328.94 </td> </tr>
+  <tr> <td align="right"> beta[2] </td> <td align="right"> -66.37 </td> <td align="right"> -103.27 </td> <td align="right"> -31.80 </td> </tr>
+  <tr> <td align="right"> beta[3] </td> <td align="right"> -331.84 </td> <td align="right"> -422.56 </td> <td align="right"> -232.45 </td> </tr>
+  <tr> <td align="right"> beta[4] </td> <td align="right"> 79.02 </td> <td align="right"> 37.76 </td> <td align="right"> 118.69 </td> </tr>
+  <tr> <td align="right"> beta[5] </td> <td align="right"> 21.45 </td> <td align="right"> -17.49 </td> <td align="right"> 58.76 </td> </tr>
+  <tr> <td align="right"> beta[6] </td> <td align="right"> -18.89 </td> <td align="right"> -53.47 </td> <td align="right"> 15.63 </td> </tr>
+  <tr> <td align="right"> beta[7] </td> <td align="right"> 4.94 </td> <td align="right"> -37.21 </td> <td align="right"> 46.66 </td> </tr>
+  <tr> <td align="right"> beta[8] </td> <td align="right"> -23.75 </td> <td align="right"> -63.44 </td> <td align="right"> 13.77 </td> </tr>
+  <tr> <td align="right"> sigma_u[1] </td> <td align="right"> 307.62 </td> <td align="right"> 246.83 </td> <td align="right"> 386.36 </td> </tr>
+  <tr> <td align="right"> sigma_u[2] </td> <td align="right"> 49.81 </td> <td align="right"> 4.29 </td> <td align="right"> 100.70 </td> </tr>
+  <tr> <td align="right"> sigma_u[3] </td> <td align="right"> 53.12 </td> <td align="right"> 4.78 </td> <td align="right"> 103.21 </td> </tr>
+  <tr> <td align="right"> sigma_u[4] </td> <td align="right"> 70.48 </td> <td align="right"> 14.28 </td> <td align="right"> 121.09 </td> </tr>
+  <tr> <td align="right"> sigma_u[5] </td> <td align="right"> 74.72 </td> <td align="right"> 14.15 </td> <td align="right"> 128.47 </td> </tr>
+  <tr> <td align="right"> sigma_u[6] </td> <td align="right"> 28.69 </td> <td align="right"> 0.87 </td> <td align="right"> 74.21 </td> </tr>
+  <tr> <td align="right"> sigma_u[7] </td> <td align="right"> 69.50 </td> <td align="right"> 10.29 </td> <td align="right"> 120.60 </td> </tr>
+  <tr> <td align="right"> sigma_u[8] </td> <td align="right"> 35.47 </td> <td align="right"> 1.68 </td> <td align="right"> 82.84 </td> </tr>
+  <tr> <td align="right"> sigma_w[1] </td> <td align="right"> 368.24 </td> <td align="right"> 288.01 </td> <td align="right"> 484.42 </td> </tr>
+  <tr> <td align="right"> sigma_w[2] </td> <td align="right"> 30.47 </td> <td align="right"> 1.10 </td> <td align="right"> 75.75 </td> </tr>
+  <tr> <td align="right"> sigma_w[3] </td> <td align="right"> 256.47 </td> <td align="right"> 191.90 </td> <td align="right"> 341.46 </td> </tr>
+  <tr> <td align="right"> sigma_w[4] </td> <td align="right"> 49.32 </td> <td align="right"> 3.77 </td> <td align="right"> 107.05 </td> </tr>
+  <tr> <td align="right"> sigma_w[5] </td> <td align="right"> 20.73 </td> <td align="right"> 0.92 </td> <td align="right"> 56.66 </td> </tr>
+  <tr> <td align="right"> sigma_w[6] </td> <td align="right"> 33.49 </td> <td align="right"> 1.55 </td> <td align="right"> 86.48 </td> </tr>
+  <tr> <td align="right"> sigma_w[7] </td> <td align="right"> 57.25 </td> <td align="right"> 5.23 </td> <td align="right"> 111.77 </td> </tr>
+  <tr> <td align="right"> sigma_w[8] </td> <td align="right"> 53.84 </td> <td align="right"> 5.10 </td> <td align="right"> 108.05 </td> </tr>
+  <tr> <td align="right"> sigma_e </td> <td align="right"> 654.10 </td> <td align="right"> 630.00 </td> <td align="right"> 679.32 </td> </tr>
+   </table>
 
 ### Final model
 
