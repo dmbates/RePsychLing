@@ -16,13 +16,13 @@ library(knitr)
 library(rstan)
 library(parallel)
 opts_chunk$set(comment=NA)
-options(width=92,show.signif.stars = FALSE)
+options(width=92,
+        show.signif.stars = FALSE)
 ```
 
 ## Load data
 
 ```{r preparedata,echo=TRUE,eval=FALSE,cache=FALSE}
-#load("../data/kb07.rda")
 N<-dim(kb07)[1]
 x_full <- model.matrix(~1+S+P+C+SP+SC+PC+SPC, data=kb07)
 
@@ -141,9 +141,9 @@ KB07_maxresults<-round(KB07_results$summary,4)[,c(1,4,5)]
 ```
 
 ```{r printmaxmodel,echo=TRUE,eval=FALSE,cache=FALSE}
-library(xtable)
 print(xtable(KB07_maxresults),type="html")
 ```
+
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
 <!-- Thu Mar 26 20:14:21 2015 -->
 <table border=1>
