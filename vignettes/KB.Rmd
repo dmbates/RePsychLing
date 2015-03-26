@@ -1,22 +1,14 @@
 ---
 title: "RePsychLing Kronmüller and Barr (2007)"
 author: "Reinhold Kliegl"
-date: "March 11, 2015"
-output:
-  html_document: default
-  pdf_document:
-    highlight: tango
-    keep_tex: yes
-  word_document: default
-geometry: margin=1in
-fontsize: 12pt
+date: " `r Sys.Date()` "
+output: rmarkdown::html_vignette
 bibliography: RePsychLing.bib
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{RePsychLing Kronmüller and Barr (2007)}
+  \usepackage[utf8]{inputenc}
 ---
-<!-- 
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{RePsychLing Kronmueller and Barr (2007)}
--->
-
 
 ```{r preliminaries,echo=FALSE,include=FALSE,cache=FALSE}
 library(lme4)
@@ -25,7 +17,6 @@ library(knitr)
 opts_chunk$set(comment=NA)
 options(width=92,show.signif.stars = FALSE)
 ```
-# Revisiting @Kronmuller:Barr:2007
 
 We apply the iterative reduction of LMM complexity to truncated response times of a 2x2x2 factorial psycholinguistic experiment (@Kronmuller:Barr:2007, Exp. 2; reanalyzed with an LMM in @Barr:Levy:Scheepers:Tily:13). The data are from 56 subjects who responded to 32 items. Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved (1) auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (2) with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker, and (3) whether the task had to be performed without or with a cognitive load consisting of six random digits. All factors were varied within subjects and within items. There were main effects of Load, Speaker, and Precedent; none of the interactions were significant. Although standard errors of fixed-effect coefficents varied slightly across models, our reanalyses afforded the same statistical inference about the experimental manipulations as the original article, irrespective of LMM specification. The purpose of the analysis is to illustrate an assessment of model complexity as far as variance components and correlation parameters are concerned, neither of which were in the focus of the original publication. 
 
@@ -41,17 +32,17 @@ str(kb07)
 
 Barr et al. (2012, supplement) analyzed Kronmüller and Barr (2007, Exp. 2) with the _maxLMM_ comprising 16 variance components (eight each for the random factors `subj` and `item`, respectively) (Footnote below output). This model takes a long time to fit using `lmer` because there are so many parameters and the likelihood surface is very flat.  The `lmm` function from the [MixedModels](https://github.com/dmbates/MixedModels.jl) package for [Julia](http://julialang.org) is much faster fitting this particular model, providing the results
 ```{r m0}
-m0 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+S+P+C+SP+SC+PC+SPC|subj) + (1+S+P+C+SP+SC+PC+SPC|item),
-           kb07, REML=FALSE, start=thcvg$kb07$m0,
+m0 <- lmer(RTtrunc ~ 1+S+P+C+SP+SC+PC+SPC + (1+S+P+C+SP+SC+PC+SPC|subj) +
+           (1+S+P+C+SP+SC+PC+SPC|item), kb07, REML=FALSE, start=thcvg$kb07$m0,
            control=lmerControl(optimizer="Nelder_Mead",optCtrl=list(maxfun=1L),
                               check.conv.grad="ignore",check.conv.hess="ignore"))
 print(summary(m0),corr=FALSE)
 ```
 This fit converges and produces what look like reasonable parameter estimates (i.e., no variance components with estimates close to zero; no correlation parameters with values close to $\pm1$).
 
-We started this model fit at the converged parameter estimates.  Even so it takes over an hour to get the fitted values because of the evaluation of numerical approximations to the gradient vector and the Hessian matrix.
+We started this model fit at the converged parameter estimates to save time. Starting from the usual initial values, the model fit took nearly 40,000 iterations for the nonlinear optimizer to converge.  Theparameter values look reasonable but are a local optimum.  We use a better parameter value here.
 
-Starting from the usual initial values, the model fit took 39,004 iterations for the nonlinear optimizer to converge, but produces what look like reasonable parameter estimates. The slow convergence is due to a total of 2 x 36 = 72 parameters in the optimization.  These parameters are all in the relative covariance factors. The more easily estimated nine fixed-effects parameters have been "profiled out" of the optimization.
+The slow convergence is due to a total of 2 x 36 = 72 parameters in the optimization.  These parameters are all in the relative covariance factors. The more easily estimated nine fixed-effects parameters have been "profiled out" of the optimization.
 
 Footnote: The model formula reported in the supplement of Barr et al. (2012) specified only five variance components for the random factor item. However, `lmer()` automatically includes all lower-order terms of interactions specified for random-factor terms, resulting in the _maxLMM_ for this experimental design.
 

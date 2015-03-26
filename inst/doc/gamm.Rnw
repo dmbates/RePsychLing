@@ -1,0 +1,1343 @@
+%\VignetteIndexEntry{Addressing residual autocorrelation with generalized additive mixed models}
+\documentclass[11pt]{article}
+\usepackage{bm}
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\usepackage{url}
+%\usepackage{breakurl}
+\usepackage[english]{babel}
+\selectlanguage{english}
+\usepackage{graphicx}
+%\usepackage{color,xcolor,colortbl}
+\usepackage{color,colortbl}
+\usepackage{rotating}
+\usepackage{rotfloat} % for sidewaysfigure
+\usepackage{tabularx}
+\usepackage{natbib}
+\bibliographystyle{apalike}
+\usepackage{comment}
+\includecomment{comment}
+\usepackage{amssymb,amsmath}
+\usepackage[section]{placeins}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+    \usepackage{xltxtra,xunicode}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\fi
+% use microtype if available
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\ErrorTok}[1]{\textbf{{#1}}}
+\newcommand{\NormalTok}[1]{{#1}}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true,pdfusetitle,bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,breaklinks=true,pdfborder={0 0 1},backref=false,colorlinks=true,citecolor=blue,urlcolor=blue,linkcolor=blue]{hyperref}
+  \hypersetup{pdfstartview={XYZ null null 1}}
+\fi
+\newcommand{\code}[1]{{\texttt\small{#1}}}
+\newcommand{\pkg}[1]{{\texttt{#1}}}
+\newcommand{\proglang}[1]{{\textsf{#1}}}
+
+\usepackage{textcomp}
+
+<<setup,include=FALSE,cache=FALSE>>=
+require(knitr)
+options(replace.assign=TRUE,show.signif.stars=FALSE)
+options(lattice.theme = function() canonical.theme("pdf", color = FALSE))
+opts_chunk$set(warning=FALSE,cache=FALSE,size='small',tidy=FALSE,
+               fig.path='./graphs',out.truncate=90,comment=NA)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output=function(x, options) {
+  if (options$results != "asis") {
+    # Split string into separate lines.
+    x <- unlist(stringr::str_split(x, "\n")) 
+    # Truncate each line to length specified.
+    if (!is.null(m <- options$out.truncate)) {
+      len <- nchar(x) 
+      x[len>m] <- paste0(substr(x[len>m], 0, m-3), "...")
+    }
+    # Paste lines back together.
+    x <- paste (x, collapse= "\n")
+    # Continue with any other output hooks
+  }
+  hook_output(x, options)
+})
+@
+
+\renewcommand\floatpagefraction{.9}
+\renewcommand\topfraction{.9}
+\renewcommand\bottomfraction{.9}
+\renewcommand\textfraction{.1}   
+\setcounter{totalnumber}{50}
+\setcounter{topnumber}{50}
+\setcounter{bottomnumber}{50}
+
+\setlength{\parindent}{0in}
+
+\begin{document}
+\begin{center}
+  {\bf Addressing residual autocorrelation with generalized additive mixed models} \\
+\ \\
+  R. Harald Baayen \& Jacolien van Rij \\
+  University of T\"{u}bingen \\
+\ \\
+\date{\today}
+\end{center}
+
+\section{Preliminaries}
+
+Packages that we will use are:
+<<packages,echo=TRUE,eval=TRUE>>=
+require(xtable,quietly=TRUE)
+require(lme4,quietly=TRUE)
+suppressMessages(require(mgcv))
+require(RePsychLing,quietly=TRUE)
+suppressMessages(require(texreg))
+suppressMessages(require(itsadug))
+require(lattice, quietly=TRUE)
+@
+
+\section{The KKL dataset}
+
+We take the {\sc kkl} dataset from {\tt RePsychLing}, and create a separate
+variable for the interaction of {\tt spt} and {\tt orn}.
+<<dummyCoding,echo=TRUE,eval=TRUE>>=
+dat <- KKL
+dat$FirstTrial <- dat$first==1
+mm <- model.matrix(~ sze*(spt+obj+grv)*orn, data=KKL)
+dat$spt_orn = mm[,11]
+@
+
+\subsection{The LMM}
+
+As starting point, we take the {\sc lmm} obtained with {\tt lmer}, but now
+refit it with {\tt mgcv}.  Random effects are modeled as smooths with {\tt re}
+basis functions.  Random slopes for subject are specified as {\tt s(subj,
+bs="re")}, and by-subject random contrasts for {\tt obj} as {\tt s(subj, orn,
+bs="re")}.  We use the {\tt bam()} function rather than the {\tt gam} function
+because it evaluates more quickly, albeit at the potential cost of a slight
+loss of precision.  Even so, be aware that {\tt bam} evaluates very much more
+slowly than {\tt lmer}.
+<<LMMwithMGCV,echo=TRUE,eval=FALSE>>=
+dat.gam0 <- bam(lrt ~ sze * (spt + obj + grv) * orn +
+                      s(subj, bs="re") +
+                      s(subj, spt, bs="re") +
+                      s(subj, grv, bs="re") +
+                      s(subj, obj, bs="re") +
+                      s(subj, orn, bs="re") +
+                      s(subj, spt_orn, bs="re"),
+                data=dat, method="ML")
+summary(dat.gam0)
+@
+\vspace*{-1.8\baselineskip}
+<<LMMwithMGCVa,echo=FALSE,eval=TRUE>>=
+load("models/dat.gam0.rda")
+load("models/dat.gam0.smry.rda")
+dat.gam0.smry
+@
+Inspection of the residuals (Figure~\ref{fig:acfModelZero})
+<<acfModelZero,echo=TRUE,eval=TRUE,fig=TRUE,out.width='0.6\\textwidth',fig.align='center',fig.path="graphs/",fig.cap="Acf function for the initial model without differentiating for individual time series.">>=
+acf(resid(dat.gam0))
+@
+reveals autocorrelational structure.  However, when applying the general {\tt
+acf} function to the residuals, we do not distinguish between the individual
+time series constituted by the data for the separate subjects, and may
+therefore obtain imprecise and sometimes misleading information about the
+autocorrelations.  We therefore inspect the autocorrelations for the individual
+subjects using a trellis graph (Figure~\ref{fig:autoMod0}).
+<<autoMod0,echo=TRUE,eval=TRUE,fig=TRUE,out.width='1.0\\textwidth',fig.align='center',fig.path="graphs/",fig.cap="Autocorrelations in the initial model for each subject-specific time series.">>=
+dfr = acf_resid(dat.gam0,        # acf_resid from package itsadug
+  split_pred=list(subj=dat$subj), 
+  plot=FALSE, 
+  return_all=TRUE)$dataframe
+civec = dfr[dfr$lag==0,]$ci      # vector of confidence intervals for xyplot
+xyplot(acf ~ lag | subj, type = "h", data = dfr, col.line = "black", 
+  panel = function(...) {
+    panel.abline(h = civec[panel.number()], col.line = "grey")
+    panel.abline(h = -civec[panel.number()], col.line = "grey")
+    panel.abline(h = 0, col.line = "black")
+    panel.xyplot(...)
+  }, 
+  strip = strip.custom(bg = "grey90"), 
+  par.strip.text = list(cex = 0.8),
+  xlab="lag", ylab="autocorrelation")
+@
+Note the presence of substantial variation between subjects with respect to the
+magnitude of the autocorrelations, also with respect to the number of lags at
+which these autocorrelations persist.
+
+\clearpage
+
+\subsection{By-subject factor smooths for trial}
+
+<<GAM1a,echo=FALSE,eval=TRUE>>=
+load("models/dat.gam1.rda")
+load("models/dat.gam1.smry.rda")
+@
+
+To reduce the autocorrelation in the errors, we add a by-subject factor smooth
+for trial with the directive
+<<formula1,eval=FALSE>>=
+s(trial, subj, bs="fs", m=1).
+@
+Here, a factor smooth basis is requested ({\tt bs="fs"}) with shrinkage ({\tt
+m=1}).  Factor smooths are appropriate when smooths are required for a factor
+with a large number of levels, and each smooth should have the same smoothing
+parameter.  The {\tt fs} smoothers have penalties on each null space component,
+which with {\tt m=1} are set to order 1, so that we have the nonlinear `wiggly'
+counterpart of what in a linear mixed model would be handled with by-subject
+random intercepts and by-subject random slopes.  The model with by-subject
+factor smooths for trial is:
+<<GAM1,echo=TRUE,eval=FALSE>>=
+dat.gam1 <- bam(lrt ~ sze * (spt + obj + grv) * orn +
+                      s(subj, spt, bs="re") +
+                      s(subj, grv, bs="re") +
+                      s(subj, obj, bs="re") +
+                      s(subj, orn, bs="re") +
+                      s(subj, spt_orn, bs="re") +
+                      s(trial, subj, bs="fs", m=1),
+                data=dat, method="ML")
+@
+As the factor smooths `absorb' the random intercepts, no separate request for
+random intercepts is required.  The model summary  
+<<GAM1aaa,echo=TRUE,eval=FALSE>>=
+summary(dat.gam1)
+@
+\vspace*{-1.4\baselineskip}
+<<showGAM1smry,echo=FALSE,eval=TRUE>>=
+dat.gam1.smry
+@
+indicates that the factor smooths are well supported, but it might be that a
+simpler model with by-subject random intercepts only is just as good.  Model
+comparison shows this not to be the case.
+<<compareModels0and1,echo=TRUE,eval=TRUE>>=
+compareML(dat.gam0, dat.gam1)    # from package itsadug
+@
+We again inspect the residuals for autocorrelation, which is substantially 
+reduced but not completely eliminated (Figure~\ref{fig:autoMod1}).
+<<autoMod1,echo=TRUE,eval=TRUE,fig=TRUE,out.width='1.0\\textwidth',fig.align='center',fig.path="graphs/",fig.cap="Autocorrelation functions for each subject-specific time series in the model with factor smooths.">>=
+dfr = acf_resid(dat.gam1, 
+  split_pred=list(subj=dat$subj), 
+  plot=FALSE, 
+  return_all=TRUE)$dataframe
+civec = dfr[dfr$lags==0,]$ci
+xyplot(acf ~ lag | subj, type = "h", data = dfr, col.line = "black", 
+  panel = function(...) {
+    panel.abline(h = civec[panel.number()], col.line = "grey")
+    panel.abline(h = -civec[panel.number()], col.line = "grey")
+    panel.abline(h = 0, col.line = "black")
+    panel.xyplot(...)
+  }, 
+  strip = strip.custom(bg = "grey90"), 
+  par.strip.text = list(cex = 0.8),
+  xlab="lag", ylab="autocorrelation")
+@
+
+\clearpage
+
+\subsection{An AR1 process in the errors}
+
+Since there is still some small autocorrelational structure in the residuals,
+we further whiten the errors by filtering out a mild autocorrelative process
+with proportionality $\rho = 0.15$.  To do so, we need to tell {\tt bam} where
+new time series begin.  This is accomplished with the variable {\tt FirstTrial}, which
+is true whenever a new time series starts (which is the case whenever trial==1),
+and false elsewhere.  Crucially, the rows in the data frame should be ordered 
+by subject, and within subject, by trial.  The directives for {\tt bam} are:
+<<GAM2.0,echo=TRUE,eval=FALSE>>=
+AR.start=dat$FirstTrial, rho=0.15
+@
+We fit the model and summarize it.
+<<GAM2,echo=TRUE,eval=FALSE>>=
+dat.gam2 <- bam(lrt ~ sze * (spt + obj + grv) * orn +
+                      s(subj, spt, bs="re") +
+                      s(subj, grv, bs="re") +
+                      s(subj, obj, bs="re") +
+                      s(subj, orn, bs="re") +
+                      s(subj, spt_orn, bs="re") +
+                      s(trial, subj, bs="fs", m=1),
+                      AR.start=dat$FirstTrial, rho=0.15,
+                data=dat, method="ML")
+summary(dat.gam2)
+@
+\vspace*{-1.8\baselineskip}
+<<GAM2a,echo=FALSE,eval=TRUE>>=
+load("models/dat.gam2.rda")
+load("models/dat.gam2.smry.rda")
+dat.gam2.smry
+@
+By-subject acf plots 
+<<autoMod2,echo=TRUE,eval=TRUE,fig=TRUE,out.width='1.0\\textwidth',fig.align='center',fig.path="graphs/",fig.cap="Autocorrelation functions for each subject-specific time series in the model with factor smooths and AR1 correction for the errors.">>=
+dfr = acf_resid(dat.gam2,        # acf_resid from package itsadug
+  split_pred=list(subj=dat$subj), 
+  plot=FALSE, 
+  return_all=TRUE)$dataframe
+civec = dfr[dfr$lag==0,]$ci      # vector of confidence intervals for xyplot
+xyplot(acf ~ lag | subj, type = "h", data = dfr, col.line = "black", 
+  panel = function(...) {
+    panel.abline(h = civec[panel.number()], col.line = "grey")
+    panel.abline(h = -civec[panel.number()], col.line = "grey")
+    panel.abline(h = 0, col.line = "black")
+    panel.xyplot(...)
+  }, 
+  strip = strip.custom(bg = "grey90"), 
+  par.strip.text = list(cex = 0.8),
+  xlab="lag", ylab="autocorrelation")
+@
+show that an occasional subject still has some remaining autocorrelation.
+However, further increasing $\rho$ would induce spurious autocorrelations for
+subjects with hardly any autocorrelations in their residuals.  Ideally, the
+$\rho$ parameter would be tuneable to each individual subject.  With current
+software, this is not possible.  Hence, the chosen value of $\rho = 0.15$ is a
+compromise that allows reducing strong autocorrelations without creating many
+artificial autocorrelations where none are present.
+
+\clearpage
+
+\subsection{A nonlinear main effect of SOA}
+
+Next, we bring into the model the nonlinear effect of {\sc soa} with a thin
+plate regression spline (the default spline in {\tt mgcv}).
+<<GAM3,echo=TRUE,eval=FALSE>>=
+dat.gam3 <- bam(lrt ~ sze * (spt + obj + grv) * orn +
+                      s(subj, spt, bs="re") +
+                      s(subj, grv, bs="re") +
+                      s(subj, obj, bs="re") +
+                      s(subj, orn, bs="re") +
+                      s(subj, spt_orn, bs="re") +
+                      s(SOA) +
+                      s(trial, subj, bs="fs", m=1) ,
+                      AR.start=dat$FirstTrial, rho=0.15,
+                data=dat, method="ML")
+summary(dat.gam3)
+@
+\vspace*{-1.8\baselineskip}
+<<GAM3a,echo=FALSE,eval=TRUE>>=
+load("models/dat.gam3.rda")
+load("models/dat.gam3.smry.rda")
+dat.gam3.smry
+@
+
+The final model in Figure~1 in the paper is based on this model.
+The next code snippet recreates this figure.
+<<autoMod3,echo=TRUE,eval=TRUE,fig=TRUE,out.width='1.0\\textwidth',fig.align='center',fig.path="graphs/",fig.cap="Figure 1 in the paper: ACF for 5 subjects for three models.">>=
+# randomly select 5 subjects
+set.seed(314)
+Events <- sample(levels(dat$subj))[1:5]
+# collect acf data for the three models
+dfr1 = acf_resid(dat.gam3, split_pred=list(subj=dat$subj),
+    cond=list(subj=Events),
+    plot=FALSE, return_all=TRUE)$dataframe
+dfr2= acf_resid(dat.gam1, split_pred=list(subj=dat$subj),
+    cond=list(subj=Events),
+    plot=FALSE, return_all=TRUE)$dataframe
+dfr3 = acf_resid(dat.gam0, split_pred=list(subj=dat$subj),
+    cond=list(subj=Events),
+    plot=FALSE, return_all=TRUE)$dataframe
+# combine and add column specifying models
+Dfr <- rbind(dfr1, dfr2, dfr3)
+Dfr$model <- rep(c("final model","model with fs","initial model"),
+  c(nrow(dfr1), nrow(dfr2), nrow(dfr3)))
+# beautify event names
+levels(Dfr$event) = c("time series 1", 
+                      "time series 2", 
+                      "time series 3", 
+                      "time series 4", 
+                      "time series 5") 
+# order models for xyplot
+Dfr$model = ordered(Dfr$model, 
+                    c("final model", 
+                      "model with fs", 
+                      "initial model"))
+# conf. intervals for xyplot 
+civec = Dfr[Dfr$lag==0,]$ci
+xyplot(acf ~ lag | event + model, type = "h", data = Dfr, col.line = "black", 
+  panel = function(...) {
+      panel.abline(h = civec[panel.number()], col.line = "grey")
+      panel.abline(h = -civec[panel.number()], col.line = "grey")
+      panel.abline(h = 0, col.line = "black")
+      panel.xyplot(...)
+  }, 
+  strip = strip.custom(bg = "grey90"), 
+  par.strip.text = list(cex = 0.8),
+  xlab="lag", ylab="autocorrelation")
+@
+
+\clearpage
+
+The nonlinear effects in this final model ({\tt dat.gam3}) can be visualized in
+various ways.  Using the plot functionality of {\tt mgcv}, we can select smooth
+terms by their row number in the smooths table of the summary.  For plots of
+{\tt s(subj,orn)}, {\tt s(SOA)} and {\tt s(trial,subj)} we proceed as follows
+(see Figure~\ref{fig:ShowSmooths00}):
+<<ShowSmooths00,echo=TRUE,eval=TRUE,fig=TRUE,out.width='0.45\\textwidth',fig.align='center',fig.cap="Smooth terms produced with plot.gam (mgcv).",fig.show='hold'>>=
+plot(dat.gam3, select=4, main=" ")
+plot(dat.gam3, select=6, scheme=1, ylim=c(-0.05, 0.06))
+plot(dat.gam3, select=7)
+@
+For random contrasts, a quantile-quantile plot for the {\sc blup}s is shown, for
+the covariate, a smooth with 95\% confidence intervals, and for the factor smooths,
+the partial effects for each subject. \\
+
+The plot for the factor smooths is overcrowded.  We inspect the individual
+subjects' partial effects for trial with a trellis graph.
+<<ShowSmooths0,echo=TRUE,eval=TRUE,fig=TRUE,out.width='1.0\\textwidth',fig.align='center',fig.cap="Factor smooths for subjects.">>=
+xyplot(fit~trial|subj, data=get_modelterm(dat.gam3, select=7, as.data.frame=TRUE), type="l")
+@
+The left panel of Figure~2 in the paper is obtained by selecting a subset of these
+subjects that illustrate the range of nonlinear patterns.
+<<ShowSmooths1,echo=TRUE,eval=TRUE,fig=TRUE,out.width='0.6\\textwidth',fig.align='center',fig.cap="Factor smooths for selected subjects (Figure 2 in the paper).">>=
+subjects = c("1", "124", "19", "46", "118", "146", "143", "108", "123")
+pp = get_modelterm(dat.gam3, select=7, 
+  cond=list(subj=subjects),
+  as.data.frame=TRUE)  
+xyplot(fit~trial|subj, data=pp, type="l")
+@
+It is noteworthy that subject 123 has the largest autocorrelations in
+Figure~\ref{fig:autoMod0} and displays the largest changes in response speed in
+the course of the experiment.  This illustrates how slow changes in response
+behavior as an experiment proceeds may induce marked non-independence in the
+response.
+
+
+\subsection{Model comparisons}
+
+
+To assess the importance of the factor smooth, and the wiggliness it captures,
+we compare the {\sc gamm} with an {\sc lmm} that incorporates by-subject random
+slopes for trial.
+<<lmer,echo=TRUE,eval=FALSE>>=
+dat.lmer = lmer(lrt ~ sze * (spt + obj + grv) * orn + 
+                      (spt + grv | subj) + 
+                      (0 + obj | subj) + 
+                      (0 + orn | subj) + 
+                      (0 + spt_orn | subj) + 
+                      (0 + trial|subj), 
+                data=dat, REML=FALSE)
+@
+<<lmerA,echo=FALSE,eval=FALSE>>=
+save(dat.lmer, file="models/kkl4.lmer", compress="xz")
+@
+<<lmerB,echo=FALSE,eval=TRUE>>=
+load("models/kkl4.lmer")
+load("models/kkl4.rda")
+@
+
+A blunt way of comparing goodness of fit is to compare the proportion of variance
+explained by all predictors jointly, both random and fixed.
+<<Rsquareds,echo=TRUE,eval=TRUE,fig=TRUE,out.width='0.7\\textwidth',fig.align='center',fig.cap="Overall R-squared for different models for the KKL dataset.">>=
+Rsquareds = c(
+  cor(fitted(kkl4), dat$lrt)^2,
+  cor(fitted(dat.gam0), dat$lrt)^2,
+  cor(fitted(dat.gam1), dat$lrt)^2,
+  cor(fitted(dat.lmer), dat$lrt)^2,
+  cor(fitted(dat.gam2), dat$lrt)^2,
+  cor(fitted(dat.gam3), dat$lrt)^2)
+names(Rsquareds) = c("baseline LMM", "baseline GAMM", "GAMM+fs", "LMM+rs", "GAMM+fs+AR1",
+                     "GAMM+fs+AR1+SOA")
+dotplot(sort(Rsquareds), xlab="R-squared")
+@
+Figure~\ref{fig:Rsquareds} indicates that the factor smooths are well
+supported.  Note that the inclusion of an {\sc ar1} process for the errors
+(with $\rho=0.15$) makes the model a bit more conservative: the data can be
+predicted less well because of the autocorrelative process in the errors. \\ 
+
+Table~1 in the paper, which compares the initial model with the final
+model, is reproduced as follows.
+<<ComparisonTable,echo=TRUE,eval=TRUE>>=
+load("models/kkl4.rda")
+# table comparing coefficients and t values for the two models
+tab = cbind(summary(kkl4)$coefficients[,1],
+            dat.gam0.smry$p.table[,1], 
+            dat.gam3.smry$p.table[,1],
+            summary(kkl4)$coefficients[,3],
+            dat.gam0.smry$p.table[,3], 
+            dat.gam3.smry$p.table[,3])
+colnames(tab) = c("beta initial lmer", 
+                  "beta initial gamm", 
+                  "beta final (gamm)", 
+                  "t 0 (lmer)", 
+                  "t 0 (gamm)",  
+                  "t 3 (gamm)")
+tab = round(tab, 3)
+@
+<<ComparisonTableF,echo=TRUE,eval=FALSE>>=
+tab    # formatted as Table 1
+@
+<<ComparisonTableT,echo=FALSE,eval=TRUE,results="asis">>=
+print(xtable(tab, digits=3, align="lrrrrrr", caption="Estimates of the fixed-effects coefficients and associated t-values for model 0 (without correction for autocorrelation) fitted with lmer and with bam and model 3 (with full correction for autocorrelation), fitted with bam.", label="tab:auto"), size="small")
+@
+This table indicates changes in the fixed-effect estimates for terms involving {\tt orn},
+the orientation of the picture presented to the participants. \\
+
+A more precise way of clarifying what changes between the initial and final
+model is to compare the importance of the different terms in the model.  We
+assess term importance by leaving it out of the model specification, and
+assessing the decrease in goodness of fit by means of the change for the worse
+in the ML score. We first consider the {\sc gamm}.
+<<varimps,echo=TRUE,eval=FALSE>>=
+fmla = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+              )
+# leave out spt from random effects
+fmla1 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+               )
+# leave out grv from random effects
+fmla2 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+               )
+# leave out obj from random effects
+fmla3 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+               )
+# leave out orn from random effects 
+fmla4 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+               )
+# leave out spt_orn from random effects 
+fmla5 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+               )
+# leave out factor smooth from random effects, we have to put random intercepts back in
+fmla6 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(subj, bs="re") +
+                     s(SOA),
+               )
+# leave out SOA
+fmla7 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(trial, subj, bs="fs", m=1)
+               )
+# leave out sze
+fmla8 = formula(lrt ~ (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+               )
+# leave out orn and all associated random effect terms
+fmla9 = formula(lrt ~ sze * (spt + obj + grv) +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+               )
+# leave out tar (spt, obj, grv) and all associated random effect terms
+
+fmla10 = formula(lrt ~ sze * orn +
+                     s(subj, orn, bs="re") +
+                     s(SOA) +
+                     s(trial, subj, bs="fs", m=1)
+                )
+
+formulae = list(fmla1, fmla2, fmla3, fmla4, fmla5, 
+                fmla6, fmla7, fmla8, fmla9, fmla10)
+# fixed effects in caps, variance components in lower case
+# trial represents the factor smooth
+names(formulae) = c("spt", "grv", "obj", "orn", "spt_orn", 
+                    "trial", "SOA", "SZE", "ORN", "TAR") 
+mls = as.numeric(dat.gam3$gcv.ubre)
+# the next loop collects fREML scores
+# this takes a couple of hours
+for (i in 1:length(formulae)) {
+  m = bam(formulae[[i]], 
+          AR.start=dat$FirstTrial, rho=0.15,
+          data=dat, method="ML")
+  mls = c(mls, as.numeric(m$gcv.ubre))
+}
+names(mls) = c("baseline", names(formulae))
+@
+<<varimps2,echo=FALSE,eval=FALSE>>=
+save(mls, file="models/mlsMar11.rda")
+@
+<<varimps3,echo=FALSE,eval=TRUE>>=
+load("models/mlsMar11.rda")
+@
+Next, we consider the baseline {\sc lmm}, for which we always retain the
+by-subject random intercepts.
+<<varimpsLMM,echo=TRUE,eval=FALSE>>=
+fmla = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(subj, bs="re")
+              )
+# leave out spt from random effects
+fmla1 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(subj, bs="re")
+               )
+
+# leave out grv from random effects
+fmla2 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(subj, bs="re")
+               )
+# leave out obj from random effects
+fmla3 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(subj, bs="re")
+               )
+# leave out orn from random effects 
+fmla4 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(subj, bs="re")
+               )
+# leave out spt_orn from random effects 
+fmla5 = formula(lrt ~ sze * (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, bs="re")
+               )
+# leave out sze
+fmla6 = formula(lrt ~ (spt + obj + grv) * orn +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, orn, bs="re") +
+                     s(subj, spt_orn, bs="re") +
+                     s(subj, bs="re")
+               )
+# leave out orn and all associated random effect terms
+fmla7 = formula(lrt ~ sze * (spt + obj + grv) +
+                     s(subj, spt, bs="re") +
+                     s(subj, grv, bs="re") +
+                     s(subj, obj, bs="re") +
+                     s(subj, bs="re")
+               )
+# leave out tar (spt, obj, grv) and all associated random effect terms
+fmla8 = formula(lrt ~ sze * orn +
+                     s(subj, orn, bs="re") +
+                     s(subj, bs="re")
+                )
+
+formulaeLMM = list(fmla1, fmla2, fmla3, fmla4, fmla5, 
+                fmla6, fmla7, fmla8)
+# fixed effects in caps, variance components in lower case
+names(formulaeLMM) = c("spt", "grv", "obj", "orn", "spt_orn", "SZE", "ORN", "TAR") 
+mlsLMM = as.numeric(dat.gam0$gcv.ubre)
+# collect fREML statistics
+# the next loop takes about an hour
+for (i in 1:length(formulaeLMM)) {
+  cat(i, " ")
+  m = bam(formulaeLMM[[i]], data=dat, method="ML")
+  mlsLMM = c(mlsLMM, as.numeric(m$gcv.ubre))
+}
+names(mlsLMM) = c("baseline", names(formulaeLMM))
+cat("\n")
+@
+<<varimps2LMM,echo=FALSE,eval=FALSE>>=
+save(mlsLMM, file="models/mlsLMMMar11.rda")
+@
+<<varimps3LMM,echo=FALSE,eval=TRUE>>=
+load("models/mlsLMMMar11.rda")
+@
+<<varimpsCombine,echo=TRUE,eval=TRUE>>=
+# calculate changes in fREML scores compared to the full model
+m = rep(mls[1], length(mls)-1)
+m = m - mls[2:length(mls)]
+names(m)=c("spt", "grv", "obj", "orn", "spt_orn", "trial", "SOA", "SIZE", "ORN", "TAR")
+m = -m
+m
+mLMM = rep(mlsLMM[1], length(mlsLMM)-1)
+mLMM = mLMM - mlsLMM[2:length(mlsLMM)]
+names(mLMM)=c("spt", "grv", "obj", "orn", "spt_orn", "SIZE", "ORN", "TAR")
+mLMM = -mLMM
+mLMM
+m2 = c(mLMM, 0, 0)  
+names(m2)[9:10] = c("TRIAL", "SOA")
+m2 = m2[order(names(m2))]
+m = m[order(names(m))]
+# bring information together in data frame
+dfr = data.frame(decrease = c(m, m2), 
+                 term = rep(names(m),2),
+                 model = c(rep("final", length(m)), rep("initial", length(m))))
+dfr$term = gsub("_", ":", dfr$term)
+dfr$val = rep(m,2)
+dfrA = dfr[dfr$model=="final",]
+dfrB = dfr[dfr$model!="final",]
+dfrA = dfrA[order(dfrA$val),]
+dfrB = dfrB[order(dfrB$val),]
+dfr2 = rbind(dfrA, dfrB)
+dfr2$term = factor(dfr2$term)
+dfr2$F = factor(rep(strsplit("abcdefghij", "")[[1]],2))
+dfr2$F = factor(rep(1:10, 2), labels=as.character(dfr2$term[1:10]))
+@
+<<varimpsCombine2,echo=FALSE,eval=TRUE>>=
+save(dfr2, file="models/dfr2.rda")
+@
+<<varimpsCombine3,echo=FALSE,eval=TRUE>>=
+load("models/dfr2.rda")
+@
+<<varimpsCombine4,echo=TRUE,eval=TRUE,fig=TRUE,out.width='0.7\\textwidth',fig.align='center',fig.cap="Variable importance for the LMM and GAMM.">>=
+dotplot(F~decrease, groups=model, data=dfr2, 
+  pch=c(19, 2), col="black", cex=c(1, 1.3),
+  xlab="decrease in goodness of fit when a term is dropped",
+  key=list(text=list(c("final model", "initial model")), 
+           points=list(pch=c(19,2), cex=c(1, 1.3)))
+  )
+@
+Figure~\ref{fig:varimpsCombine4} indicates that once the autocorrelations are
+dealt with, a model is obtained that assigns slightly greater importance to
+{\tt TAR} and substantially less importance to {\tt ORN} (and {\tt orn}).
+Apparently, changes in orientation of the picture presented are more prone to
+give rise to attentional shifts that linger on to the next trial.
+
+\clearpage
+
+\section{Parsimony in regression}
+
+\citet{Baayen:Milin:2010} reported a self-paced reading experiment with
+overspecified random effects structure.  The response variable in this study is
+log-transformed reaction time.  Of the many predictors considered by these
+authors, we select three to illustrate the overspecification problem:  word
+frequency, participant age in years, and participant's reaction times for a
+multiple-choice question probing their reading habits.  The latter variable was
+included to probe between-subject variance and to capture variance that would
+otherwise have to be accounted for through by-participant random intercepts.
+All three predictors were log-transformed and scaled.  
+<<poetry1,echo=TRUE,eval=TRUE>>=
+load("data/poems.rda")
+# abbreviate names 
+poems$Fre = scale(poems$LogWordFormFrequency)
+poems$Mul = scale(poems$LogMultipleChoiceRT)
+poems$Age = scale(log(poems$Age))
+poems$Lrt = poems$LogReadingTime
+# order by subject and trial
+poems = poems[order(poems$Subject, poems$Trial),]
+# scale Trial
+poems$TrialSc = as.numeric(scale(poems$Trial))
+# add logical for starting point of time series
+pos = tapply(poems$Trial, poems$Subject, min)
+poems$MinTrial = pos[as.character(poems$Subject)]
+poems$Start = poems$MinTrial==poems$Trial
+@
+A total of \Sexpr{nrow(poems)} data points are available, from
+\Sexpr{nlevels(poems$Subject)} subjects, for \Sexpr{nlevels(poems$Word)}
+appearing across \Sexpr{nlevels(poems$Poem)} modern Dutch poems.  Words are
+partially nested under poems.  Any given subject read only a subset of poems.
+
+\subsection{Linear mixed models for the poems data set}
+
+We first fit a simple model with the three predictors and the three
+random-effect factors,
+<<poetry2a,echo=TRUE,eval=FALSE,cache=FALSE>>=
+poems.lmer0 = lmer(Lrt ~ Fre + Mul + Age +
+  (1|Poem)+ (1|Subject)+ (1|Word), 
+  data=poems, REML=FALSE)
+@
+<<poetry2b,echo=FALSE,eval=TRUE,cache=FALSE>>=
+if (file.exists("models/poems.lmer0.rda")) {
+  load("models/poems.lmer0.rda")
+} else {
+  poems.lmer0 = lmer(Lrt ~ Fre + Mul + Age +
+    (1|Poem) + (1|Subject) + (1|Word), 
+    data=poems, REML=FALSE)
+  save(poems.lmer0, file="models/poems.lmer0.rda", compress="xz")
+}
+@
+and inspect the summary.
+<<poetry2aSum,echo=TRUE,eval=TRUE,cache=FALSE>>=
+print(summary(poems.lmer0), corr=FALSE)
+@
+Next, we fit a series of models that add by-subject slopes for
+{\tt Fre} and by-word slopes for {\tt Mul}, with and without
+correlation parameters.
+<<poetry3a,echo=TRUE,eval=FALSE>>=
+poems.lmer1 = lmer(Lrt ~ Fre + Mul + Age +
+  (1|Poem) + (1+Fre|Subject) + (1|Word), 
+  data=poems, REML=FALSE)
+@
+<<poetry3b,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.lmer1.rda")) {
+  load("models/poems.lmer1.rda")
+} else {
+  poems.lmer1 = lmer(Lrt ~ Fre + Mul + Age +
+    (1|Poem) + (1+Fre|Subject) + (1|Word), 
+    data=poems, REML=FALSE)
+  save(poems.lmer1, file="models/poems.lmer1.rda", compress="xz")
+}
+@
+<<poetry4a,echo=TRUE,eval=FALSE>>=
+poems.lmer2 = lmer(Lrt ~ Fre + Mul + Age +
+  (1|Poem) + (1+Fre|Subject) + (1+Mul|Word), 
+  data=poems, REML=FALSE)
+@
+<<poetry4b,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.lmer2.rda")) {
+  load("models/poems.lmer2.rda")
+} else {
+  poems.lmer2 = lmer(Lrt ~ Fre + Mul + Age +
+  (1|Poem) + (1+Fre|Subject) + (1+Mul|Word), 
+  data=poems, REML=FALSE)
+  save(poems.lmer2, file="models/poems.lmer2.rda", compress="xz")
+}
+@
+<<poetry5a,echo=TRUE,eval=FALSE>>=
+poems.lmer3 = lmer(Lrt ~ Fre + Mul + Age +
+  (1|Poem) + (1|Subject) + (0+Fre|Subject) + (1+Mul|Word), 
+  data=poems, REML=FALSE)
+@
+<<poetry5b,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.lmer3.rda")) {
+  load("models/poems.lmer3.rda")
+} else {
+  poems.lmer3 = lmer(Lrt ~ Fre + Mul + Age +
+  (1|Poem) + (1|Subject) + (0+Fre|Subject) + (1+Mul|Word), 
+  data=poems, REML=FALSE)
+  save(poems.lmer3, file="models/poems.lmer3.rda", compress="xz")
+}
+@
+<<poetry6a,echo=TRUE,eval=FALSE>>=
+poems.lmer4 = lmer(Lrt ~ Fre + Mul + Age +
+  (1|Poem) + (1+Fre|Subject) + (1|Word) + (0+Mul|Word), 
+  data=poems, REML=FALSE)
+@
+<<poetry6b,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.lmer4.rda")) {
+  load("models/poems.lmer4.rda")
+} else {
+  poems.lmer4 = lmer(Lrt ~ Fre + Mul + Age +
+  (1|Poem) + (1+Fre|Subject) + (1|Word) + (0+Mul|Word), 
+  data=poems, REML=FALSE)
+  save(poems.lmer4, file="models/poems.lmer4.rda", compress="xz")
+}
+@
+
+Likelihood ratio tests 
+<<poetry7,echo=TRUE,eval=TRUE>>=
+# testing for random slopes and correlations, first subject, then also word
+round(as.data.frame(anova(poems.lmer0, poems.lmer1, poems.lmer2)),4)
+# testing for by-subject correlation parameter for Fre 
+round(as.data.frame(anova(poems.lmer3, poems.lmer2)),4)
+# testing for by-word correlation parameter for Mul 
+round(as.data.frame(anova(poems.lmer4, poems.lmer2)),4)
+@
+support the maximal model ({\tt poems.lmer2}), which we summarize:
+<<poetry8>>=
+print(summary(poems.lmer2), corr=FALSE)
+@
+Both correlation parameters are interpretable.  Words that take more time to
+respond to may also be words that take especially long to respond to for
+participants who are slow deciders in a multiple choice situation ($r=0.91$).
+Subjects that respond very quickly show little of a frequency effect,
+suggesting a trade-off between signal-driven responding and responding on the
+basis of long-term lexical priors ($r = -0.68$). \\
+
+However, the large value of the correlation parameter for {\tt Word} is an
+informal indicator of overparameterization, pointing to collinearity in the by-word
+random effects structure. Given a word's intercept, one has a very good
+estimate of that word's slope, and vice versa, see Figure~\ref{fig:poetry9}.
+In other words, there is not much evidence in the data that would allow separation
+of the two sources of by-word variation. \\
+<<poetry9,echo=TRUE,eval=TRUE,out.width='0.6\\linewidth',fig.height=5,fig.width=5,fig.align='center',fig.path="graphs/",fig.cap="By-word BLUPS in the maximal model for the poems dataset.">>=
+plot(ranef(poems.lmer2)$Word, xlab="Intercept", pch=".")
+@
+This strong collinearity becomes apparent as well when we subject the random
+effects structure to a singular value decomposition, and inspect the
+proportions of squared singular values of the random-effects
+variance-covariance estimates (Figure~\ref{fig:poetry10}).  It is clear that
+the random intercepts are important.  Whether the tiny contributions of the
+random slopes are worth including in the model requires further reflection.
+<<poetry10,echo=FALSE,eval=TRUE,out.width='0.8\\linewidth',fig.height=4,fig.align='center', fig.path="graphs/", fig.cap="PCA of random-effects variance-covariance estimates.">>=
+a = rePCA(poems.lmer2)
+par(mfrow=c(1,3))
+plot(a$Word, ylim=c(0, 0.5), main="Word")
+plot(a$Subject, ylim=c(0, 0.5), main="Subject")
+plot(a$Poem, ylim=c(0, 0.5),main="Poem")
+@
+
+Inspection of the variance explained compared to a baseline model 
+with random intercepts for the three factors only
+<<poetry11a,echo=TRUE,eval=FALSE>>=
+poems.lmer00 =  lmer(Lrt ~ 1 +
+  (1|Poem) + (1|Subject) + (1|Word), 
+  data=poems, REML=FALSE)
+@
+<<poetry11b,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.lmer00.rda")) {
+  load("models/poems.lmer00.rda")
+} else {
+  poems.lmer00 =  lmer(Lrt ~ 1 +
+    (1|Poem)+ (1|Subject)+ (1|Word), 
+    data=poems, REML=FALSE)
+  save(poems.lmer00, file="models/poems.lmer00.rda", compress="xz")
+}
+@
+indicates that, as expected given the preceding results, a model that has only
+by-subject slopes captures most of the explainable variance, with little
+additional variance to be captured with the help of by-word slopes for {\tt
+Mul}.
+<<poetry12,echo=TRUE,eval=TRUE>>=
+# full model compared to intercept-only model
+cor(fitted(poems.lmer2),  poems$Lrt)^2 -
+  cor(fitted(poems.lmer00), poems$Lrt)^2
+# model with by-subject slopes but no by-word slopes compared to intercept-only model
+cor(fitted(poems.lmer1),  poems$Lrt)^2 -
+  cor(fitted(poems.lmer00), poems$Lrt)^2
+@
+As is often the case in studies of lexical processing, almost all of the
+variance is accounted for by random intercepts for random-effect factors such
+as subject and item.
+
+Caution with respect to random slopes for {\tt Word} is advisable given that
+words are partially crossed with subject and poem.  Some words are specific to
+a given poem, others are shared by many poems. Furthermore, not every
+participant read every poem.  In addition, the distribution of the words is not
+balanced, but Zipfian, as participants were reading real text. As a
+consequence, the data are relatively sparse, and not optimal for estimating
+interactions of subject properties with word.  Since removal of the by-word
+random slopes results in only a minor reduction in goodness of fit, a model
+without by-word random slopes is a well-motivated alternative to the maximal
+model. \\ 
+
+Inspection of the residuals of the simplified linear mixed model reveals
+substantial autocorrelation.
+<<poetryACF,echo=TRUE,eval=TRUE,out.width='0.5\\linewidth',fig.align='center', fig.path="graphs/", fig.cap="Autocorrelation function for simplified LMM for the poems data.">>=
+acf(resid(poems.lmer1), main=" ")
+@
+<<poetry13.c,echo=FALSE,eval=FALSE>>=
+poems.trial.lmer = lmer(Lrt ~ Fre + Mul + Age + Trial +
+  (1|Poem) + (1+Fre|Subject) + (0+Trial|Subject) + (1|Word), 
+  data=poems, REML=FALSE)
+# does not converge
+@
+A model with scaled trial as covariate and corresponding by-subject random slopes,
+<<poetry13.d,echo=TRUE,eval=FALSE>>=
+poems.trial.lmer = lmer(Lrt ~ Fre + Mul + Age + TrialSc +
+  (1|Poem) + (1+Fre|Subject) + (0+TrialSc|Subject) + (1|Word), 
+  data=poems, REML=FALSE)
+@
+<<poetry13.e,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.trial.lmer.rda")) {
+  load("models/poems.trial.lmer.rda")
+} else {
+  poems.trial.lmer = lmer(Lrt ~ Fre + Mul + Age + TrialSc +
+    (1|Poem) + (1+Fre|Subject) + (0+TrialSc|Subject) + (1|Word), 
+    data=poems, REML=FALSE)
+  save(poems.trial.lmer, file="models/poems.trial.lmer.rda", compress="xz")
+}
+@
+\vspace*{-1.4\baselineskip}
+<<poetry13.f,echo=TRUE,eval=TRUE>>=
+summary(poems.trial.lmer)
+@
+which improves considerably in terms of R-squared,
+<<poetryRsqComps,echo=TRUE,eval=TRUE>>=
+cor(fitted(poems.lmer1), poems$Lrt)^2
+cor(fitted(poems.trial.lmer), poems$Lrt)^2
+@
+affords only a slight reduction in the autocorrelations of the residual errors (see Figure~\ref{fig:poetryACFtrialLMER}).
+<<poetryACFtrialLMER,echo=TRUE,eval=TRUE,out.width='0.5\\linewidth',fig.height=5,fig.align='center',fig.path="graphs/",fig.cap="ACF for simplified LMM and the corresponding model with in addition random slopes for Trial">>=
+par(mfrow=c(1,2))
+acf(resid(poems.lmer1), main="LMM")
+acf(resid(poems.trial.lmer), main="LMM with Trial")
+@
+
+\subsection{Generalized additive modeling of the poems dataset}
+
+Often, effects of trial are non-linear.  We therefore relax the linearity
+constraint on trial and consider a generalized additive mixed model with
+by-subject factor smooths for trial.  In addition, we model a nonlinear
+interaction of Frequency and Age with the help of a tensor product smooth
+({\tt te(Fre, Age)}).  We return to this interaction below.
+<<poetry14a,echo=TRUE,eval=FALSE>>=
+poems.trial.gamA = bam(Lrt~ te(Fre, Age) + Mul + 
+  s(TrialSc, Subject, bs="fs", m=1)+s(Subject, Fre, bs="re"),
+  data=poems)
+@
+<<poetry14b,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.trial.gamA.results.rda")) {
+  load("models/poems.trial.gamA.results.rda")
+  resultsA=results
+} else {
+  # model fit on server, model object is huge and not copied
+  # instead, relevant model components are extracted and saved
+  poems.trial.gamA = bam(Lrt~ te(Fre, Age) + Mul + 
+      s(TrialSc, Subject, bs="fs", m=1)+s(Subject, Fre, bs="re"),
+      data=poems)
+  poems.trial.gamA.smry = summary(poems.trial.gamA)
+  results = list(
+    ptable = poems.trial.gamA.smry$p.table,
+    stable = poems.trial.gamA.smry$s.table,
+    resids = resid(poems.trial.gamA),
+    rho = 0,
+    stats = list(fREML=poems.trial.gamA$gcv.ubre, 
+                 adjRsq=poems.trial.gamA.smry$r.sq,
+                 devExpl=poems.trial.gamA.smry$dev.expl,
+                 Rsq=cor(fitted(poems.trial.gamA), poems$Lrt)^2))
+  save(results, file= "poems.trial.gamA.results.rda", compress="xz") 
+}
+@
+The autocorrelation is now reduced more substantially, as can be seen in the
+left panel of Figure~\ref{fig:poetryRhoPlots}.  Inclusion of an {\sc ar1}
+autocorrelative process in the residuals with $\rho=0.30$ further reduces the
+autocorrelations (right panel).  (Baayen \& Milin, 2010, used the response latency
+at the preceding trial to whiten the errors, but it is preferable to address the
+autocorrelations directly in the residuals.)
+<<poetry15a,echo=TRUE,eval=FALSE>>=
+poems.trial.gamB = bam(Lrt~ te(Fre, Age) + Mul + 
+   s(TrialSc, Subject, bs="fs", m=1)+s(Subject, Fre, bs="re"),
+   rho=0.3, AR.start = poems$Start,
+   data=poems)
+@
+<<poetry15b,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.trial.gamB.results.rda")) {
+  load("models/poems.trial.gamB.results.rda")
+  resultsB=results
+} else {
+  # model fit on server, model object is huge and not copied
+  # instead, relevant model components are extracted and saved
+  poems.trial.gamB = bam(Lrt~ te(Fre, Age) + Mul + 
+      s(TrialSc, Subject, bs="fs", m=1)+s(Subject, Fre, bs="re"),
+      rho=0.3, AR.start = poems$Start,
+    data=poems)
+  poems.trial.gamB.smry = summary(poems.trial.gamB)
+  results = list(
+    ptable = poems.trial.gamB.smry$p.table,
+    stable = poems.trial.gamB.smry$s.table,
+    resids = resid(poems.trial.gamB),
+    rho = 0.3,
+    stats = list(fREML=poems.trial.gamB$gcv.ubre, 
+                 adjRsq=poems.trial.gamB.smry$r.sq,
+                 devExpl=poems.trial.gamB.smry$dev.expl,
+                 Rsq=cor(fitted(poems.trial.gamB), poems$Lrt)^2))
+  save(results, file= "poems.trial.gamB.results.rda", compress="xz") 
+}
+@
+<<poetryRhoPlots,echo=FALSE,eval=TRUE,out.width='0.5\\linewidth',fig.height=5,fig.align='center',fig.path="graphs/",fig.cap="Autocorrelation functions for GAMMs with factor smooths and AR1 process for the errors.">>=
+source("lib/autocorrelations.R")
+tmp = data.frame(obs=1:length(resultsB$resids), Resid=resultsB$resids,
+                 subj=poems$Subject, stringsAsFactors=FALSE)
+par(mfrow=c(1,2))
+acf(resultsA$resids, main="+ factor smooths")
+plot(acfRho(tmp, rho=0.3), main="+ factor smooths + AR1")
+@
+
+The autocorrelation functions shown thus far for the poems data are imprecise,
+because they ignore the individual time series of the different subjects. This
+can give rise to artifacts.  We therefore zoom in on these individual time
+series for the final model.  These time series consist of the button presses of
+a given subject as she was reading through the set of poems assigned to her
+(Figures~16--18).\\
+%fig.env='sidewaysfigure',
+<<poetryTrellis,echo=FALSE,eval=TRUE,fig.path="graphs/",fig.cap="Autocorrelation functions for individual readers in the poems data.",fig.width=6,fig.height=8>>=
+dfr = acfRhoBySubjectsDataFrame(tmp, NULL, 0.3, NULL, levels(tmp$subj), "subj")
+dfr$ci = -(1/dfr$n) + 2/sqrt(dfr$n)
+civec = dfr[dfr$lags==0,]$ci
+xyplot(acfs ~ lags | events, type = "h", data = dfr, col.line = "black", 
+            panel = function(...) {
+                panel.abline(h = civec[panel.number()], col.line = "grey")
+                panel.abline(h = -civec[panel.number()], col.line = "grey")
+                panel.abline(h = 0, col.line = "black")
+                panel.xyplot(...)
+            }, 
+            #strip = strip.custom(bg = "grey90"), 
+            strip=FALSE,
+            par.strip.text = list(cex = 0.8),
+            xlab="lag", ylab="autocorrelation",
+            layout=c(8,14,3))
+@
+
+\clearpage
+
+For a majority of readers, the errors are appropriately whitened.  Some
+readers, however, still show autocorrelations across many lags.  As just a
+single autocorrelation parameter can be specified, that will be applied across
+all subjects, we again have to settle for a compromise such that artefactual
+induced (often negative) autocorrelations for many other subjects are avoided.
+Several strategies could be persued.  If significance is crucial, subjects with
+strong autocorrelations could be removed, and the analysis repeated without
+them. The timeseries could be refined.  Instead of taking all data from a given
+subject as a timeseries, one could define shorter series, one for each
+combination of subject and poem. However, models with large numbers of time
+series may become unestimable.  The subjects with strong remaining
+autocorrelations are also of genuine interest by themselves.  Are these
+subjects the ones who enjoy reading poetry?  Or are these the subjects who read
+through the poems with little interest and enjoyment? Answers to questions such
+as these are beyond the scope of this vignette.  \\
+
+By taking nonlinearities into account, we have obtained a model that not
+only has substantially reduced autocorrelations in the errors, but that also
+provides a slightly tighter fit to the data.
+<<comparisonOfFits1,echo=TRUE,eval=TRUE>>=
+# LMM without trial
+cor(fitted(poems.lmer1), poems$Lrt)^2
+# LMM with trial and by-subject random slopes for trial
+cor(fitted(poems.trial.lmer), poems$Lrt)^2
+@
+<<comparisonOfFits2,echo=TRUE,eval=FALSE>>=
+# GAMM with by-subject factor smooths for trial and rho=0.30
+cor(fitted(poems.trial.gamB), poems$Lrt)^2
+@
+\vspace*{-0.8\baselineskip}
+<<comparisonOfFits3,echo=FALSE,eval=TRUE>>=
+resultsB$stats$Rsq
+@
+
+The final model ({\tt poems.trial.gamB}) is described by the paramatric and
+smooth subtables from the summary.
+<<poetry16b1,echo=TRUE,eval=FALSE>>=
+poems.trial.gamB.smry = summary(poems.trial.gamB) # this takes a long time
+poems.trial.gamB.smry$p.table
+@
+\vspace*{-1.4\baselineskip}
+<<poetry16b2,echo=FALSE,eval=TRUE>>=
+resultsB$ptable
+@
+<<poetry16b3,echo=TRUE,eval=FALSE>>=
+poems.trial.gamB.smry$s.table
+@
+\vspace*{-1.4\baselineskip}
+<<poetry16b4,echo=FALSE,eval=TRUE>>=
+resultsB$stable
+@
+
+
+
+\subsection{Nonlinear interactions of covariates}
+
+As mentioned above, the final model incorporates a nonlinear interaction of Age
+by Frequency, modeled with a tensor product smooth.  This interaction is
+supported by comparison with a model with main effects only,
+<<poetry17a,echo=TRUE,eval=FALSE>>=
+poems.trial.gamC = bam(Lrt ~ Fre + Age + Mul + 
+   s(TrialSc, Subject, bs="fs", m=1) + s(Subject, Fre, bs="re"),
+   rho=0.3, AR.start = poems$Start,
+   data=poems)
+@
+<<poetry17b,echo=FALSE,eval=TRUE>>=
+if (file.exists("models/poems.trial.gamC.results.rda")) {
+  load("models/poems.trial.gamC.results.rda")
+  resultsC=results
+} else {
+  # model fit on UBII, model object is huge and not copied
+  # instead, relevant model components are extracted and saved
+  poems.trial.gamC = bam(Lrt~ Fre + Age + Mul + 
+      s(TrialSc, Subject, bs="fs", m=1)+s(Subject, Fre, bs="re"),
+      rho=0.3, AR.start = poems$Start,
+    data=poems)
+  poems.trial.gamC.smry = summary(poems.trial.gamC)
+  results = list(
+    ptable = poems.trial.gamC.smry$p.table,
+    stable = poems.trial.gamC.smry$s.table,
+    resids = resid(poems.trial.gamC),
+    rho = 0.3,
+    stats = list(fREML=poems.trial.gamC$gcv.ubre, 
+                 adjRsq=poems.trial.gamC.smry$r.sq,
+                 devExpl=poems.trial.gamC.smry$dev.expl,
+                 Rsq=cor(fitted(poems.trial.gamC), poems$Lrt)^2))
+  save(results, file= "poems.trial.gamC.results.rda", compress="xz") 
+}
+@
+<<compareMLpoetryGamms1,echo=TRUE,eval=FALSE>>=
+compareML(poems.trial.gamC, poems.trial.gamB)
+@
+\vspace*{-1.2\baselineskip}
+<<compareMLpoetryGamms2,echo=TRUE,eval=FALSE>>=
+             Model    Score Edf Chisq    Df   p.value 
+1 poems.trial.gamC 50172.36   7                           
+2 poems.trial.gamB 50163.23  10 9.137 3.000 3.863e-04 
+@
+The partial effect of the interaction is shown in
+Figure~\ref{fig:poemsTrialGamB}, left panel.  
+<<poetry18,echo=TRUE,eval=FALSE>>=
+plot(poems.trial.gamB,select=1, rug=FALSE, main=" ", lwd=1.6)  # Fig 19, left panel
+x = unique(poems[,c("Fre", "Age")])
+points(x, pch=".", col="gray")
+@
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=0.49\textwidth]{graphs/poemsTrialGamB.pdf}
+  \includegraphics[width=0.49\textwidth]{graphs/poemsTrialGamE.pdf}
+
+  \caption{Tensor product smooth for the interaction of Age and Frequency in
+  the poems data.  Left: correct model with by-subject random slopes for frequency.
+  Right: incorrect model without this variance component.
+  Dotted lines represent 1 SE confidence regions, red dashed
+  lines are 1 SE down from their contour line, and green dotted lines 1 SE up.
+  Grey dots represent data points.}
+
+  \label{fig:poemsTrialGamB}
+\end{figure}
+The age effect is slightly smaller for low-frequency words, and the frequency
+effect is slightly stronger for the younger participants.  The interaction is
+mild, but of potential theoretical significance, as in our previous work on
+frequency and age
+\citep{Ramscar:Hendrix:Shaoul:Milin:Baayen:2014,Ramscar:Hendrix:Love:Baayen:2014}
+only aggregate data were considered in which subject-specific linear slopes for
+frequency where not partialed out.  The right panel illustrates the
+consequences of not doing so: a much more irregular and less well interpretable
+surface is generated for the interaction.  Returning to the left panel, if
+frequency is understood as a lexical prior, then older readers of poetry depend
+less on these priors, suggesting they get more out of the poetry. \\
+
+
+In summary, Baayen \& Milin (2010) proposed a model with several by-word and
+by-subject random slopes.  Inclusion of these random slopes was motivated in
+part by the wish to provide stringent tests for the significance of main
+effects \citep[cf.][]{Barr:Levy:Scheepers:Tily:13}, and in part by interest in
+individual differences.   Upon closer inspection, the by-word random slopes
+turned out to contribute very little to the model fit, while at the same time
+suffering from data sparseness and collinearity.  Here, a more parsimoneous
+model without the by-word random slopes seems justified.  By contrast, we
+maintained the by-subject random slopes for frequency.  This variance component
+contributed more substantially to the model fit, and furthermore turned out to
+be essential for a proper assessment of the interaction of age by frequency.
+Thus, we kept the model maximal within the boundaries set by what the data can
+support on the one hand, and by what makes sense theoretically on the other.
+
+\section{Concluding comments}
+
+The statistician George Box is famous for stating that all models are wrong,
+but some are more useful than others.  The present model for the poems data is
+wrong in several ways.  We have already seen that for some subjects, persistent
+autocorrelations are present in the residuals. Furthermore, there are many
+other variables that could have been brought into the analysis.  Important for
+the present discussion is that it is quite possible that there is
+subject-specific variation that has not been accounted for, especially in
+relation to trial.  For instance, the interaction of frequency and age might be
+modulated by how far a participant has progressed through the experiment.  It
+might also vary by poem.  Interactions of subject by poem by trial by frequency
+by age, however realistic, are beyond what can currently be modelled, and are
+probably also far beyond what we can integrate into our theories of language
+processing.  Nevertheless, the present model may be useful as a window on a
+complex dataset, the modulation of frequency effects by age, subject-specific
+differences in the effect of frequency, and subject-specific variation in local
+coherence in reading.
+
+
+<<compareMLpoetryGammsX,echo=FALSE,eval=FALSE>>=
+resultsC$stats$fREML
+resultsB$stats$fREML
+resultsC$stats$Rsq
+resultsB$stats$Rsq
+# on UBII
+pdf("poemsTrialGamB.pdf", he=6,wi=6)
+plot(poems.trial.gamB,select=1, rug=FALSE, main=" ", lwd=1.6)
+x = unique(poems[,c("Fre", "Age")])
+points(x, pch=".", col="gray")
+dev.off()
+# what about a gamm without factor smooths
+poems.trial.gamD = bam(Lrt~ te(Fre, Age) + Mul + 
+      s(Subject, bs="re")+s(Subject, Fre, bs="re"),
+      rho=0.3, AR.start = poems$Start,
+    data=poems)
+pdf("poemsTrialGamD.pdf", he=6,wi=6)
+plot(poems.trial.gamD,select=1, rug=FALSE, main=" ", lwd=1.6)
+x = unique(poems[,c("Fre", "Age")])
+points(x, pch=".", col="gray")
+dev.off()
+# and a gam without random slopes for Fre
+poems.trial.gamE = bam(Lrt~ te(Fre, Age) + Mul + 
+      s(Subject, bs="re"),
+      rho=0.3, AR.start = poems$Start,
+    data=poems)
+pdf("poemsTrialGamE.pdf", he=6,wi=6)
+plot(poems.trial.gamE,select=1, rug=FALSE, main=" ", lwd=1.6)
+x = unique(poems[,c("Fre", "Age")])
+points(x, pch=".", col="gray")
+dev.off()
+@
+
+
+\bibliography{data}
+
+
+
+\end{document}
