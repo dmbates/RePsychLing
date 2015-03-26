@@ -1,6 +1,6 @@
 ---
 title: "A Bayesian Linear Mixed Model Analysis of the Kronmueller and Barr (2007) data using Stan"
-author: "Shravan Vasishth"
+author: "Shravan Vasishth and Douglas Bates"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -23,12 +23,27 @@ options(width=92,show.signif.stars = FALSE)
 
 ```{r preparedata,echo=TRUE,eval=FALSE,cache=FALSE}
 load("../data/kb07.rda")
+N<-dim(kb07)[1]
+x<-as.matrix(subset(kb07,select = 
+                    c(S,P,C,SP,SC,PC,SPC)))
+
+x<-cbind(rep(1,N),x)
+
+x_full <- model.matrix(~1+S+P+C+SP+SC+PC+SPC, data=kb07)
+
+x_u_full <- model.matrix(~1+S+P+C+SP+SC+PC+SPC, data=kb07) 
+x_w_full <-  model.matrix(~1+S+P+C+SP+SC+PC+SPC, data=kb07)
+
 dat <- 
-  c(unclass(subset(kb07, select = c(RTtrunc,
-                                    S,P,C,SP,SC,
-                                    PC,SPC))),
-    subj = list(as.integer(kb07$subj)),
-    item = list(as.integer(kb07$item)),    
+  list(x = x_full,
+    x_u = x_u_full,
+    x_w = x_w_full,
+    RTtrunc = kb07$RTtrunc,
+    subj = as.vector(as.integer(kb07$subj)),
+    item = as.vector(as.integer(kb07$item)),
+    N_coef = 8, ## no. of fixefs
+    N_coef_u = 8, ## no. of subj ranefs
+    N_coef_w = 8, ## no. of item ranefs
     N = nrow(kb07),
     I = nlevels(kb07$subj),
     K = nlevels(kb07$item))
@@ -36,20 +51,83 @@ dat <-
 
 ## Maximal model analysis
 
+```{r definemaxmodel,echo=TRUE,eval=FALSE,cache=FALSE}
+kb07maxmodel_code<-"data {
+  int<lower=1> N;
+  real RTtrunc[N];  	 //outcome
+  int<lower=1> I;		 //number of subjects
+  int<lower=1> K;		 //number of items
+  int<lower=1, upper=I> subj[N]; //subject id
+  int<lower=1, upper=K> item[N]; //item id
+  int<lower=0> N_coef_u;  
+  int<lower=0> N_coef_w;
+  int<lower=0> N_coef;
+  matrix[N,N_coef] x;
+  matrix[N,N_coef_u] x_u;
+  matrix[N,N_coef_w] x_w;
+}
+
+parameters {
+  vector[N_coef] beta;		// intercept and slope
+  real<lower=0> sigma_e;	// residual sd
+  vector<lower=0>[N_coef_u] sigma_u;	// subj sd
+  vector<lower=0>[N_coef_w] sigma_w;	// item sd
+  cholesky_factor_corr[N_coef_u] L_u;
+  cholesky_factor_corr[N_coef_w] L_w;
+  matrix[N_coef_u,I] z_u;
+  matrix[N_coef_w,K] z_w;
+}
+
+transformed parameters {
+      vector[N] fixeff;
+      vector[N] raneff;
+      vector[N] mu;
+      matrix[N_coef_u,I]  u;         
+      matrix[N_coef_w,K]  w;
+
+      fixeff <- x * beta;   
+      u <- (diag_pre_multiply(sigma_u,L_u) * z_u); // subj random effects
+      w <- (diag_pre_multiply(sigma_w,L_w) * z_w); // item random effects
+          
+      for (i in 1:N)
+        raneff[i] <- row(x_u,i) * col(u,subj[i])+ row(x_w,i) * col(w,item[i]);
+      mu <- fixeff+raneff;
+}
+
+model {
+  # priors:
+  beta ~ normal(0,2000);
+  sigma_e ~ normal(0,500);   // truncated normal, see parameters above
+  sigma_u ~ normal(0,500);
+  sigma_w ~ normal(0,500);
+  L_u ~ lkj_corr_cholesky(4.0);
+  L_w ~ lkj_corr_cholesky(4.0);
+to_vector(z_u) ~ normal(0,1);
+to_vector(z_w) ~ normal(0,1);
+RTtrunc ~ normal(mu, sigma_e);  
+}
+
+generated quantities {
+      matrix[N_coef_u,N_coef_u] Cor_u;
+      matrix[N_coef_w,N_coef_w] Cor_w;
+
+      Cor_u <- L_u * L_u';  //Correlations between random effects by subj
+      Cor_w <- L_w * L_w';  //Correlations between random effects by item
+}
+"
+```
+
 ```{r runmaxmodel,echo=TRUE,eval=FALSE,cache=FALSE}
-if (file.exists("../data/kb07_maxstanresults.rda")) {   
-  ## this is a matrix object containing only
-  ## a subset of the results
-  load("../data/kb07_maxstanresults.rda") 
-} else {
-kb07model <- stan("KB07maxmodel.stan", 
+## Set up model (no sampling done yet):
+kb07maxmodel <- stan(model_code=kb07maxmodel_code, 
                    data = dat, 
                    chains = 0)
   
-## Adjust cores to match your computer:
+## Run model:
+## (Adjust cores to match your computer)
 sflist <- 
   mclapply(1:4, mc.cores = 4, 
-           function(i) stan(fit = kb07model, 
+           function(i) stan(fit = kb07maxmodel, 
                             data = dat,
                             iter=2000,
                             chains = 1, 
@@ -58,37 +136,77 @@ sflist <-
 
 ## Note that this would be a huge file if saved:
 KB07_stan <- sflist2stanfit(sflist)
-  ## save as matrix
-KB07mat<-as.matrix(KB07_stan)
-KB07reduced<-KB07mat[,1:153]
-param_names<-colnames(KB07reduced)
-resultsKBmax<-matrix(rep(NA,153*3),ncol=3)
-for(i in 1:153){
-  resultsKBmax[i,]<-c(mean(KB07reduced[,i]),
-                     quantile(KB07reduced[,i],
-                     probs=c(0.025,0.975)))
-}
 
-resultsKBmax<-data.frame(resultsKBmax)
-## Mean and credible intervals:
-colnames(resultsKBmax)<-c("mean","lower","upper")
-rownames(resultsKBmax)<-param_names
+KB07_results<- summary(KB07_stan,
+                       pars=c("beta","sigma_u","sigma_w","sigma_e","Cor_u","Cor_w"),
+                       probs = c(0.025,  0.975) ,digits_summary = 3)
 
-## saved in RePsychLing data dir:
-save(resultsKBmax,
-     file="../data/kb07_maxstanresults.rda",
-     compress="xz")
+KB07_maxresults<-round(KB07_results$summary,4)[,c(1,4,5)]
+```
+
+```{r printmaxmodel,echo=TRUE,eval=FALSE,cache=FALSE}
+print(KB07_maxresults)
 ```
 
 ### Final model
 
+```{r definefinmodel,echo=TRUE,eval=FALSE,cache=FALSE}
+kb07finmodel_code <- "data {
+  int<lower=1> N;
+  real RTtrunc[N];     //outcome
+  real<lower=-1,upper=1> S[N];	 //predictor
+  real<lower=-1,upper=1> P[N];	 //predictor
+  real<lower=-1,upper=1> C[N];	 //predictor
+  real<lower=-1,upper=1> SP[N];	 //predictor
+  real<lower=-1,upper=1> SC[N];	 //predictor
+  real<lower=-1,upper=1> PC[N];	 //predictor
+  real<lower=-1,upper=1> SPC[N]; //predictor
+  int<lower=1> I;		 //number of subjects
+  int<lower=1> K;		 //number of items
+  int<lower=1, upper=I> subj[N]; //subject id
+  int<lower=1, upper=K> item[N]; //item id
+}
+
+parameters {
+  vector[8] beta;		// intercept and slope
+  real<lower=0> sigma_e;	// residual sd
+  real<lower=0> sigma_u;	// subj sd
+  vector<lower=0>[2] sigma_w;	// item sd
+  cholesky_factor_corr[2] L_w;
+  matrix[2,K] z_w;
+  real u[I];			// random intercept subj
+}
+
+model {
+  real mu[N];			// mu for likelihood
+  matrix[K,2] w;		// random intercept and slopes item	
+  # priors:
+  beta ~ normal(0,2000);
+  sigma_e ~ normal(0,500);   // truncated normal, see parameters above
+  sigma_u ~ normal(0,500);
+  sigma_w ~ normal(0,500);
+  L_w ~ lkj_corr_cholesky(2.0);
+  to_vector(z_w) ~ normal(0,1);
+  u ~ normal(0,sigma_u);
+  w <- (diag_pre_multiply(sigma_w,L_w) * z_w)';	// item random effects
+
+  for (n in 1:N)
+    mu[n] <- beta[1] + u[subj[n]] + w[item[n],1] + 
+      (beta[2])*S[n] +
+      (beta[3] + w[item[n],2])*P[n] +
+      (beta[4])*C[n] +
+      (beta[5])*SP[n] +
+      (beta[6])*SC[n] +
+      (beta[7])*PC[n]+
+      (beta[8])*SPC[n];  
+
+  RTtrunc ~ normal(mu,sigma_e);	// likelihood
+}
+"  
+```
+
 ```{r runfinmodel,echo=TRUE,eval=FALSE,cache=FALSE}
-if (file.exists("../data/kb07_finstanresults.rda")) {   
-  ## this is a matrix object containing only
-  ## a subset of the results
-  load("../data/kb07_finstanresults.rda")
-} else {
-kb07finmodel <- stan("KB07finmodel.stan", 
+  kb07finmodel <- stan("KB07finmodel.stan", 
                    data = dat, 
                    chains = 0)
   
