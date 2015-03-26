@@ -22,7 +22,7 @@ options(width=92,show.signif.stars = FALSE)
 ## Load data
 
 ```{r preparedata,echo=TRUE,eval=FALSE,cache=FALSE}
-load("../data/kb07.rda")
+#load("../data/kb07.rda")
 N<-dim(kb07)[1]
 x_full <- model.matrix(~1+S+P+C+SP+SC+PC+SPC, data=kb07)
 
