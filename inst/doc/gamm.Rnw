@@ -1,4 +1,5 @@
 %\VignetteIndexEntry{Addressing residual autocorrelation with generalized additive mixed models}
+%\VignetteEngine{knitr::knit}
 \documentclass[11pt]{article}
 \usepackage{bm}
 \usepackage{geometry}
