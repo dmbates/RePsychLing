@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Shravan Vasishth and Douglas Bates" />
+
+<meta name="date" content="2015-03-27" />
+
+<title>A Bayesian Linear Mixed Model Analysis of the Kronmüller and Barr (2007) data using Stan</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">A Bayesian Linear Mixed Model Analysis of the Kronmüller and Barr (2007) data using Stan</h1>
+<h4 class="author"><em>Shravan Vasishth and Douglas Bates</em></h4>
+<h4 class="date"><em>2015-03-27</em></h4>
+</div>
+
+
+<div id="structure-of-the-data" class="section level2">
+<h2>Structure of the data</h2>
+<p>The data from Kronmüller and Barr (2007) is available as the <code>kb07</code> data frame in the <a href="https://github.com/dmbates/RePsychLing">RePscyhLing package</a> for <a href="http://www.r-project.org">R</a></p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(kb07)</code></pre>
+<pre><code>'data.frame':   1790 obs. of  10 variables:
+ $ subj   : Factor w/ 56 levels &quot;30&quot;,&quot;31&quot;,&quot;34&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ item   : Factor w/ 32 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ RTtrunc: num  2267 3856 1567 1732 2660 ...
+ $ S      : num  1 -1 -1 1 1 -1 -1 1 1 -1 ...
+ $ P      : num  -1 1 -1 1 -1 1 -1 1 -1 1 ...
+ $ C      : num  1 -1 -1 -1 -1 1 1 1 1 -1 ...
+ $ SP     : num  -1 -1 1 1 -1 -1 1 1 -1 -1 ...
+ $ SC     : num  1 1 1 -1 -1 -1 -1 1 1 1 ...
+ $ PC     : num  -1 -1 1 -1 1 1 -1 1 -1 -1 ...
+ $ SPC    : num  -1 1 -1 -1 1 -1 1 1 -1 1 ...</code></pre>
+<p>As is common with factorial designs the experimental factors and their interactions are given short names: a single character (<code>S</code>,<code>P</code>,<code>C</code>) for the main effects, two-character names for the two-factor interactions and a three-character name for the three-factor interaction.</p>
+<p>The data are from 56 subjects who responded to 32 iterms. Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved</p>
+<ol style="list-style-type: decimal">
+<li>auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (<code>P</code>)</li>
+<li>with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker (<code>S</code>) a</li>
+<li>whether the task had to be performed without or with a cognitive load consisting of six random digits. (<code>C</code>)</li>
+</ol>
+<p>All factors were expressed using a <code>±1</code> encoding which ensures that the scale of the interactions is the same as the scale of the main effects and of the intercept term. The columns of the full-factorial model matrix, <code>X</code></p>
+<pre class="sourceCode r"><code class="sourceCode r">X &lt;-<span class="st"> </span><span class="kw">unname</span>(<span class="kw">model.matrix</span>(~<span class="st"> </span><span class="dv">1</span>+S+P+C+SP+SC+PC+SPC, kb07))
+<span class="kw">attr</span>(X,<span class="st">&quot;assign&quot;</span>) &lt;-<span class="st"> </span><span class="ot">NULL</span>
+<span class="kw">str</span>(X)</code></pre>
+<pre><code> num [1:1790, 1:8] 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<p>have the same length and are nearly orthogonal.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">crossprod</span>(X)   <span class="co"># X'X</span></code></pre>
+<pre><code>     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]
+[1,] 1790    0    0    2    2    0    0   -2
+[2,]    0 1790    2    0    0    2   -2    0
+[3,]    0    2 1790    0    0   -2    2    0
+[4,]    2    0    0 1790   -2    0    0    2
+[5,]    2    0    0   -2 1790    0    0    2
+[6,]    0    2   -2    0    0 1790    2    0
+[7,]    0   -2    2    0    0    2 1790    0
+[8,]   -2    0    0    2    2    0    0 1790</code></pre>
+<p>The response, <code>RTtrunc</code>, is the reaction time after truncating some unusually large values.</p>
+</div>
+<div id="formulating-the-stan-model" class="section level2">
+<h2>Formulating the Stan model</h2>
+<p><a href="http://stan-mc.org">Stan</a> is a system for creating Markov chain Monte Carlo (MCMC) samplers for statistical models.</p>
+<p>In the model specification the data, including dimensions of arrays, are described first.</p>
+<pre class="sourceCode r"><code class="sourceCode r">standat &lt;-<span class="st"> '</span>
+<span class="st">data {</span>
+<span class="st">  int&lt;lower=0&gt;  N; // num observations</span>
+<span class="st">  int&lt;lower=1&gt;  K; // length of fixed-effects vector</span>
+<span class="st">  int&lt;lower=0&gt;  M; // num subjects</span>
+<span class="st">  int&lt;lower=1&gt;  J; // length of subj vector-valued random effects</span>
+<span class="st">  int&lt;lower=0&gt;  L; // num items</span>
+<span class="st">  int&lt;lower=1&gt;  I; // length of item vector-values random effects</span>
+<span class="st">  int&lt;lower=1,upper=M&gt; subj[N]; // subject indicator</span>
+<span class="st">  int&lt;lower=1,upper=L&gt; item[N]; // item indicator</span>
+<span class="st">  row_vector[K] X[N]; // model matrix for fixed-effects parameters</span>
+<span class="st">  row_vector[J] Zs[N]; // generator model matrix for subj random effects</span>
+<span class="st">  row_vector[I] Zi[N]; // generator model matrix for item random effects </span>
+<span class="st">  vector[N]     y; // response vector (reaction time)</span>
+<span class="st">}</span>
+
+<span class="st">'</span></code></pre>
+<p>The response vector, <code>y</code>, is expressed as a vector of <code>N</code> elements.<br />The integer vectors <code>subj</code> and <code>item</code> are the indicators of subject and of item for each response.</p>
+<p>The fixed-effects model matrix, <code>X</code>, the subject-specific random effects model matrix, <code>Zs</code>, and the item-specific random effects model matrix, <code>Zi</code>, are stored as vectors of <code>N</code> <code>row_vector</code>’s. The reason for storing the model matrices like this is to provide fast access to individual rows when formulating the model.</p>
+<p>For generality the number of columns in these matrices is specified separately as <code>K</code>, <code>J</code> and <code>I</code>. For the <em>maximal model</em> these will all be eight. The numbers of subjects and items are <code>M</code> and <code>L</code>, respectively.</p>
+</div>
+<div id="model-parameters" class="section level2">
+<h2>Model parameters</h2>
+<p>In a Bayesian formulation all the random variables are considered <em>model parameters</em>; there is no distinction between the random effects and the fixed-effects coefficients. The covariance matrices for the within-subject and within-item random effects are specified according to the Cholesky factor of the correlation matrix, a <code>cholesky_factor_corr</code> type and the standard deviations, which are called <code>taus</code> and <code>taui</code>, respectively.</p>
+<p>The <em>spherical random effects</em>, often written as <span class="math">\(u\)</span>, are called <code>us</code> and <code>ui</code> respectively.<br />These are matrices that are stored as vectors of vectors.</p>
+<pre class="sourceCode r"><code class="sourceCode r">stanpars &lt;-<span class="st"> '</span>
+<span class="st">parameters {</span>
+<span class="st">  cholesky_factor_corr[J] Ls; // Cholesky factor of subj r.e. correlations</span>
+<span class="st">  cholesky_factor_corr[I] Li; // Cholesky factor of item r.e. correlations</span>
+<span class="st">  vector&lt;lower=0&gt;[J] taus; // standard deviations of unconditional subj r.e. dist</span>
+<span class="st">  vector&lt;lower=0&gt;[I] taui; // standard deviations of unconditional item r.e. dist</span>
+<span class="st">  vector[J] us[M];     // spherical subj random effects</span>
+<span class="st">  vector[I] ui[L];     // spherical item random effects</span>
+<span class="st">  vector[K] beta;      // fixed-effects</span>
+<span class="st">  real&lt;lower=0&gt; sigma; // standard deviation of response given random effects</span>
+<span class="st">}</span>
+
+<span class="st">'</span></code></pre>
+<p>The correlation matrices formed from the Cholesky factors are considered <em>transformed parameters</em></p>
+<pre class="sourceCode r"><code class="sourceCode r">stantrans &lt;-<span class="st"> '</span>
+<span class="st">transformed parameters {</span>
+<span class="st">  matrix[J,J] corrs;</span>
+<span class="st">  matrix[I,I] corri;</span>
+<span class="st">  corrs &lt;- tcrossprod(Ls);  // for monitoring subj correlations</span>
+<span class="st">  corri &lt;- tcrossprod(Li);  // for monitoring item correlations</span>
+<span class="st">}</span>
+
+<span class="st">'</span></code></pre>
+<p>Finally, the model is expressed in terms of square matrices <code>Lambdas</code> and <code>Lambdai</code> that are the Cholesky factors of the covariance matrices for the subject-specific and item-specific random effects, respectively.<br />The <em>prior distributions</em> for the parameters (<code>taus</code>, <code>taui</code>, <code>Ls</code>, <code>Li</code>, <code>us</code>, and <code>ui</code>) are also specified at this point. No prior distribution is provided for <code>beta</code>, implying that this vector has a “flat” or “locally uniform” improper prior distribution.<br />It could be given, say, a diffuse multivariate Gaussian distribution, but doing so has no effect on inferences.</p>
+<pre class="sourceCode r"><code class="sourceCode r">stanmod &lt;-<span class="st"> '</span>
+<span class="st">model {</span>
+<span class="st">  matrix[J,J] Lambdas; </span>
+<span class="st">  vector[J] bs[M];</span>
+<span class="st">  matrix[I,I] Lambdai; </span>
+<span class="st">  vector[I] bi[L];</span>
+<span class="st">  taus ~ cauchy(0,2.5);</span>
+<span class="st">  taui ~ cauchy(0,2.5);</span>
+<span class="st">  Ls ~ lkj_corr_cholesky(2);</span>
+<span class="st">  Li ~ lkj_corr_cholesky(2);</span>
+<span class="st">  Lambdas &lt;- diag_pre_multiply(taus,Ls);</span>
+<span class="st">  Lambdai &lt;- diag_pre_multiply(taui,Li);</span>
+<span class="st">  for (m in 1:M) {</span>
+<span class="st">    us[m] ~ normal(0,1);</span>
+<span class="st">    bs[m] &lt;- Lambdas * us[m];</span>
+<span class="st">  }</span>
+<span class="st">  for (l in 1:L) {</span>
+<span class="st">    ui[l] ~ normal(0,1);</span>
+<span class="st">    bi[l] &lt;- Lambdai * ui[l];</span>
+<span class="st">  }</span>
+<span class="st">  for (n in 1:N)</span>
+<span class="st">    y[n] ~ normal(X[n] * beta + Zs[n] * bs[subj[n]] + Zi[n] * bi[item[n]], sigma);</span>
+<span class="st">}</span>
+
+<span class="st">'</span></code></pre>
+<p>In the last loop the linear predictor for <code>y[n]</code> is evaluated as the sum of three products of <code>row_vector</code>s and <code>vector</code>s. A <code>row_vector</code> multiplied by a <code>vector</code> is a scalar, which is the reason for storing <code>X</code>, <code>Zs</code> and <code>Zi</code> as vectors of <code>row_vector</code>s.</p>
+<p>These pieces are concatenated to form the model</p>
+<pre class="sourceCode r"><code class="sourceCode r">model &lt;-<span class="st"> </span><span class="kw">paste</span>(standat, stanpars, stantrans, stanmod)</code></pre>
+</div>
+<div id="compiling-the-model" class="section level2">
+<h2>Compiling the model</h2>
+<p>The model is compiled via a call to <code>stan</code> that includes the model and the data. The data must be specified as a list or as an environment.</p>
+<p>For the <em>maximal model</em>, <code>X</code>, <code>Zs</code> and <code>Zi</code> are the model matrix for the full factorial</p>
+<pre class="sourceCode r"><code class="sourceCode r">maxdat &lt;-<span class="st"> </span>
+<span class="st">  </span><span class="kw">within</span>(<span class="kw">list</span>(), {
+    N &lt;-<span class="st"> </span><span class="kw">nrow</span>(X)
+    K &lt;-<span class="st"> </span>J &lt;-<span class="st"> </span>I &lt;-<span class="st"> </span><span class="kw">ncol</span>(X)
+    M &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">levels</span>(kb07$subj))
+    L &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">levels</span>(kb07$item))
+    X &lt;-<span class="st"> </span>Zs &lt;-<span class="st"> </span>Zi &lt;-<span class="st"> </span><span class="kw">unname</span>(X)
+    y &lt;-<span class="st"> </span>kb07$RTtrunc
+    subj &lt;-<span class="st"> </span><span class="kw">as.integer</span>(kb07$subj)
+    item &lt;-<span class="st"> </span><span class="kw">as.integer</span>(kb07$item)
+    }
+    )
+<span class="kw">str</span>(maxdat)</code></pre>
+<pre><code>List of 12
+ $ item: int [1:1790] 1 2 3 4 5 6 7 8 9 10 ...
+ $ subj: int [1:1790] 1 1 1 1 1 1 1 1 1 1 ...
+ $ y   : num [1:1790] 2267 3856 1567 1732 2660 ...
+ $ X   : num [1:1790, 1:8] 1 1 1 1 1 1 1 1 1 1 ...
+ $ Zs  : num [1:1790, 1:8] 1 1 1 1 1 1 1 1 1 1 ...
+ $ Zi  : num [1:1790, 1:8] 1 1 1 1 1 1 1 1 1 1 ...
+ $ L   : int 32
+ $ M   : int 56
+ $ K   : int 8
+ $ J   : int 8
+ $ I   : int 8
+ $ N   : int 1790</code></pre>
+<p>Initially we set the number of chains to zero to check that the model compiles properly</p>
+<pre class="sourceCode r"><code class="sourceCode r">maxmodel &lt;-<span class="st"> </span><span class="kw">stan</span>(<span class="dt">model_name=</span><span class="st">&quot;maxmodel&quot;</span>, <span class="dt">model_code=</span>model, <span class="dt">data=</span>maxdat, <span class="dt">chains=</span><span class="dv">0</span>)</code></pre>
+<pre><code>
+TRANSLATING MODEL 'maxmodel' FROM Stan CODE TO C++ CODE NOW.
+COMPILING THE C++ CODE FOR MODEL 'maxmodel' NOW.
+In file included from /home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/agrad/rev.hpp:7:0,
+                 from /home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/model/model_header.hpp:17,
+                 from file93715860c06.cpp:8:
+/home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/agrad/rev/var.hpp:160:25: warning: ISO C++ 1998 does not support ‘long long’ [-Wlong-long]
+       var(unsigned long long n) :
+                         ^
+/home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/agrad/rev/var.hpp:170:16: warning: ISO C++ 1998 does not support ‘long long’ [-Wlong-long]
+       var(long long n) :
+                ^
+In file included from /home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/model/model_header.hpp:21:0,
+                 from file93715860c06.cpp:8:
+/home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/io/dump.hpp:73:42: warning: ISO C++ 1998 does not support ‘long long’ [-Wlong-long]
+       void write_val(const unsigned long long int&amp; n) {
+                                          ^
+/home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/io/dump.hpp:89:33: warning: ISO C++ 1998 does not support ‘long long’ [-Wlong-long]
+       void write_val(const long long&amp; n) {
+                                 ^
+In file included from /home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/error_handling/matrix.hpp:17:0,
+                 from /home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/prob/transform.hpp:21,
+                 from /home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/io/reader.hpp:5,
+                 from /home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/model/model_header.hpp:22,
+                 from file93715860c06.cpp:8:
+/home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/error_handling/matrix/check_pos_semidefinite.hpp: In function ‘bool stan::error_handling::check_pos_semidefinite(const char*, const char*, const Eigen::Matrix&lt;LhsScalar, -1, -1, 0&gt;&amp;)’:
+/home/bates/R/x86_64-unknown-linux-gnu-library/3.1/rstan/include//stansrc/stan/error_handling/matrix/check_pos_semidefinite.hpp:43:71: warning: typedef ‘size_type’ locally defined but not used [-Wunused-local-typedefs]
+       typedef typename index_type&lt;Matrix&lt;T_y,Dynamic,Dynamic&gt; &gt;::type size_type;
+                                                                       ^</code></pre>
+<pre><code>the number of chains is less than 1; sampling not done</code></pre>
+</div>
+<div id="creating-the-chains." class="section level2">
+<h2>Creating the chains.</h2>
+<p>We use <code>mclapply</code> from the <code>parallel</code> package to generate the chains in parallel.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(KB07_stan &lt;-
+<span class="st">  </span><span class="kw">sflist2stanfit</span>(
+    <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dt">mc.cores =</span> <span class="dv">4</span>,    <span class="co"># adjust number of cores to suit </span>
+      function(i) <span class="kw">stan</span>(<span class="dt">fit =</span> maxmodel, 
+                       <span class="dt">data =</span> maxdat,
+                       <span class="dt">iter=</span><span class="dv">2000</span>,
+                       <span class="dt">chains =</span> <span class="dv">1</span>, 
+                       <span class="dt">chain_id =</span> i, 
+                       <span class="dt">refresh =</span> -<span class="dv">1</span>))
+    )
+  )</code></pre>
+<pre><code>    user   system  elapsed 
+1137.727    1.684  447.348 </code></pre>
+<p>We see that the elapsed time is considerably less than the user time. This is because four processes are running in parallel.</p>
+<p>A close examination of the timing shows that much more time is spent in the “warmup” phase than in actually generating samples. Stan defaults to using a form of Hamiltonian Monte Carlo (HMC) sampling called a “No U-Turn Sampler” (NUTS) and it is tuning these samplers that is taking most of the time.</p>
+<pre class="sourceCode r"><code class="sourceCode r">KB07_results&lt;-<span class="st"> </span><span class="kw">summary</span>(KB07_stan,
+                       <span class="dt">pars=</span><span class="kw">c</span>(<span class="st">&quot;beta&quot;</span>, <span class="st">&quot;sigma&quot;</span>,
+                              <span class="st">&quot;taus&quot;</span>,<span class="st">&quot;taui&quot;</span>,
+                              <span class="st">&quot;corrs&quot;</span>,<span class="st">&quot;corri&quot;</span>),
+                       <span class="dt">probs =</span> <span class="kw">c</span>(<span class="fl">0.025</span>,  <span class="fl">0.975</span>), <span class="dt">digits_summary =</span> <span class="dv">3</span>)
+<span class="kw">rownames</span>(KB07_results$summary)</code></pre>
+<pre><code>  [1] &quot;beta[1]&quot;    &quot;beta[2]&quot;    &quot;beta[3]&quot;    &quot;beta[4]&quot;    &quot;beta[5]&quot;    &quot;beta[6]&quot;   
+  [7] &quot;beta[7]&quot;    &quot;beta[8]&quot;    &quot;sigma&quot;      &quot;taus[1]&quot;    &quot;taus[2]&quot;    &quot;taus[3]&quot;   
+ [13] &quot;taus[4]&quot;    &quot;taus[5]&quot;    &quot;taus[6]&quot;    &quot;taus[7]&quot;    &quot;taus[8]&quot;    &quot;taui[1]&quot;   
+ [19] &quot;taui[2]&quot;    &quot;taui[3]&quot;    &quot;taui[4]&quot;    &quot;taui[5]&quot;    &quot;taui[6]&quot;    &quot;taui[7]&quot;   
+ [25] &quot;taui[8]&quot;    &quot;corrs[1,1]&quot; &quot;corrs[1,2]&quot; &quot;corrs[1,3]&quot; &quot;corrs[1,4]&quot; &quot;corrs[1,5]&quot;
+ [31] &quot;corrs[1,6]&quot; &quot;corrs[1,7]&quot; &quot;corrs[1,8]&quot; &quot;corrs[2,1]&quot; &quot;corrs[2,2]&quot; &quot;corrs[2,3]&quot;
+ [37] &quot;corrs[2,4]&quot; &quot;corrs[2,5]&quot; &quot;corrs[2,6]&quot; &quot;corrs[2,7]&quot; &quot;corrs[2,8]&quot; &quot;corrs[3,1]&quot;
+ [43] &quot;corrs[3,2]&quot; &quot;corrs[3,3]&quot; &quot;corrs[3,4]&quot; &quot;corrs[3,5]&quot; &quot;corrs[3,6]&quot; &quot;corrs[3,7]&quot;
+ [49] &quot;corrs[3,8]&quot; &quot;corrs[4,1]&quot; &quot;corrs[4,2]&quot; &quot;corrs[4,3]&quot; &quot;corrs[4,4]&quot; &quot;corrs[4,5]&quot;
+ [55] &quot;corrs[4,6]&quot; &quot;corrs[4,7]&quot; &quot;corrs[4,8]&quot; &quot;corrs[5,1]&quot; &quot;corrs[5,2]&quot; &quot;corrs[5,3]&quot;
+ [61] &quot;corrs[5,4]&quot; &quot;corrs[5,5]&quot; &quot;corrs[5,6]&quot; &quot;corrs[5,7]&quot; &quot;corrs[5,8]&quot; &quot;corrs[6,1]&quot;
+ [67] &quot;corrs[6,2]&quot; &quot;corrs[6,3]&quot; &quot;corrs[6,4]&quot; &quot;corrs[6,5]&quot; &quot;corrs[6,6]&quot; &quot;corrs[6,7]&quot;
+ [73] &quot;corrs[6,8]&quot; &quot;corrs[7,1]&quot; &quot;corrs[7,2]&quot; &quot;corrs[7,3]&quot; &quot;corrs[7,4]&quot; &quot;corrs[7,5]&quot;
+ [79] &quot;corrs[7,6]&quot; &quot;corrs[7,7]&quot; &quot;corrs[7,8]&quot; &quot;corrs[8,1]&quot; &quot;corrs[8,2]&quot; &quot;corrs[8,3]&quot;
+ [85] &quot;corrs[8,4]&quot; &quot;corrs[8,5]&quot; &quot;corrs[8,6]&quot; &quot;corrs[8,7]&quot; &quot;corrs[8,8]&quot; &quot;corri[1,1]&quot;
+ [91] &quot;corri[1,2]&quot; &quot;corri[1,3]&quot; &quot;corri[1,4]&quot; &quot;corri[1,5]&quot; &quot;corri[1,6]&quot; &quot;corri[1,7]&quot;
+ [97] &quot;corri[1,8]&quot; &quot;corri[2,1]&quot; &quot;corri[2,2]&quot; &quot;corri[2,3]&quot; &quot;corri[2,4]&quot; &quot;corri[2,5]&quot;
+[103] &quot;corri[2,6]&quot; &quot;corri[2,7]&quot; &quot;corri[2,8]&quot; &quot;corri[3,1]&quot; &quot;corri[3,2]&quot; &quot;corri[3,3]&quot;
+[109] &quot;corri[3,4]&quot; &quot;corri[3,5]&quot; &quot;corri[3,6]&quot; &quot;corri[3,7]&quot; &quot;corri[3,8]&quot; &quot;corri[4,1]&quot;
+[115] &quot;corri[4,2]&quot; &quot;corri[4,3]&quot; &quot;corri[4,4]&quot; &quot;corri[4,5]&quot; &quot;corri[4,6]&quot; &quot;corri[4,7]&quot;
+[121] &quot;corri[4,8]&quot; &quot;corri[5,1]&quot; &quot;corri[5,2]&quot; &quot;corri[5,3]&quot; &quot;corri[5,4]&quot; &quot;corri[5,5]&quot;
+[127] &quot;corri[5,6]&quot; &quot;corri[5,7]&quot; &quot;corri[5,8]&quot; &quot;corri[6,1]&quot; &quot;corri[6,2]&quot; &quot;corri[6,3]&quot;
+[133] &quot;corri[6,4]&quot; &quot;corri[6,5]&quot; &quot;corri[6,6]&quot; &quot;corri[6,7]&quot; &quot;corri[6,8]&quot; &quot;corri[7,1]&quot;
+[139] &quot;corri[7,2]&quot; &quot;corri[7,3]&quot; &quot;corri[7,4]&quot; &quot;corri[7,5]&quot; &quot;corri[7,6]&quot; &quot;corri[7,7]&quot;
+[145] &quot;corri[7,8]&quot; &quot;corri[8,1]&quot; &quot;corri[8,2]&quot; &quot;corri[8,3]&quot; &quot;corri[8,4]&quot; &quot;corri[8,5]&quot;
+[151] &quot;corri[8,6]&quot; &quot;corri[8,7]&quot; &quot;corri[8,8]&quot;</code></pre>
+<p>Note that all of the correlation matrix elements are monitored even though &gt; ?stan the diagonal elements are, by definition, unity and the matrix must be symmetric. An arduous extraction provides the table</p>
+<!-- html table generated in R 3.1.3 by xtable 1.7-4 package -->
+<!-- Fri Mar 27 14:01:26 2015 -->
+<table border="1">
+<tr>
+<th>
+</th>
+<th>
+mean
+</th>
+<th>
+2.5%
+</th>
+<th>
+97.5%
+</th>
+</tr>
+<tr>
+<td align="right">
+beta[1]
+</td>
+<td align="right">
+2180.68
+</td>
+<td align="right">
+2037.53
+</td>
+<td align="right">
+2325.38
+</td>
+</tr>
+<tr>
+<td align="right">
+beta[2]
+</td>
+<td align="right">
+-67.41
+</td>
+<td align="right">
+-98.86
+</td>
+<td align="right">
+-35.13
+</td>
+</tr>
+<tr>
+<td align="right">
+beta[3]
+</td>
+<td align="right">
+-333.62
+</td>
+<td align="right">
+-426.62
+</td>
+<td align="right">
+-239.76
+</td>
+</tr>
+<tr>
+<td align="right">
+beta[4]
+</td>
+<td align="right">
+78.70
+</td>
+<td align="right">
+45.68
+</td>
+<td align="right">
+111.47
+</td>
+</tr>
+<tr>
+<td align="right">
+beta[5]
+</td>
+<td align="right">
+22.50
+</td>
+<td align="right">
+-10.88
+</td>
+<td align="right">
+55.08
+</td>
+</tr>
+<tr>
+<td align="right">
+beta[6]
+</td>
+<td align="right">
+-19.10
+</td>
+<td align="right">
+-50.28
+</td>
+<td align="right">
+13.01
+</td>
+</tr>
+<tr>
+<td align="right">
+beta[7]
+</td>
+<td align="right">
+5.29
+</td>
+<td align="right">
+-27.68
+</td>
+<td align="right">
+37.18
+</td>
+</tr>
+<tr>
+<td align="right">
+beta[8]
+</td>
+<td align="right">
+-24.08
+</td>
+<td align="right">
+-54.57
+</td>
+<td align="right">
+6.88
+</td>
+</tr>
+<tr>
+<td align="right">
+sigma
+</td>
+<td align="right">
+677.56
+</td>
+<td align="right">
+655.40
+</td>
+<td align="right">
+700.27
+</td>
+</tr>
+<tr>
+<td align="right">
+taus[1]
+</td>
+<td align="right">
+300.68
+</td>
+<td align="right">
+242.08
+</td>
+<td align="right">
+370.53
+</td>
+</tr>
+<tr>
+<td align="right">
+taus[2]
+</td>
+<td align="right">
+6.41
+</td>
+<td align="right">
+0.08
+</td>
+<td align="right">
+41.98
+</td>
+</tr>
+<tr>
+<td align="right">
+taus[3]
+</td>
+<td align="right">
+7.17
+</td>
+<td align="right">
+0.09
+</td>
+<td align="right">
+47.21
+</td>
+</tr>
+<tr>
+<td align="right">
+taus[4]
+</td>
+<td align="right">
+7.76
+</td>
+<td align="right">
+0.11
+</td>
+<td align="right">
+53.65
+</td>
+</tr>
+<tr>
+<td align="right">
+taus[5]
+</td>
+<td align="right">
+8.66
+</td>
+<td align="right">
+0.11
+</td>
+<td align="right">
+64.74
+</td>
+</tr>
+<tr>
+<td align="right">
+taus[6]
+</td>
+<td align="right">
+4.82
+</td>
+<td align="right">
+0.09
+</td>
+<td align="right">
+26.94
+</td>
+</tr>
+<tr>
+<td align="right">
+taus[7]
+</td>
+<td align="right">
+8.19
+</td>
+<td align="right">
+0.09
+</td>
+<td align="right">
+61.28
+</td>
+</tr>
+<tr>
+<td align="right">
+taus[8]
+</td>
+<td align="right">
+5.36
+</td>
+<td align="right">
+0.09
+</td>
+<td align="right">
+30.24
+</td>
+</tr>
+<tr>
+<td align="right">
+taui[1]
+</td>
+<td align="right">
+354.48
+</td>
+<td align="right">
+277.53
+</td>
+<td align="right">
+456.21
+</td>
+</tr>
+<tr>
+<td align="right">
+taui[2]
+</td>
+<td align="right">
+4.87
+</td>
+<td align="right">
+0.09
+</td>
+<td align="right">
+26.21
+</td>
+</tr>
+<tr>
+<td align="right">
+taui[3]
+</td>
+<td align="right">
+244.35
+</td>
+<td align="right">
+183.45
+</td>
+<td align="right">
+325.21
+</td>
+</tr>
+<tr>
+<td align="right">
+taui[4]
+</td>
+<td align="right">
+6.62
+</td>
+<td align="right">
+0.10
+</td>
+<td align="right">
+45.44
+</td>
+</tr>
+<tr>
+<td align="right">
+taui[5]
+</td>
+<td align="right">
+4.15
+</td>
+<td align="right">
+0.10
+</td>
+<td align="right">
+19.83
+</td>
+</tr>
+<tr>
+<td align="right">
+taui[6]
+</td>
+<td align="right">
+5.54
+</td>
+<td align="right">
+0.08
+</td>
+<td align="right">
+33.47
+</td>
+</tr>
+<tr>
+<td align="right">
+taui[7]
+</td>
+<td align="right">
+7.68
+</td>
+<td align="right">
+0.10
+</td>
+<td align="right">
+56.12
+</td>
+</tr>
+<tr>
+<td align="right">
+taui[8]
+</td>
+<td align="right">
+7.26
+</td>
+<td align="right">
+0.12
+</td>
+<td align="right">
+48.62
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[1,2]
+</td>
+<td align="right">
+-0.05
+</td>
+<td align="right">
+-0.61
+</td>
+<td align="right">
+0.55
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[1,3]
+</td>
+<td align="right">
+-0.06
+</td>
+<td align="right">
+-0.62
+</td>
+<td align="right">
+0.52
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[1,4]
+</td>
+<td align="right">
+0.04
+</td>
+<td align="right">
+-0.52
+</td>
+<td align="right">
+0.59
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[1,5]
+</td>
+<td align="right">
+0.02
+</td>
+<td align="right">
+-0.56
+</td>
+<td align="right">
+0.60
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[1,6]
+</td>
+<td align="right">
+0.03
+</td>
+<td align="right">
+-0.52
+</td>
+<td align="right">
+0.60
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[1,7]
+</td>
+<td align="right">
+-0.03
+</td>
+<td align="right">
+-0.59
+</td>
+<td align="right">
+0.55
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[1,8]
+</td>
+<td align="right">
+-0.05
+</td>
+<td align="right">
+-0.63
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[2,3]
+</td>
+<td align="right">
+0.01
+</td>
+<td align="right">
+-0.59
+</td>
+<td align="right">
+0.58
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[2,4]
+</td>
+<td align="right">
+0.00
+</td>
+<td align="right">
+-0.58
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[2,5]
+</td>
+<td align="right">
+-0.00
+</td>
+<td align="right">
+-0.56
+</td>
+<td align="right">
+0.55
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[2,6]
+</td>
+<td align="right">
+-0.01
+</td>
+<td align="right">
+-0.57
+</td>
+<td align="right">
+0.56
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[2,7]
+</td>
+<td align="right">
+-0.00
+</td>
+<td align="right">
+-0.59
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[2,8]
+</td>
+<td align="right">
+0.00
+</td>
+<td align="right">
+-0.57
+</td>
+<td align="right">
+0.59
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[3,4]
+</td>
+<td align="right">
+0.00
+</td>
+<td align="right">
+-0.57
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[3,5]
+</td>
+<td align="right">
+-0.00
+</td>
+<td align="right">
+-0.58
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[3,6]
+</td>
+<td align="right">
+-0.01
+</td>
+<td align="right">
+-0.58
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[3,7]
+</td>
+<td align="right">
+-0.00
+</td>
+<td align="right">
+-0.57
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[3,8]
+</td>
+<td align="right">
+-0.00
+</td>
+<td align="right">
+-0.59
+</td>
+<td align="right">
+0.59
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[4,6]
+</td>
+<td align="right">
+0.01
+</td>
+<td align="right">
+-0.58
+</td>
+<td align="right">
+0.60
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[4,7]
+</td>
+<td align="right">
+-0.01
+</td>
+<td align="right">
+-0.56
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[4,8]
+</td>
+<td align="right">
+-0.00
+</td>
+<td align="right">
+-0.58
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[5,5]
+</td>
+<td align="right">
+1.00
+</td>
+<td align="right">
+1.00
+</td>
+<td align="right">
+1.00
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[5,6]
+</td>
+<td align="right">
+0.01
+</td>
+<td align="right">
+-0.57
+</td>
+<td align="right">
+0.60
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[5,7]
+</td>
+<td align="right">
+-0.00
+</td>
+<td align="right">
+-0.58
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corrs[7,8]
+</td>
+<td align="right">
+-0.01
+</td>
+<td align="right">
+-0.59
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[1,2]
+</td>
+<td align="right">
+-0.03
+</td>
+<td align="right">
+-0.59
+</td>
+<td align="right">
+0.55
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[1,3]
+</td>
+<td align="right">
+-0.52
+</td>
+<td align="right">
+-0.74
+</td>
+<td align="right">
+-0.22
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[1,4]
+</td>
+<td align="right">
+0.03
+</td>
+<td align="right">
+-0.55
+</td>
+<td align="right">
+0.60
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[1,5]
+</td>
+<td align="right">
+0.02
+</td>
+<td align="right">
+-0.56
+</td>
+<td align="right">
+0.58
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[1,6]
+</td>
+<td align="right">
+0.01
+</td>
+<td align="right">
+-0.57
+</td>
+<td align="right">
+0.59
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[1,7]
+</td>
+<td align="right">
+0.01
+</td>
+<td align="right">
+-0.55
+</td>
+<td align="right">
+0.56
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[1,8]
+</td>
+<td align="right">
+0.02
+</td>
+<td align="right">
+-0.54
+</td>
+<td align="right">
+0.58
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[2,3]
+</td>
+<td align="right">
+-0.01
+</td>
+<td align="right">
+-0.57
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[2,4]
+</td>
+<td align="right">
+0.00
+</td>
+<td align="right">
+-0.58
+</td>
+<td align="right">
+0.59
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[2,5]
+</td>
+<td align="right">
+-0.00
+</td>
+<td align="right">
+-0.59
+</td>
+<td align="right">
+0.56
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[2,6]
+</td>
+<td align="right">
+0.01
+</td>
+<td align="right">
+-0.58
+</td>
+<td align="right">
+0.57
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[2,7]
+</td>
+<td align="right">
+0.00
+</td>
+<td align="right">
+-0.60
+</td>
+<td align="right">
+0.60
+</td>
+</tr>
+<tr>
+<td align="right">
+corri[2,8]
+</td>
+<td align="right">
+0.00
+</td>
+<td align="right">
+-0.56
+</td>
+<td align="right">
+0.56
+</td>
+</tr>
+</table>
+<p>Note that most of the correlations, especially those for the item-specific random effects, have a mean close to zero and upper and lower limits that are more-or-less symmetric. This is strong evidence that these could be zero.</p>
+<p>Because of the way the priors are defined the <code>taus</code> and <code>taui</code> values cannot become zero. However, many of these values are very close to zero. The only standard deviations that are substantion are the by-subject intercept and the by-item intercept and coefficient for <code>P</code>.</p>
+</div>
+<div id="reduced-model" class="section level2">
+<h2>Reduced model</h2>
+<p>The final, reduced model has a single column (the intercept) in <code>Zs</code> and two columns (intercept and main-effect for <code>P</code>) in <code>Zi</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">finaldat &lt;-<span class="st"> </span>
+<span class="st">  </span><span class="kw">within</span>(<span class="kw">list</span>(), {
+    N &lt;-<span class="st"> </span><span class="kw">nrow</span>(X)
+    K &lt;-<span class="st"> </span><span class="kw">ncol</span>(X)
+    J &lt;-<span class="st"> </span>1L
+    I &lt;-<span class="st"> </span>2L
+    M &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">levels</span>(kb07$subj))
+    L &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">levels</span>(kb07$item))
+    X &lt;-<span class="st"> </span>X
+    Zs &lt;-<span class="st"> </span>X[, <span class="dv">1</span>, drop=<span class="ot">FALSE</span>]
+    Zi &lt;-<span class="st"> </span>X[, <span class="dv">1</span>:<span class="dv">2</span>]
+    y &lt;-<span class="st"> </span>kb07$RTtrunc
+    subj &lt;-<span class="st"> </span><span class="kw">as.integer</span>(kb07$subj)
+    item &lt;-<span class="st"> </span><span class="kw">as.integer</span>(kb07$item)
+    }
+    )
+<span class="kw">str</span>(finaldat)</code></pre>
+<pre><code>List of 12
+ $ item: int [1:1790] 1 2 3 4 5 6 7 8 9 10 ...
+ $ subj: int [1:1790] 1 1 1 1 1 1 1 1 1 1 ...
+ $ y   : num [1:1790] 2267 3856 1567 1732 2660 ...
+ $ Zi  : num [1:1790, 1:2] 1 1 1 1 1 1 1 1 1 1 ...
+ $ Zs  : num [1:1790, 1] 1 1 1 1 1 1 1 1 1 1 ...
+ $ X   : num [1:1790, 1:8] 1 1 1 1 1 1 1 1 1 1 ...
+ $ L   : int 32
+ $ M   : int 56
+ $ I   : int 2
+ $ J   : int 1
+ $ K   : int 8
+ $ N   : int 1790</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(KB07_finalstan &lt;-
+<span class="st">  </span><span class="kw">sflist2stanfit</span>(
+    <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dt">mc.cores =</span> <span class="dv">4</span>,    <span class="co"># adjust number of cores to suit </span>
+      function(i) <span class="kw">stan</span>(<span class="dt">fit =</span> maxmodel, 
+                       <span class="dt">data =</span> finaldat,
+                       <span class="dt">iter=</span><span class="dv">2000</span>,
+                       <span class="dt">chains =</span> <span class="dv">1</span>, 
+                       <span class="dt">chain_id =</span> i, 
+                       <span class="dt">refresh =</span> -<span class="dv">1</span>))
+    )
+  )</code></pre>
+<pre><code>    user   system  elapsed 
+1187.288    1.432  337.041 </code></pre>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
