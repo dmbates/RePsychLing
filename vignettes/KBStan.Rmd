@@ -29,14 +29,12 @@ The data from @Kronmuller:Barr:2007 is available as the `kb07` data frame in the
 str(kb07)
 ```
 
-As is common with factorial designs the experimental factors and their interactions are given
-short names: a single character (`S`,`P`,`C`) for the main effects, two-character names for the two-factor
-interactions and a three-character name for the three-factor interaction.
+As is common with factorial designs the experimental factors and their interactions are given short names: a single character (`S`,`P`,`C`) for the main effects, two-character names for the two-factor interactions and a three-character name for the three-factor interaction.
 
 The data are from 56 subjects who responded to 32 iterms.  Specifically, subjects had to select one of several objects presented on a monitor with a cursor. The manipulations involved 
 
 1. auditory instructions that maintained or broke a precedent of reference for the objects established over prior trials, (`P`) 
-2. with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker (`S`) a
+2. with the instruction being presented by the speaker who established the precedent (i.e., an old speaker) or a new speaker (`S`), and
 3. whether the task had to be performed without or with a cognitive load consisting of six random digits. (`C`) 
 
 All factors were expressed using a `±1` encoding which ensures that the scale of the interactions is the same as the
@@ -51,13 +49,118 @@ have the same length and are nearly orthogonal.
 crossprod(X)   # X'X
 ```
 
-The response, `RTtrunc`, is the reaction time after truncating some unusually large values.
+The response, `RTtrunc`, is the reaction time after truncating some unusually large values. The minimum value is 336 and the maximum 5144 ms.
 
-## Formulating the Stan model
+```{r rtsummary}
+summary(kb07$RTtrunc)
+hist(kb07$RTtrunc,freq=FALSE,
+     main="Distribution of RTtrunc values")
+```
 
-[Stan](http://mc-stan.org) is a system for creating Markov Chain Monte Carlo (MCMC) samplers for statistical models.
+## The details of the linear mixed models
+
+We fit two models, the maximal model, and the final model that was settled on in the accompanying paper [@BatesEtAlParsimonious].
+
+### Maximal model
+
+The model in matrix form is:
+
+$$\mathrm{y} = 
+X\beta + Z_s b_s + Z_i b_i + \epsilon$$
+
+Here, $X$ is the N\times p$  model matrix (p=8 since we have eight predictors, including the intercept), $\beta$ is a $p\times 1$ vector of fixed effects parameters, $Z_s$ and $Z_i$ are the subject and item model matrices ($N\times p$), and $b_s$ and $b_i$ are the by-subject and by-item adjustments to the fixed effects estimates; these are often referred to as the Best Linear Unbiased Predictors (BLUPs) in the linear mixed modeling literature.  $\epsilon$ refers to the residual error.
+
+We assume that $\epsilon \sim N(0,\sigma^2)$, and that $b_s \sim N(0,\Lambda_s)$, and  
+$b_i \sim N(0,\Lambda_i)$; these three terms are assumed to be mutually independent. 
+$\Lambda_s$ and $\Lambda_i$ are $8\times 8$ variance-covariance matrices for subject and item respectively; the diagonals have the variance estimates for each predictor, and the off-diagonals have the respective pairwise covariances. For example, a $2\times 2$ variance covariance matrix would have the form
+
+$$
+\Sigma_u = 
+\left[ \begin{array}{cc}
+\sigma_1^2 & \rho_{12} \, \sigma_{1} \sigma_{2}  \\
+\rho_{12} \, \sigma_{1} \sigma_{2} & \sigma_{2}^2
+\end{array} \right]
+$$
+
+Here, $\rho_{12} \, \sigma_{1} \sigma_{2}$ is the Covariance, and the correlation between the two random variables is $\rho_{12}$. Notice that we can construct a $2\times 2$ correlation matrix for the above covariance matrix as shown below. This becomes relevant in the next subsection on prior specificiation.
+
+$$ 
+\left[ \begin{array}{cc}
+1 & \rho_{12}  \\
+\rho_{12}  & 1
+\end{array} \right]
+$$
+
+In a Bayesian analysis, we have to specify a prior distribution for each parameter. We discuss this point next.
+
+### Prior specification
+
+The parameters in the maximal model are:  eight $\beta$ coefficients, the variance of the residual error $\sigma^2$, eight variance components for subject, another eight for item, and 28 subject and 28 item correlations.    
+
+We define the following priors:
+
+1. $\beta$ have a flat uniform improper prior.
+2. $\tau_s \sim Cauchy(0,2.5)$ 
+3. $\tau_i \sim Cauchy(0,2.5)$ 
+4. $\sigma$ has a uniform prior distribution with a lower bound of 0.
+4. The prior on correlation matrices corr$_s$ and corr$L_i$ for subject and item variance-covariance matrices needs some explanation.
+First, note that a correlation matrix can be decomposed into something analogous to a square root of a matrix, using the Cholesky decomposition. For example, given a matrix like
+
+```{r choldecompexample}
+C<-matrix(c(1,.1,.5,.1,1,-.3,.5,-.3,1),
+                byrow=TRUE,ncol=3)              
+```
+
+We can decompose this matrix as follows:
+
+```{r choldecompexample2}
+L<-chol(C)
+```
+
+This decomposition gives a kind of square root of the matrix: we can recover the correlation matrix by squaring $L$:
+
+```{r choldecompexample2}
+## Gives back original matrix C:
+t(L)%*%L
+```
+
+In Stan, we define priors on $L$, the Cholesky decomposition of the correlation matrix, using 
+ the so-called LKJ priors, with parameter $\eta=2$ (see Stan manual for details). Once we have a prior on $L$, we can (a) compute the posterior estimates of the correlation matrix, and (b) generate the adjustments (BLUPs) $b_s$ and $b_i$ shown in the equation above. The procedure for generating 
+$b_s$ is: (i) premultiply the diagonalized by-subject variance vector $\tau_s$ with the Cholesky decomposition $L$ to get a matrix $\Lambda_s$, 
+(ii) generate random variable $u_s$ from the N(0,1) distribution, and (iii) multiply $\Lambda_s$ with $u_s$ to obtain the correlated random variables. As an illustration, consider the simple case where we have two random variables, which implies two variance components. Let the correlation between the random variables be $-0.6$.  We can generate five pairs of $b_s$ values as follows:
+
+```
+## given two variance components:
+sigmas<-c(1,10)
+## and a correlation of -0.6:
+corrs<-c(1,-.6)
+(C<-matrix(c(corrs,corrs[c(2,1)]),
+ncol=2,byrow=T))
+## Cholesky decomposition:
+L<-chol(C)
+
+## generate 5 pairs of random variables:
+z<-rnorm(2*5)
+z<-matrix(z,ncol=2)
+
+## generate correlated rv's:
+sigmas<-sigmas*diag(2)
+Lambda<-sigmas%*%L%
+b_s<-Lambda*%t(z)
+## check that the random variables are 
+## correlated:
+cor(t(b_s))
+```
+
+We now turn to the implementation details of the Stan model.
+
+## Formulating the maximal Stan model
+
+[Stan](http://mc-stan.org) is a system for creating Markov Chain Monte Carlo (MCMC) samplers for statistical models [@stan-manual:2014].
 
 In the model specification the data, including dimensions of arrays, are described first.
+Consistent with lme4 terminology, we will use the terms fixed effect and random effect, although note that in the Bayesian setting this distinction disappears (this is discussed below).
+
 ```{r standat}
 standat <- '
 data {
@@ -74,29 +177,29 @@ data {
   row_vector[I] Zi[N]; // generator model matrix for item random effects 
   vector[N]     y; // response vector (reaction time)
 }
-
 '
 ```
-The response vector, `y`, is expressed as a vector of `N` elements.  
-The integer vectors `subj` and `item` are the indicators of subject and of item for each response.
+The response vector, `y`, is expressed as a vector of `N` elements. The integer vectors `subj` and `item` are the indicators of subject and of item for each response.
 
 The fixed-effects model matrix, `X`, the subject-specific random effects model matrix, `Zs`,
 and the item-specific random effects model matrix, `Zi`, are stored as vectors of `N` `row_vector`'s.
-The reason for storing the model matrices like this is to provide fast access to individual rows when
-formulating the model.
+The reason for storing the model matrices like this is to provide fast access to individual rows when formulating the model.
 
-For generality the number of columns in these matrices is specified separately as `K`, `J` and `I`.
-For the _maximal model_ these will all be eight.  The numbers of subjects and items are `M` and `L`, respectively.
+For generality the number of columns in these matrices is specified separately as `K` (number of fixed effects), `J` (number of subject random effects) and `I` (number of item random effects). For the _maximal model_ these will all be eight.  The numbers of subjects and items are `M` and `L`, respectively.
 
 ## Model parameters
 
 In a Bayesian formulation all the random variables are considered _model parameters_; there is no distinction
-between the random effects and the fixed-effects coefficients.  The covariance matrices for the within-subject
+between the random effects and the fixed-effects coefficients.  As discussed above, the covariance matrices for the within-subject
 and within-item random effects are specified according to the Cholesky factor of the correlation matrix,
 a `cholesky_factor_corr` type and the standard deviations, which are called `taus` and `taui`, respectively.
 
-The _spherical random effects_, often written as $u$, are called `us` and `ui` respectively.  
+
+The _spherical random effects_, often written as $u$, are called `us` and `ui` respectively.   
 These are matrices that are stored as vectors of vectors.
+
+(A note regarding the phrase "spherical random effect":
+The unconditional distribution of the random variable U is multivariate normal with mean 0 and covariance matrix σ²I.  Because the contours of constant probability density of such a distribution are spheres centered at the origin, it is called a "spherical normal" distribution and so we call U the "spherical random effects".)
 
 ```{r stanpars}
 stanpars <- '
@@ -132,8 +235,7 @@ the Cholesky factors of the covariance matrices for the subject-specific and ite
 random effects, respectively.  
 The _prior distributions_ for the parameters (`taus`, `taui`, `Ls`, `Li`, `us`, and `ui`) are
 also specified at this point.
-No prior distribution is provided for `beta`, implying that this vector has a "flat" or "locally uniform"
-improper prior distribution.  
+No prior distribution is provided for `beta`, implying that this vector has a "flat" or "locally uniform" improper prior distribution.  
 It could be given, say, a diffuse multivariate Gaussian distribution, but doing so has no effect on inferences.
 
 ```{r model}
@@ -164,8 +266,7 @@ model {
 '
 ```
 In the last loop the linear predictor for `y[n]` is evaluated as the sum of three products of
-`row_vector`s and `vector`s.  A `row_vector` multiplied by a `vector` is a scalar, which is the reason
-for storing `X`, `Zs` and `Zi` as vectors of `row_vector`s.
+`row_vector`s and `vector`s.  A `row_vector` multiplied by a `vector` is a scalar, which is the reason for storing `X`, `Zs` and `Zi` as vectors of `row_vector`s.
 
 These pieces are concatenated to form the model
 ```{r}
@@ -177,7 +278,8 @@ model <- paste(standat, stanpars, stantrans, stanmod)
 The model is compiled via a call to `stan` that includes the model and the data.
 The data must be specified as a list or as an environment.
 
-For the _maximal model_, `X`, `Zs` and `Zi` are the model matrix for the full factorial
+For the _maximal model_, `X`, `Zs` and `Zi` are the model matrix for the full factorial design.
+
 ```{r maxdat}
 maxdat <- 
   within(list(), {
@@ -194,7 +296,8 @@ maxdat <-
 str(maxdat)
 ```
 
-Initially we set the number of chains to zero to check that the model compiles properly
+Initially, we set the number of chains to zero to check that the model compiles properly.
+
 ```{r maxmodel}
 maxmodel <- stan(model_name="maxmodel", model_code=model, data=maxdat, chains=0)
 ```
@@ -202,6 +305,7 @@ maxmodel <- stan(model_name="maxmodel", model_code=model, data=maxdat, chains=0)
 ## Creating the chains.
 
 We use `mclapply` from the `parallel` package to generate the chains in parallel.
+
 ```{r KB07_stan,cache=TRUE}
 system.time(KB07_stan <-
   sflist2stanfit(
@@ -215,11 +319,10 @@ system.time(KB07_stan <-
     )
   )
 ```
+
 We see that the elapsed time is considerably less than the user time.  This is because four processes are running in parallel.
 
-
 A close examination of the timing shows that much more time is spent in the "warmup" phase than in actually generating samples.  Stan defaults to using a form of Hamiltonian Monte Carlo (HMC) sampling called a "No U-Turn Sampler" (NUTS) and it is tuning these samplers that is taking most of the time.
-
 
 ```{r KB07_results,cache=FALSE}
 KB07_results<- summary(KB07_stan,
@@ -229,8 +332,8 @@ KB07_results<- summary(KB07_stan,
                        probs = c(0.025,  0.975), digits_summary = 3)
 rownames(KB07_results$summary)
 ```
-Note that all of the correlation matrix elements are monitored even though
-> ?stan the diagonal
+
+Note that all of the correlation matrix elements are monitored even though the diagonal
 elements are, by definition, unity and the matrix must be symmetric.  An arduous extraction provides the table
 
 ```{r printmaxmodel,echo=FALSE,eval=TRUE,cache=FALSE,results="asis"}
@@ -241,9 +344,22 @@ Note that most of the correlations, especially those for the item-specific rando
 
 Because of the way the priors are defined the `taus` and `taui` values cannot become zero.  However, many of these values are very close to zero.  The only standard deviations that are substantion are the by-subject intercept and the by-item intercept and coefficient for `P`.
 
-## Reduced model
+Next, we visualize the posterior distributions of the parameters.
+
+```{r maximalfigure}
+maxres<-KB07_results$summary[c(1:25,27:33,36:41,45:49,55:57,62:64,81,91:97,100:105),c(1,4,5)]
+
+stanfixefmax<-maxres[1:8,]
+stanvarcompmax<-maxres[c(9,10:25),]
+stanvarcorrsmax<-maxres[c(26:50),]
+stanvarcorrimax<-maxres[c(51:63),]
+```
+
+
+## Final model
 
 The final, reduced model has a single column (the intercept) in `Zs` and two columns (intercept and main-effect for `P`) in `Zi`.
+
 ```{r datreduced}
 finaldat <- 
   within(list(), {
