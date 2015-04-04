@@ -344,9 +344,8 @@ Note that most of the correlations, especially those for the item-specific rando
 
 Because of the way the priors are defined the `taus` and `taui` values cannot become zero.  However, many of these values are very close to zero.  The only standard deviations that are substantion are the by-subject intercept and the by-item intercept and coefficient for `P`.
 
-Next, we visualize the posterior distributions of the parameters.
 
-```{r maximalfigure}
+```{r maximalfigure, echo=FALSE, eval=FALSE}
 maxres<-KB07_results$summary[c(1:25,27:33,36:41,45:49,55:57,62:64,81,91:97,100:105),c(1,4,5)]
 
 stanfixefmax<-maxres[1:8,]
@@ -359,6 +358,8 @@ stanvarcorrimax<-maxres[c(51:63),]
 ## Final model
 
 The final, reduced model has a single column (the intercept) in `Zs` and two columns (intercept and main-effect for `P`) in `Zi`.
+
+Notice that the model specification is the same as the one used above for the maximal model. The only thing that has changed is the specification in the data of the different variables. In particular, notice that J and L have changed to reflect the number of subject and item random effects, respectively, and the Zs and Zi matrices are reduced versions of the original matrices used in the maximal model above. 
 
 ```{r datreduced}
 finaldat <- 
