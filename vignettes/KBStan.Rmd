@@ -24,7 +24,8 @@ options(width=92,
 ## Structure of the data
 
 The data from @Kronmuller:Barr:2007 is available as the `kb07` data frame in the
-[RePsychLing package](https://github.com/dmbates/RePsychLing) for [R](http://www.r-project.org)
+[RePsychLing package](https://github.com/dmbates/RePsychLing) for [R](http://www.r-project.org).
+
 ```{r kb07str}
 str(kb07)
 ```
@@ -53,13 +54,13 @@ The response, `RTtrunc`, is the reaction time after truncating some unusually la
 
 ```{r rtsummary}
 summary(kb07$RTtrunc)
-hist(kb07$RTtrunc,freq=FALSE,
-     main="Distribution of RTtrunc values")
+hist(kb07$RTtrunc,freq=FALSE,xlab="msec",
+     main="Distribution of RTtrunc")
 ```
 
-## The details of the linear mixed models
+## Details of the linear mixed models
 
-We fit two models, the maximal model, and the final model that was settled on in the accompanying paper [@BatesEtAlParsimonious].
+We fit two models, the maximal model, and the final model that was settled on in the accompanying paper [@BatesEtAlParsimonious]. We attempt to provide more detail than usual in order to help researchers unfamiliar with the matrix notation of linear mixed models; for a more simplified introduction to fitting LMMs in Stan, please see the tutorial article @SorensenVasishth. 
 
 ### Maximal model
 
@@ -68,11 +69,11 @@ The model in matrix form is:
 $$\mathrm{y} = 
 X\beta + Z_s b_s + Z_i b_i + \epsilon$$
 
-Here, $X$ is the N\times p$  model matrix (p=8 since we have eight predictors, including the intercept), $\beta$ is a $p\times 1$ vector of fixed effects parameters, $Z_s$ and $Z_i$ are the subject and item model matrices ($N\times p$), and $b_s$ and $b_i$ are the by-subject and by-item adjustments to the fixed effects estimates; these are often referred to as the Best Linear Unbiased Predictors (BLUPs) in the linear mixed modeling literature.  $\epsilon$ refers to the residual error.
+Here, $X$ is the $N\times p$  model matrix (p=8 since we have eight predictors, including the intercept), $\beta$ is a $p\times 1$ vector of fixed effects parameters, $Z_s$ and $Z_i$ are the subject and item model matrices ($N\times p$), and $b_s$ and $b_i$ are the by-subject and by-item adjustments to the fixed effects estimates; these are often referred to as the Best Linear Unbiased Predictors (BLUPs) in the linear mixed modeling literature.  $\epsilon$ refers to the residual error ($N\times 1$).
 
-We assume that $\epsilon \sim N(0,\sigma^2)$, and that $b_s \sim N(0,\Lambda_s)$, and  
-$b_i \sim N(0,\Lambda_i)$; these three terms are assumed to be mutually independent. 
-$\Lambda_s$ and $\Lambda_i$ are $8\times 8$ variance-covariance matrices for subject and item respectively; the diagonals have the variance estimates for each predictor, and the off-diagonals have the respective pairwise covariances. For example, a $2\times 2$ variance covariance matrix would have the form
+We assume that $\epsilon \sim N(0,\sigma^2)$, and that $b_s \sim N(0,\Sigma_s)$, and  
+$b_i \sim N(0,\Sigma_i)$. These are assumed to be mutually independent. 
+$\Sigma_s$ and $\Sigma_i$ are $8\times 8$ variance-covariance matrices for subject and item random effects respectively; the diagonals have the variance estimates for each predictor, and the off-diagonals have the respective pairwise covariances. For example, a $2\times 2$ variance covariance matrix for two random variables $X_1$ and $X_2$ would have the form
 
 $$
 \Sigma_u = 
@@ -82,7 +83,7 @@ $$
 \end{array} \right]
 $$
 
-Here, $\rho_{12} \, \sigma_{1} \sigma_{2}$ is the Covariance, and the correlation between the two random variables is $\rho_{12}$. Notice that we can construct a $2\times 2$ correlation matrix for the above covariance matrix as shown below. This becomes relevant in the next subsection on prior specificiation.
+Here, $\rho_{12} \, \sigma_{1} \sigma_{2}$ is the covariance $Cov(X_1,X_2)$, and $\rho_{12}$ is the correlation between the two random variables. Notice that we can construct a $2\times 2$ __correlation matrix__ for the above covariance matrix as shown below; the diagonals will always have 1's in them as a random variable is perfectly correlated with itself. This becomes relevant in the next subsection on prior specificiation.
 
 $$ 
 \left[ \begin{array}{cc}
@@ -93,7 +94,7 @@ $$
 
 In a Bayesian analysis, we have to specify a prior distribution for each parameter. We discuss this point next.
 
-### Prior specification
+#### Prior specification
 
 The parameters in the maximal model are:  eight $\beta$ coefficients, the variance of the residual error $\sigma^2$, eight variance components for subject, another eight for item, and 28 subject and 28 item correlations.    
 
@@ -103,58 +104,69 @@ We define the following priors:
 2. $\tau_s \sim Cauchy(0,2.5)$ 
 3. $\tau_i \sim Cauchy(0,2.5)$ 
 4. $\sigma$ has a uniform prior distribution with a lower bound of 0.
-4. The prior on correlation matrices corr$_s$ and corr$L_i$ for subject and item variance-covariance matrices needs some explanation.
+4. The prior for the correlations needs some explanation.
 First, note that a correlation matrix can be decomposed into something analogous to a square root of a matrix, using the Cholesky decomposition. For example, given a matrix like
 
 ```{r choldecompexample}
 C<-matrix(c(1,.1,.5,.1,1,-.3,.5,-.3,1),
-                byrow=TRUE,ncol=3)              
+                byrow=TRUE,ncol=3)
+C
 ```
 
 We can decompose this matrix as follows:
 
 ```{r choldecompexample2}
 L<-chol(C)
+L
 ```
 
 This decomposition gives a kind of square root of the matrix: we can recover the correlation matrix by squaring $L$:
 
-```{r choldecompexample2}
+```{r choldecompexample3}
 ## Gives back original matrix C:
 t(L)%*%L
 ```
 
-In Stan, we define priors on $L$, the Cholesky decomposition of the correlation matrix, using 
- the so-called LKJ priors, with parameter $\eta=2$ (see Stan manual for details). Once we have a prior on $L$, we can (a) compute the posterior estimates of the correlation matrix, and (b) generate the adjustments (BLUPs) $b_s$ and $b_i$ shown in the equation above. The procedure for generating 
-$b_s$ is: (i) premultiply the diagonalized by-subject variance vector $\tau_s$ with the Cholesky decomposition $L$ to get a matrix $\Lambda_s$, 
-(ii) generate random variable $u_s$ from the N(0,1) distribution, and (iii) multiply $\Lambda_s$ with $u_s$ to obtain the correlated random variables. As an illustration, consider the simple case where we have two random variables, which implies two variance components. Let the correlation between the random variables be $-0.6$.  We can generate five pairs of $b_s$ values as follows:
+In Stan, we define priors on $L$, the Cholesky decomposition of the correlation matrix, using the so-called LKJ priors, with parameter $\eta=2$ (see the Stan manual for details). Once we have a prior on $L$, we can (a) compute the posterior estimates of the correlation matrix, and (b) generate the adjustments (BLUPs) $b_s$ and $b_i$ shown in the equation above. 
 
-```
+The procedure for generating$b_s$ is: 
+
+1. Premultiply the diagonalized by-subject variance vector $\tau_s$ with the Cholesky decomposition $L$ to get a matrix $\Lambda_s$.
+2. Generate values from a random variable $u_s$ that has a N(0,1) distribution.
+
+3. Multiply $\Lambda_s$ with $u_s$ to obtain the correlated random variables $b_s$. The procedure for generating $b_i$ is analogous. 
+
+As an illustration of how this procedure works, consider the simple case where we have two random variables, which implies two variance components. Let the correlation between the random variables be $-0.6$.  We can generate five pairs of correlated $b_s$ values as follows:
+
+```{r examplegenerationofcorrelatedRVs}
 ## given two variance components:
 sigmas<-c(1,10)
 ## and a correlation of -0.6:
 corrs<-c(1,-.6)
-(C<-matrix(c(corrs,corrs[c(2,1)]),
-ncol=2,byrow=T))
+C<-matrix(c(corrs,corrs[c(2,1)]),
+ncol=2,byrow=T)
+C
 ## Cholesky decomposition:
 L<-chol(C)
-
-## generate 5 pairs of random variables:
+L
+## generate 5 pairs of N(0,1) random variables:
 z<-rnorm(2*5)
 z<-matrix(z,ncol=2)
-
-## generate correlated rv's:
+t(z)
+## generate correlated random variables:
 sigmas<-sigmas*diag(2)
-Lambda<-sigmas%*%L%
-b_s<-Lambda*%t(z)
-## check that the random variables are 
-## correlated:
+Lambda<-sigmas%*%L
+b_s<-Lambda%*%t(z)
+b_s
+## check that the random variables have
+## the expected correlation:
 cor(t(b_s))
 ```
 
+This completes the explanation for how priors are defined.
 We now turn to the implementation details of the Stan model.
 
-## Formulating the maximal Stan model
+### Formulating the maximal Stan model
 
 [Stan](http://mc-stan.org) is a system for creating Markov Chain Monte Carlo (MCMC) samplers for statistical models [@stan-manual:2014].
 
