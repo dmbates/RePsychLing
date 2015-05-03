@@ -211,7 +211,7 @@ The _spherical random effects_, often written as $u$, are called `us` and `ui` r
 These are matrices that are stored as vectors of vectors.
 
 (A note regarding the phrase "spherical random effect":
-The unconditional distribution of the random variable U is multivariate normal with mean 0 and covariance matrix σ²I.  Because the contours of constant probability density of such a distribution are spheres centered at the origin, it is called a "spherical normal" distribution and so we call U the "spherical random effects".)
+The unconditional distribution of the random variable U is multivariate normal with mean 0 and covariance matrix $\sigma^2I$.  Because the contours of constant probability density of such a distribution are spheres centered at the origin, it is called a "spherical normal" distribution and so we call U the "spherical random effects".)
 
 ```{r stanpars}
 stanpars <- '
