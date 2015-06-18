@@ -27,6 +27,6 @@ rePCA.merMod <- function(x) {
               class="prcomplist")
 }
 #' @export
-summary.prcomplist <- function(l) {
-    lapply(l,summary)
+summary.prcomplist <- function(object,...) {
+    lapply(object,summary)
 }
