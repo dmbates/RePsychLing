@@ -1,12 +1,11 @@
 Package: RePsychLing
 Version: 0.0.4
-Date: 2015-06-20
+Date: 2015-11-13
 Title: Data sets from Psychology and Linguistics experiments
-Authors@R: c(person("Harald", "Baayen", role="aut"),
-    person("Douglas","Bates", role="aut"),
-    person("Reinhold","Kliegl", role="aut"),
-    person("Shravan", "Vasishth", role=c("aut","cre"), 
-           email="vasishth@uni-potsdam.de"))
+Authors@R: c(person("Harald", "Baayen", role=c("aut","cre"),email="harald.baayen@uni-tuebingen.de"),
+    person("Douglas","Bates", role="aut",email="bates@stat.wisc.edu"),
+    person("Reinhold","Kliegl", role="aut",email="kliegl@uni-potsdam.de"),
+    person("Shravan", "Vasishth", role="aut",email="vasishth@uni-potsdam.de"))
 Description: Data sets from Psychology and Linguistics experiments.
     Vignettes in this package illustrate model building with linear
     mixed-effects models for such data.
