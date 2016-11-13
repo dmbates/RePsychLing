@@ -11,6 +11,6 @@
 %\source{}
 %\references{}
 \examples{
-str(gb)
+str(gb12)
 }
 \keyword{datasets}
