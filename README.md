@@ -5,7 +5,7 @@ RePsychLing is not available on CRAN. To install the package from GitHub, first 
 
 	devtools::install_github("dmbates/RePsychLing") in R.
 
-For background read:
+Background reading:
 
    - Bates, D., Kliegl, R., Vasishth, S., & Baayen, H. (2015). Parsimonious mixed models. arXiv preprint arXiv:1506.04967. [download](https://arxiv.org/pdf/1506.04967.pdf)
    - Matuschek, H., Kliegl, R., Vasishth, S., Baayen, H., & Bates, D. (2015). Balancing type I error and power in linear mixed models. arXiv preprint arXiv:1511.01864. Journal of Memory and Language, accepted pending minor revisions. [download](https://arxiv.org/pdf/1511.01864.pdf)
